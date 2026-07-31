@@ -4,202 +4,327 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Audio Habitat — iDs Music Hub</title>
-<meta name="description" content="Audio Habitat — Drum &amp; Bass Produzenten bei iDs Music Hub. Musik hören auf Spotify &amp; Apple Music.">
+<meta name="description" content="Audio Habitat — Drum &amp; Bass Produzenten bei iDs Music Hub. Musik hören, Tracks kaufen, Booking &amp; Kollaborationen.">
 <link rel="icon" href="assets/ids-music-hub-logo-web.jpg">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<header class="topbar">
-  <a class="topbar__brand" href="impressum.html">
-    <img src="assets/ids-music-hub-logo-web.jpg" alt="iDs Music Hub Logo">
-    <span>iDs Music Hub</span>
-  </a>
-  <div class="lang-toggle" id="langToggle">
-    <button type="button" data-set-lang="de">DE</button>
-    <button type="button" data-set-lang="en">EN</button>
+<nav class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="nav__brand" href="impressum.html">
+      <img src="assets/ids-music-hub-logo-web.jpg" alt="">
+      <span>iDs Music Hub</span>
+    </a>
+    <div class="nav__right">
+      <div class="nav__links">
+        <a href="#featured" class="nav__now"><span data-lang="de">Jetzt läuft</span><span data-lang="en">Now Playing</span><span class="nav__live-dot" id="navLiveDot" aria-hidden="true"></span></a>
+        <a href="#discography"><span data-lang="de">Musik</span><span data-lang="en">Music</span></a>
+        <a href="#archive"><span data-lang="de">Archiv</span><span data-lang="en">Archive</span></a>
+        <a href="#contact"><span data-lang="de">Kontakt</span><span data-lang="en">Contact</span></a>
+      </div>
+      <div class="lang-toggle" id="langToggle">
+        <button type="button" data-set-lang="de">DE</button>
+        <button type="button" data-set-lang="en">EN</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <img class="hero__bg" src="assets/beach-hero-bg-branded.jpg" alt="">
+  <div class="hero__sun" id="heroSun" aria-hidden="true"></div>
+  <div class="hero__scrim"></div>
+  <div class="hero__fade"></div>
+  <div class="hero__content">
+    <p class="hero__eyebrow">
+      <span data-lang="de"><span class="hero__eyebrow-main">iDs Music Hub</span><span class="hero__eyebrow-sub">präsentiert</span></span>
+      <span data-lang="en"><span class="hero__eyebrow-main">iDs Music Hub</span><span class="hero__eyebrow-sub">presents</span></span>
+    </p>
+    <img class="hero__mark" src="assets/audio-habitat-logo.png" alt="Audio Habitat">
+    <p class="hero__line">
+      <span data-lang="de">Drum &amp; Bass, gemacht um zu verbinden.</span>
+      <span data-lang="en">Drum &amp; Bass, made to connect.</span>
+    </p>
+    <a class="hero__cta" href="#featured">
+      <span data-lang="de">Musik hören</span>
+      <span data-lang="en">Listen now</span>
+      <svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 4v14M6 12l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+  <div class="hero__scroll-hint" id="scrollHint" aria-hidden="true">
+    <span data-lang="de">Scrollen</span>
+    <span data-lang="en">Scroll</span>
+    <svg viewBox="0 0 24 24" width="14" height="14"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </div>
 </header>
 
-<a href="#music" class="fab-music" aria-label="Zur Musik">
-  <span class="fab-music__disc"></span>
-  <svg class="fab-music__icon" viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z"/></svg>
-  <span class="fab-music__pulse"></span>
-</a>
+<main>
 
-<section class="hero">
-  <img class="hero__bg" src="assets/beach-hero-bg.jpg" alt="" aria-hidden="true">
-  <div class="hero__overlay" aria-hidden="true"></div>
-  <div class="hero__haze" aria-hidden="true"></div>
-  <div class="hero__content">
-    <div class="hero__kicker">
-      <span data-lang="de"><span class="hero__kicker-main">iDs Music Hub</span><span class="hero__kicker-sub">präsentiert</span></span>
-      <span data-lang="en"><span class="hero__kicker-main">iDs Music Hub</span><span class="hero__kicker-sub">presents</span></span>
-    </div>
-    <img class="hero__logo" src="assets/audio-habitat-logo.png" alt="Audio Habitat">
-    <div class="hero__socials">
-      <a href="https://open.spotify.com/artist/2eo8TqrCseukiJaOIK2rhc" target="_blank" rel="noopener" aria-label="Spotify">
-        <svg class="brand-spotify" viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.52 17.34a.75.75 0 0 1-1.03.25c-2.82-1.72-6.37-2.11-10.55-1.16a.75.75 0 1 1-.33-1.46c4.58-1.04 8.5-.59 11.66 1.34.36.22.47.68.25 1.03zm1.47-3.27a.94.94 0 0 1-1.29.31c-3.23-1.99-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.36-1.32 9.78-.68 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41C15.9 8.36 9.7 8.14 6.11 9.24a1.13 1.13 0 1 1-.66-2.16c4.12-1.25 11-.99 15.34 1.6a1.13 1.13 0 1 1-1.17 1.93z"/></svg>
-      </a>
-      <a href="https://music.apple.com/us/artist/audio-habitat/4291320" target="_blank" rel="noopener" aria-label="Apple Music">
-        <svg class="brand-apple" viewBox="0 0 24 24"><path d="M17.5 2h-11A4.5 4.5 0 0 0 2 6.5v11A4.5 4.5 0 0 0 6.5 22h11a4.5 4.5 0 0 0 4.5-4.5v-11A4.5 4.5 0 0 0 17.5 2zM16 8.02v6.53a2.1 2.1 0 0 1-1.66 2.08l-.9.2a1.6 1.6 0 1 1-.69-3.12l1.4-.3a.4.4 0 0 0 .32-.4V8.9l-4.8 1.03v6.1a2.1 2.1 0 0 1-1.66 2.08l-.9.2a1.6 1.6 0 1 1-.69-3.12l1.4-.3a.4.4 0 0 0 .32-.4V6.9a.9.9 0 0 1 .7-.88l6.6-1.42a.9.9 0 0 1 1.1.88z"/></svg>
-      </a>
-      <a href="https://soundcloud.com/audiohabitatrec" target="_blank" rel="noopener" aria-label="SoundCloud">
-        <svg class="brand-soundcloud" viewBox="0 0 24 24"><path d="M9 17h9.5a3.5 3.5 0 0 0 .4-6.98 5 5 0 0 0-9.62-1.7A3.5 3.5 0 0 0 5.5 14.4 3.5 3.5 0 0 0 9 17zM3.5 12.2c.14 0 .25.1.27.24l.4 4.3-.4 4.15a.27.27 0 0 1-.54 0l-.35-4.15.35-4.3a.27.27 0 0 1 .27-.24zm2 1.05c.16 0 .28.12.3.28l.32 3.2-.32 3.14a.3.3 0 0 1-.6 0l-.28-3.14.28-3.2c.02-.16.14-.28.3-.28z"/></svg>
-      </a>
-    </div>
-    <div class="hero__homage">
-      <div class="hero__homage-label">
-        <span data-lang="de">Ein Beat · Ein Bass · Eine Welt</span>
-        <span data-lang="en">One Beat · One Bass · One World</span>
-      </div>
-      <div class="hero__homage-text">
-        <div data-lang="de">
-          <p>Drum &amp; Bass ist kein Genre. Es ist ein Herzschlag.</p>
-          <p>Ein Beat. Ein Bass. Ein Moment. Und plötzlich spielt es keine Rolle mehr,<br>wer du bist oder woher du kommst. Auf dem Dancefloor werden Fremde zu einer Familie.</p>
-          <p>Genau dafür steht iDs Music Hub. Für Musik, die Menschen verbindet.</p>
+  <section class="featured" id="featured">
+    <div class="wrap">
+      <p class="eyebrow"><span data-lang="de">Jetzt läuft</span><span data-lang="en">Now Playing</span></p>
+      <div class="featured__card">
+        <div class="featured__art">
+          <img id="featuredArt" src="assets/covers/4reasons.jpg" alt="4 Reasons">
+          <button class="featured__play" id="featuredPlay" aria-label="Play/Pause" type="button">
+            <svg class="icon-play" viewBox="0 0 24 24" width="22" height="22"><path d="M8 5v14l11-7z"/></svg>
+            <svg class="icon-pause" viewBox="0 0 24 24" width="22" height="22" hidden><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+          </button>
         </div>
-        <div data-lang="en">
-          <p>Drum &amp; Bass isn't a genre. It's a heartbeat.</p>
-          <p>One beat. One bass. One moment. And suddenly it no longer matters<br>who you are or where you're from. On the dancefloor, strangers become family.</p>
-          <p>That's exactly what iDs Music Hub stands for. For music that connects people.</p>
+        <div class="featured__body">
+          <p class="featured__kicker" id="featuredKicker">EP · 2026</p>
+          <h2 class="featured__title" id="featuredTitle">4 Reasons</h2>
+          <p class="featured__desc" id="featuredDesc">Vier Tracks, ein Bogen. Das aktuelle Release von Audio Habitat — hier direkt anhören.</p>
+          <ul class="featured__tracks" id="featuredTracks"></ul>
         </div>
       </div>
-      <div class="hero__homage-signoff">— Daniel da Silva</div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="player" id="music">
-  <div class="wrap">
-    <div class="section-head">
-      <div class="eyebrow">
-        <span data-lang="de">Jetzt hören</span>
-        <span data-lang="en">Listen Now</span>
+  <section class="discography" id="discography">
+    <div class="wrap">
+      <p class="eyebrow">Discography</p>
+      <h2 class="section-title"><span data-lang="de">Alle Releases</span><span data-lang="en">All Releases</span></h2>
+    </div>
+    <div class="rail" id="rail"></div>
+  </section>
+
+  <section class="archive" id="archive">
+    <div class="wrap">
+      <div class="archive__card">
+        <div class="archive__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="26" height="26"><path d="M9 17h9.5a3.5 3.5 0 0 0 .4-6.98 5 5 0 0 0-9.62-1.7A3.5 3.5 0 0 0 5.5 14.4 3.5 3.5 0 0 0 9 17zM3.5 12.2c.14 0 .25.1.27.24l.4 4.3-.4 4.15a.27.27 0 0 1-.54 0l-.35-4.15.35-4.3a.27.27 0 0 1 .27-.24zm2 1.05c.16 0 .28.12.3.28l.32 3.2-.32 3.14a.3.3 0 0 1-.6 0l-.28-3.14.28-3.2c.02-.16.14-.28.3-.28z"/></svg>
+        </div>
+        <div class="archive__text">
+          <h3><span data-lang="de">Älteres Archiv</span><span data-lang="en">Older Archive</span></h3>
+          <p>
+            <span data-lang="de">Zurückliegende Releases, Remixes &amp; Mixe — direkt von SoundCloud.</span>
+            <span data-lang="en">Past releases, remixes &amp; mixes — straight from SoundCloud.</span>
+          </p>
+        </div>
+        <button class="archive__link" id="archiveToggle" type="button" aria-expanded="false">
+          <span data-lang="de" data-open="Archiv schließen" data-closed="Archiv öffnen">Archiv öffnen</span>
+          <span data-lang="en" data-open="Close archive" data-closed="Open archive">Open archive</span>
+          <svg class="archive__chev" viewBox="0 0 24 24" width="14" height="14"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
-      <h2>
-        <span data-lang="de">Musik von Audio Habitat</span>
-        <span data-lang="en">Music by Audio Habitat</span>
+      <div class="archive__panel" id="archivePanel">
+        <div class="archive__panel-inner">
+          <div class="archive__list" id="archiveList"></div>
+          <div class="archive__pager" id="archivePager"></div>
+          <a class="archive__source" href="https://soundcloud.com/audiohabitatrec" target="_blank" rel="noopener">
+            <span data-lang="de">Vollständiges Profil auf SoundCloud ansehen →</span>
+            <span data-lang="en">View full profile on SoundCloud →</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <div class="wrap">
+      <p class="eyebrow"><span data-lang="de">Kontakt</span><span data-lang="en">Contact</span></p>
+      <h2 class="section-title">
+        <span data-lang="de">Booking &amp; Zusammenarbeit</span>
+        <span data-lang="en">Booking &amp; Collaboration</span>
       </h2>
-      <p style="margin-top:16px;color:var(--ink-soft);font-size:14px;">
-        <span data-lang="de">Direkt hier anhören — oder über die Icons zu Spotify, Apple Music oder SoundCloud springen.</span>
-        <span data-lang="en">Listen right here — or jump to Spotify, Apple Music or SoundCloud via the icons.</span>
+      <p class="contact__text">
+        <span data-lang="de">Drei Wege, mit Audio Habitat ins Geschäft zu kommen.</span>
+        <span data-lang="en">Three ways to work with Audio Habitat.</span>
       </p>
-    </div>
 
-    <div class="release-grid" id="releaseGrid"></div>
+      <div class="contact-grid">
 
-    <div class="tracklist__empty" id="tracklistEmpty" hidden>
-      <span data-lang="de">Die Tracks werden gerade hochgeladen — schau bald wieder vorbei.</span>
-      <span data-lang="en">Tracks are being uploaded right now — check back soon.</span>
-    </div>
-
-    <div class="support">
-      <div class="support__text">
-        <div class="support__title">
-          <span data-lang="de">Gefällt dir, was du hörst?</span>
-          <span data-lang="en">Like what you hear?</span>
+        <div class="contact-card">
+          <div class="contact-card__top">
+            <div class="contact-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20"><path d="M7 3v3M17 3v3M4 9h16M5 6h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="contact-card__index">01</span>
+          </div>
+          <h3><span data-lang="de">Booking</span><span data-lang="en">Booking</span></h3>
+          <p>
+            <span data-lang="de">Für Gigs, Events oder Promo — schreib uns einfach.</span>
+            <span data-lang="en">For gigs, events or promo — just get in touch.</span>
+          </p>
+          <span class="contact-card__rule"></span>
+          <button class="hero__cta hero__cta--dark" data-open-inquiry="booking" type="button">
+            <span data-lang="de">Anfrage senden</span>
+            <span data-lang="en">Send a request</span>
+          </button>
         </div>
-        <p>
-          <span data-lang="de">Unterstütze Audio Habitat direkt — zahl, was es dir wert ist.</span>
-          <span data-lang="en">Support Audio Habitat directly — pay what it's worth to you.</span>
-        </p>
+
+        <div class="contact-card">
+          <div class="contact-card__top">
+            <div class="contact-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 3v12M7 10l5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="contact-card__index">02</span>
+          </div>
+          <h3><span data-lang="de">Tracks kaufen</span><span data-lang="en">Buy tracks</span></h3>
+          <p>
+            <span data-lang="de">Wähl deine Tracks, zahl was sie dir wert sind — als WAV zum Download.</span>
+            <span data-lang="en">Pick your tracks, pay what they're worth to you — WAV downloads included.</span>
+          </p>
+          <span class="contact-card__rule"></span>
+          <button class="hero__cta hero__cta--dark" id="supportLink" type="button">
+            <span data-lang="de">Zahl, was du willst</span>
+            <span data-lang="en">Pay what you want</span>
+          </button>
+        </div>
+
+        <div class="contact-card">
+          <div class="contact-card__top">
+            <div class="contact-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20"><path d="M17 8a3 3 0 1 0-2.83-4M7 8a3 3 0 1 0 2.83-4M7 16a3 3 0 1 0 2.83 4M17 16a3 3 0 1 0-2.83 4M9.5 9l5 6M14.5 9l-5 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="contact-card__index">03</span>
+          </div>
+          <h3><span data-lang="de">Für Labels</span><span data-lang="en">For labels</span></h3>
+          <p>
+            <span data-lang="de">Lizenzierung für dein Label, Remix- oder Kollaborations­anfragen — sag uns, was du zahlen möchtest.</span>
+            <span data-lang="en">Licensing for your label, remix or collaboration requests — tell us what you'd like to pay.</span>
+          </p>
+          <span class="contact-card__rule"></span>
+          <button class="hero__cta hero__cta--dark" data-open-inquiry="label" type="button">
+            <span data-lang="de">Anfrage senden</span>
+            <span data-lang="en">Send a request</span>
+          </button>
+        </div>
+
       </div>
-      <a class="btn btn--support" href="https://www.paypal.com/donate/?business=audiohabitatrec%40googlemail.com&currency_code=EUR&no_recurring=0" target="_blank" rel="noopener">
-        <span data-lang="de">Zahl, was du willst</span>
-        <span data-lang="en">Pay What You Want</span>
-      </a>
     </div>
+  </section>
 
-    <audio id="audioPlayer" preload="none"></audio>
-  </div>
-</section>
+</main>
 
-<section class="soundcloud-releases" id="soundcloud">
+<footer class="footer">
   <div class="wrap">
-    <div class="section-head">
-      <div class="eyebrow">
-        <span data-lang="de">Mehr Musik</span>
-        <span data-lang="en">More Music</span>
-      </div>
-      <h2>
-        <span data-lang="de">Weitere Releases auf SoundCloud</span>
-        <span data-lang="en">More Releases on SoundCloud</span>
-      </h2>
-      <p style="margin-top:16px;color:var(--ink-soft);font-size:14px;">
-        <span data-lang="de">Ältere Tracks &amp; Back-Catalog von Audio Habitat — direkt hier abspielen.</span>
-        <span data-lang="en">Older tracks &amp; back catalog from Audio Habitat — play them right here.</span>
-      </p>
-    </div>
-
-    <div class="soundcloud-list" id="soundcloudList"></div>
-    <div class="soundcloud-pager" id="soundcloudPager"></div>
-
-    <a class="btn" style="margin-top:20px;" href="https://soundcloud.com/audiohabitatrec" target="_blank" rel="noopener">
-      <span data-lang="de">Auf SoundCloud ansehen</span>
-      <span data-lang="en">View on SoundCloud</span>
+    <span>iDs Music Hub · Audio Habitat © 2026</span>
+    <a href="impressum.html" class="footer__note">
+      <span data-lang="de">Impressum</span>
+      <span data-lang="en">Legal notice</span>
     </a>
-  </div>
-</section>
-
-<section class="contact" id="contact">
-  <div class="wrap">
-    <div class="contact__box">
-      <div class="section-head" style="margin-bottom:20px;">
-        <div class="eyebrow">
-          <span data-lang="de">Kontakt</span>
-          <span data-lang="en">Contact</span>
-        </div>
-        <h2>
-          <span data-lang="de">Booking &amp; Anfragen</span>
-          <span data-lang="en">Booking &amp; Inquiries</span>
-        </h2>
-      </div>
-      <p>
-        <span data-lang="de">Für Bookings, Promo oder einfach nur um Hallo zu sagen — schreib uns gerne eine E-Mail.</span>
-        <span data-lang="en">For bookings, promo, or just to say hello — feel free to drop us an email.</span>
-      </p>
-      <a class="btn" href="mailto:audiohabitatrec@googlemail.com">
-        <span data-lang="de">E-Mail schreiben</span>
-        <span data-lang="en">Send an Email</span>
-      </a>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <div class="wrap footer__inner">
-    <div class="footer__brand">
-      <img src="assets/ids-music-hub-logo-web.jpg" alt="iDs Music Hub">
-      <div>
-        <strong>iDs Music Hub</strong>
-        Audio Habitat
-      </div>
-    </div>
-
-    <div class="footer__social">
-      <a href="https://open.spotify.com/artist/2eo8TqrCseukiJaOIK2rhc" target="_blank" rel="noopener" aria-label="Spotify">
-        <svg class="brand-spotify" viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.52 17.34a.75.75 0 0 1-1.03.25c-2.82-1.72-6.37-2.11-10.55-1.16a.75.75 0 1 1-.33-1.46c4.58-1.04 8.5-.59 11.66 1.34.36.22.47.68.25 1.03zm1.47-3.27a.94.94 0 0 1-1.29.31c-3.23-1.99-8.15-2.56-11.97-1.4a.94.94 0 1 1-.55-1.8c4.36-1.32 9.78-.68 13.5 1.6.44.27.58.85.31 1.29zm.13-3.41C15.9 8.36 9.7 8.14 6.11 9.24a1.13 1.13 0 1 1-.66-2.16c4.12-1.25 11-.99 15.34 1.6a1.13 1.13 0 1 1-1.17 1.93z"/></svg>
-      </a>
-      <a href="https://music.apple.com/us/artist/audio-habitat/4291320" target="_blank" rel="noopener" aria-label="Apple Music">
-        <svg class="brand-apple" viewBox="0 0 24 24"><path d="M17.5 2h-11A4.5 4.5 0 0 0 2 6.5v11A4.5 4.5 0 0 0 6.5 22h11a4.5 4.5 0 0 0 4.5-4.5v-11A4.5 4.5 0 0 0 17.5 2zM16 8.02v6.53a2.1 2.1 0 0 1-1.66 2.08l-.9.2a1.6 1.6 0 1 1-.69-3.12l1.4-.3a.4.4 0 0 0 .32-.4V8.9l-4.8 1.03v6.1a2.1 2.1 0 0 1-1.66 2.08l-.9.2a1.6 1.6 0 1 1-.69-3.12l1.4-.3a.4.4 0 0 0 .32-.4V6.9a.9.9 0 0 1 .7-.88l6.6-1.42a.9.9 0 0 1 1.1.88z"/></svg>
-      </a>
-      <a href="https://soundcloud.com/audiohabitatrec" target="_blank" rel="noopener" aria-label="SoundCloud">
-        <svg class="brand-soundcloud" viewBox="0 0 24 24"><path d="M9 17h9.5a3.5 3.5 0 0 0 .4-6.98 5 5 0 0 0-9.62-1.7A3.5 3.5 0 0 0 5.5 14.4 3.5 3.5 0 0 0 9 17zM3.5 12.2c.14 0 .25.1.27.24l.4 4.3-.4 4.15a.27.27 0 0 1-.54 0l-.35-4.15.35-4.3a.27.27 0 0 1 .27-.24zm2 1.05c.16 0 .28.12.3.28l.32 3.2-.32 3.14a.3.3 0 0 1-.6 0l-.28-3.14.28-3.2c.02-.16.14-.28.3-.28z"/></svg>
-      </a>
-    </div>
-  </div>
-  <div class="footer__bottom">
-    <span data-lang="de">© <span id="year-de"></span> iDs Music Hub — Alle Rechte vorbehalten.</span>
-    <span data-lang="en">© <span id="year-en"></span> iDs Music Hub — All rights reserved.</span>
   </div>
 </footer>
 
+<div class="player" id="player" hidden>
+  <button class="player__toggle" id="playerToggle" type="button" aria-label="Play/Pause">
+    <svg class="icon-play" viewBox="0 0 24 24" width="16" height="16"><path d="M8 5v14l11-7z"/></svg>
+    <svg class="icon-pause" viewBox="0 0 24 24" width="16" height="16" hidden><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+  </button>
+  <img class="player__art" id="playerArt" alt="">
+  <div class="player__meta">
+    <div class="player__title" id="playerTitle">—</div>
+    <div class="player__seek" id="playerSeek"><div class="player__seek-fill" id="playerFill"></div></div>
+  </div>
+</div>
+
+<audio id="audio" preload="none"></audio>
+
+<div class="modal" id="supportModal" hidden>
+  <div class="modal__backdrop" id="supportBackdrop"></div>
+  <div class="modal__panel" role="dialog" aria-modal="true">
+    <button class="modal__close" id="supportClose" type="button" aria-label="Schließen">
+      <svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+
+    <div class="support-step" id="supportStepSelect">
+      <p class="eyebrow"><span data-lang="de">Unterstützung</span><span data-lang="en">Support</span></p>
+      <h3 class="modal__title">
+        <span data-lang="de">Zahl, was du willst</span>
+        <span data-lang="en">Pay what you want</span>
+      </h3>
+      <p class="modal__desc">
+        <span data-lang="de">Wähl die Tracks aus, die du unterstützen möchtest, und leg selbst fest, was sie dir wert sind.</span>
+        <span data-lang="en">Pick the tracks you'd like to support and set your own price for each.</span>
+      </p>
+
+      <div class="support__list" id="supportList"></div>
+
+      <div class="support__total">
+        <span>
+          <span data-lang="de">Gesamtbetrag</span>
+          <span data-lang="en">Total</span>
+        </span>
+        <strong id="supportTotal">€0</strong>
+      </div>
+
+      <button class="hero__cta hero__cta--dark support__proceed" id="supportProceed" type="button" disabled>
+        <span data-lang="de" data-paid="Weiter zu PayPal" data-free="Kostenlos herunterladen">Weiter zu PayPal</span>
+        <span data-lang="en" data-paid="Continue to PayPal" data-free="Download for free">Continue to PayPal</span>
+      </button>
+      <p class="modal__hint" id="supportHint">
+        <span data-lang="de" data-paid="Öffnet PayPal in einem neuen Tab mit deinem Gesamtbetrag voreingestellt." data-free="€0 ist völlig in Ordnung — der Download ist trotzdem sofort da.">Öffnet PayPal in einem neuen Tab mit deinem Gesamtbetrag voreingestellt.</span>
+        <span data-lang="en" data-paid="Opens PayPal in a new tab with your total pre-filled." data-free="€0 is totally fine — your download is ready right away either way.">Opens PayPal in a new tab with your total pre-filled.</span>
+      </p>
+    </div>
+
+    <div class="support-step" id="supportStepDownload" hidden>
+      <p class="eyebrow"><span data-lang="de">Danke</span><span data-lang="en">Thank you</span></p>
+      <h3 class="modal__title">
+        <span data-lang="de">Deine Downloads</span>
+        <span data-lang="en">Your downloads</span>
+      </h3>
+      <p class="modal__desc">
+        <span data-lang="de">Sobald die Zahlung bei PayPal abgeschlossen ist, kannst du deine Tracks hier laden.</span>
+        <span data-lang="en">Once your PayPal payment is complete, grab your tracks here.</span>
+      </p>
+      <div class="support__downloads" id="supportDownloads"></div>
+      <p class="modal__hint modal__hint--note">
+        <span data-lang="de">Hinweis: Der Download wird direkt freigeschaltet. Eine zahlungsgeprüfte Freigabe erfordert ein Backend (PayPal-Webhook).</span>
+        <span data-lang="en">Note: downloads unlock right away. Payment-verified release would require a backend (PayPal webhook).</span>
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="inquiryModal" hidden>
+  <div class="modal__backdrop" id="inquiryBackdrop"></div>
+  <div class="modal__panel" role="dialog" aria-modal="true">
+    <button class="modal__close" id="inquiryClose" type="button" aria-label="Schließen">
+      <svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+
+    <div class="support-step" id="inquiryStepForm">
+      <p class="eyebrow" id="inquiryEyebrow">—</p>
+      <h3 class="modal__title" id="inquiryTitle">—</h3>
+      <p class="modal__desc" id="inquiryDesc">—</p>
+
+      <form class="inquiry-form" id="inquiryForm">
+        <div class="inquiry-form__fields" id="inquiryFields"></div>
+        <button class="hero__cta hero__cta--dark support__proceed" id="inquirySubmit" type="submit">
+          <span data-lang="de">Anfrage senden</span>
+          <span data-lang="en">Send request</span>
+        </button>
+        <p class="modal__hint">
+          <span data-lang="de">Öffnet dein E-Mail-Programm mit allem schon ausgefüllt — die Seite bleibt offen.</span>
+          <span data-lang="en">Opens your email app with everything pre-filled — this page stays open.</span>
+        </p>
+      </form>
+    </div>
+
+    <div class="support-step" id="inquiryStepDone" hidden>
+      <p class="eyebrow"><span data-lang="de">Danke</span><span data-lang="en">Thank you</span></p>
+      <h3 class="modal__title">
+        <span data-lang="de">Anfrage unterwegs</span>
+        <span data-lang="en">Request on its way</span>
+      </h3>
+      <p class="modal__desc">
+        <span data-lang="de">Wir melden uns so schnell wie möglich bei dir zurück.</span>
+        <span data-lang="en">We'll get back to you as soon as possible.</span>
+      </p>
+      <a class="hero__cta hero__cta--ghost" id="inquiryFallback" href="#" target="_blank" rel="noopener">
+        <span data-lang="de">E-Mail hat sich nicht geöffnet? Hier klicken</span>
+        <span data-lang="en">Email didn't open? Click here</span>
+      </a>
+    </div>
+  </div>
+</div>
+
 <script src="js/tracks.js"></script>
-<script src="js/player.js"></script>
 <script src="js/soundcloud-archive.js"></script>
-<script src="js/soundcloud.js"></script>
-<!-- Discography (other labels) temporarily disabled — js/other-releases.js and js/discography.js still contain the data/logic, ready to re-enable later. -->
-<script src="js/main.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
