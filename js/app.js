@@ -686,6 +686,8 @@
   var scrollHint = document.getElementById('scrollHint');
   var heroSun = document.getElementById('heroSun');
   var heroBgWrap = document.getElementById('heroBgWrap');
+  var heroMarkWrap = document.getElementById('heroMarkWrap');
+  var heroTextEls = document.querySelectorAll('.hero__eyebrow, .hero__line, .hero__slogan, .hero__cta');
   var heroEl = document.querySelector('.hero');
   var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -694,16 +696,29 @@
     nav.classList.toggle('is-solid', y > 40);
     if (scrollHint) scrollHint.classList.toggle('is-hidden', y > 40);
 
-    // Sun drifts gently right-to-left as you scroll past the hero.
-    if (heroSun && !prefersReducedMotion) {
-      var heroHeight = heroEl ? heroEl.offsetHeight : window.innerHeight;
+    if (heroEl && !prefersReducedMotion) {
+      var heroHeight = heroEl.offsetHeight;
       var progress = Math.min(1, y / heroHeight);
-      heroSun.style.transform = 'translate(-50%, -50%) translateX(' + (progress * -60) + 'px)';
-    }
 
-    // Faint parallax: the photo lags a beat behind the actual scroll.
-    if (heroBgWrap && !prefersReducedMotion) {
-      heroBgWrap.style.transform = 'translateY(' + Math.min(48, y * 0.12) + 'px)';
+      // Sun drifts gently right-to-left as you scroll past the hero.
+      if (heroSun) heroSun.style.transform = 'translate(-50%, -50%) translateX(' + (progress * -60) + 'px)';
+
+      // Faint parallax + a hint of zoom: the photo lags a beat behind the
+      // actual scroll and creeps in slightly, like a slow dolly-in.
+      if (heroBgWrap) {
+        heroBgWrap.style.transform = 'translateY(' + Math.min(48, y * 0.12) + 'px) scale(' + (1 + progress * 0.05) + ')';
+      }
+
+      // Logo shrinks a touch — stays put, just settles back a little.
+      if (heroMarkWrap) heroMarkWrap.style.transform = 'scale(' + (1 - progress * 0.08) + ')';
+
+      // Eyebrow/tagline/slogan/button dissolve well before the hero is
+      // fully scrolled past, so the fade reads as intentional, not abrupt.
+      var textOpacity = 1 - Math.min(1, y / (heroHeight * 0.6));
+      heroTextEls.forEach(function (el) {
+        el.style.opacity = String(textOpacity);
+        el.style.pointerEvents = textOpacity < 0.05 ? 'none' : '';
+      });
     }
   }
   window.addEventListener('scroll', onScroll, { passive: true });

@@ -431,11 +431,18 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   color: rgba(255,255,255,0.55);
 }
 
+/* Scroll-driven shrink lives on the wrapper; the pulse keyframes stay on
+   the img itself so the two transforms don't fight each other. */
+.hero__mark-wrap {
+  width: min(760px, 82vw);
+  margin: 0 auto 26px;
+  will-change: transform;
+}
+
 .hero__mark {
   display: block;
-  width: min(760px, 82vw);
+  width: 100%;
   height: auto;
-  margin: 0 auto 26px;
   filter: drop-shadow(0 6px 24px rgba(0,0,0,0.35));
   animation: heroMarkPulse 4.5s ease-in-out infinite;
   transform-origin: center;
@@ -474,7 +481,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
    the block instead of just letting it spill into the photo. */
 @media (max-height: 700px) {
   .hero__eyebrow { margin-bottom: 12px; }
-  .hero__mark { width: min(480px, 62vw); margin-bottom: 14px; }
+  .hero__mark-wrap { width: min(480px, 62vw); margin-bottom: 14px; }
   .hero__line { margin-bottom: 2px; }
   .hero__slogan { margin-bottom: 22px; }
   .hero__content .hero__cta { margin-top: clamp(56px, 12vh, 110px); }
