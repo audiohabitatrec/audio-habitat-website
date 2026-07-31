@@ -366,6 +366,16 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   margin-top: clamp(48px, 9vh, 96px);
 }
 
+/* Short viewports (small phones, landscape) squeeze the whole content
+   block toward the bottom of the hero photo, crowding the DJ. Shrink
+   the block instead of just pushing the button further down. */
+@media (max-height: 700px) {
+  .hero__eyebrow { margin-bottom: 12px; }
+  .hero__mark { width: min(420px, 54vw); margin-bottom: 14px; }
+  .hero__line { margin-bottom: 22px; }
+  .hero__content .hero__cta { margin-top: clamp(28px, 7vh, 56px); }
+}
+
 .hero__cta {
   display: inline-flex;
   align-items: center;
