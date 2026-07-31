@@ -382,6 +382,8 @@
   var supportTotalEl = document.getElementById('supportTotal');
   var supportProceedBtn = document.getElementById('supportProceed');
   var supportDownloadsEl = document.getElementById('supportDownloads');
+  var supportWaiver = document.getElementById('supportWaiver');
+  var supportWaiverCheckbox = document.getElementById('supportWaiverCheckbox');
 
   // Flatten every audible track once, in catalogue order.
   var allTracks = [];
@@ -429,7 +431,13 @@
       }
     });
     supportTotalEl.textContent = '€' + total.toFixed(2).replace(/\.00$/, '');
-    supportProceedBtn.disabled = !anyChecked;
+
+    // A price > 0 makes this a purchase, not a donation — the statutory 14-day
+    // right of withdrawal only lapses once the buyer explicitly waives it
+    // (§ 356 Abs. 5 BGB), since the download unlocks immediately.
+    var needsWaiver = total > 0;
+    supportWaiver.hidden = !needsWaiver;
+    supportProceedBtn.disabled = !anyChecked || (needsWaiver && !supportWaiverCheckbox.checked);
 
     var mode = total > 0 ? 'paid' : 'free';
     document.querySelectorAll('#supportProceed span[data-lang], #supportHint span[data-lang]').forEach(function (span) {
@@ -441,9 +449,11 @@
 
   supportListEl.addEventListener('change', updateSupportTotal);
   supportListEl.addEventListener('input', updateSupportTotal);
+  supportWaiverCheckbox.addEventListener('change', updateSupportTotal);
 
   function openSupportModal() {
     buildSupportList();
+    supportWaiverCheckbox.checked = false;
     updateSupportTotal();
     supportStepSelect.hidden = false;
     supportStepDownload.hidden = true;
@@ -461,6 +471,7 @@
 
   supportProceedBtn.addEventListener('click', function () {
     var total = updateSupportTotal();
+    if (total > 0 && !supportWaiverCheckbox.checked) return;
 
     var selected = [];
     supportListEl.querySelectorAll('.support__row').forEach(function (row, i) {

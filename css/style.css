@@ -714,6 +714,9 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 .archive__text h3 { margin: 0 0 6px; font-size: 19px; font-weight: 650; }
 .archive__text p { margin: 0; font-size: 14px; color: rgba(250,247,242,0.68); }
 
+.archive__text p.archive__note { margin-top: 6px; font-size: 11.5px; color: rgba(250,247,242,0.42); }
+.archive__note a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
 .archive__link {
   display: inline-flex;
   align-items: center;
@@ -1383,6 +1386,27 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   font-weight: 650;
   color: var(--ink);
 }
+
+.support__waiver {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 16px;
+  padding: 2px 2px 0;
+  cursor: pointer;
+}
+
+.support__waiver[hidden] { display: none; }
+
+.support__waiver input[type="checkbox"] {
+  margin-top: 2px;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+}
+
+.support__waiver span { font-size: 12.5px; line-height: 1.5; color: var(--ink-soft); }
 
 .support__proceed {
   width: 100%;
