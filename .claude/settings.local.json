@@ -40,7 +40,21 @@
       "Read(//Users/id/.config/**)",
       "Bash(git init *)",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "Bash(git ls-remote *)",
+      "Bash(gh auth *)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(curl -sI https://audiohabitatrec.com/)",
+      "Bash(curl -sI https://audiohabitatrec.github.io/audio-habitat-website/)",
+      "Bash(md5 assets/covers/platter.jpg)",
+      "Bash(md5)",
+      "Bash(curl -v -I https://audiohabitatrec.com/)",
+      "Bash(curl -sI http://audiohabitatrec.com/)",
+      "Bash(curl -sI --max-time 8 https://audiohabitatrec.com/)",
+      "Bash(curl -sI --max-time 10 https://audiohabitatrec.com/)",
+      "Bash(curl -sI --max-time 8 http://audiohabitatrec.com/)"
     ]
   }
 }
