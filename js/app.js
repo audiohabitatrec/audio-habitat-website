@@ -132,8 +132,9 @@
 
   function updatePlayerBar() {
     var entry = registry[activeKey];
-    if (!entry) { playerEl.hidden = true; return; }
+    if (!entry) { playerEl.hidden = true; document.body.classList.remove('has-player'); return; }
     playerEl.hidden = false;
+    document.body.classList.add('has-player');
     playerArt.src = entry.cover;
     playerTitle.textContent = entry.displayTitle;
     playerTime.textContent = formatTime(audio.currentTime) + ' / ' + formatTime(audio.duration);

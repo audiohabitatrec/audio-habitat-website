@@ -33,7 +33,12 @@ body {
   font-family: var(--font);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  transition: padding-bottom 0.3s ease;
 }
+
+/* Reserves space for the fixed mini-player so it never covers the
+   footer links once a track has started playing. */
+body.has-player { padding-bottom: 100px; }
 
 a { color: inherit; text-decoration: none; }
 img { max-width: 100%; display: block; }
@@ -655,7 +660,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   background: rgba(23,20,15,0.32);
 }
 
-.rail-card__play svg { fill: #fff; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4)); }
+.rail-card__play svg { width: 44px; height: 44px; fill: #fff; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4)); }
 .rail-card__play .icon-pause { display: none; }
 .rail-card.is-active .icon-play { display: none; }
 .rail-card.is-active .icon-pause { display: block; }
@@ -1514,6 +1519,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   .rail-card .track-icons { gap: 2px; opacity: 0.65; }
   .rail-card .track-icons a { width: 21px; height: 21px; }
   .rail-card .track-icons svg { width: 12px; height: 12px; }
+  .contact-grid { grid-template-columns: 1fr; }
   .archive__list { grid-template-columns: 1fr; }
   .contact__actions { flex-direction: column; }
   .contact__actions .hero__cta { width: 100%; justify-content: center; }
