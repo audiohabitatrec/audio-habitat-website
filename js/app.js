@@ -64,25 +64,18 @@
 
   var WAV_BADGE = '<span class="format-badge">' + ICONS.wave + '<span>WAV</span></span>';
 
-  function pwywHref(title) {
-    if (!paypalEmail) return '';
-    return 'https://www.paypal.com/donate/?business=' + encodeURIComponent(paypalEmail) +
-      '&currency_code=EUR&no_recurring=0&item_name=' + encodeURIComponent('Audio Habitat – ' + title);
-  }
-
-  function platformIconsHtml(track, title) {
+  function platformIconsHtml(track, title, key) {
     var spotifyHref = track.spotify || links.spotify;
     var appleHref = track.apple || links.apple;
     var soundcloudHref = track.soundcloud || links.soundcloud;
     var deezerHref = track.deezer || links.deezer || DEEZER_FALLBACK;
-    var supportHref = pwywHref(title);
     return (
       '<span class="track-icons">' +
         (spotifyHref ? '<a href="' + spotifyHref + '" target="_blank" rel="noopener" aria-label="Spotify" onclick="event.stopPropagation()">' + ICONS.spotify + '</a>' : '') +
         (appleHref ? '<a href="' + appleHref + '" target="_blank" rel="noopener" aria-label="Apple Music" onclick="event.stopPropagation()">' + ICONS.apple + '</a>' : '') +
         (soundcloudHref ? '<a href="' + soundcloudHref + '" target="_blank" rel="noopener" aria-label="SoundCloud" onclick="event.stopPropagation()">' + ICONS.soundcloud + '</a>' : '') +
         (deezerHref ? '<a href="' + deezerHref + '" target="_blank" rel="noopener" aria-label="Deezer" onclick="event.stopPropagation()">' + ICONS.deezer + '</a>' : '') +
-        (supportHref ? '<a class="track-icons__support" href="' + supportHref + '" target="_blank" rel="noopener" aria-label="Zahl was du willst" onclick="event.stopPropagation()">' + ICONS.pwyw + '</a>' : '') +
+        (paypalEmail ? '<a class="track-icons__support" href="#" data-support-key="' + key + '" aria-label="Zahl was du willst">' + ICONS.pwyw + '</a>' : '') +
       '</span>'
     );
   }
@@ -169,7 +162,7 @@
       li.innerHTML =
         '<span class="track-num">' + (ti + 1) + '</span>' +
         '<span class="track-title">' + track.title + '</span>' +
-        platformIconsHtml(track, release.title + ' – ' + track.title) +
+        platformIconsHtml(track, release.title + ' – ' + track.title, entry.key) +
         '<button class="track-play" type="button" aria-label="Play">' + ICONS.play + ICONS.pause + '</button>';
       entry.featuredLi = li;
       li.addEventListener('click', function () { play(entry.key); });
@@ -222,7 +215,7 @@
         '<div class="rail-card__play">' + ICONS.play + ICONS.pause + '</div>' +
       '</div>' +
       '<div class="rail-card__title">' + release.title + (release.type === 'ep' ? ' <span class="rail-card__tag">EP</span>' : '') + '</div>' +
-      platformIconsHtml(track0, release.title);
+      platformIconsHtml(track0, release.title, entry.key);
     railEl.appendChild(card);
 
     entry.railEl = card;
@@ -452,9 +445,16 @@
   supportListEl.addEventListener('input', updateSupportTotal);
   supportWaiverCheckbox.addEventListener('change', updateSupportTotal);
 
-  function openSupportModal() {
+  function openSupportModal(preselectKey) {
     buildSupportList();
     supportWaiverCheckbox.checked = false;
+    if (preselectKey) {
+      var idx = allTracks.findIndex(function (t) { return t.key === preselectKey; });
+      if (idx > -1) {
+        var checkbox = supportListEl.querySelector('input[type="checkbox"][data-i="' + idx + '"]');
+        if (checkbox) checkbox.checked = true;
+      }
+    }
     updateSupportTotal();
     supportStepSelect.hidden = false;
     supportStepDownload.hidden = true;
@@ -463,12 +463,23 @@
 
   function closeSupportModal() { supportModal.hidden = true; }
 
-  supportLink.addEventListener('click', openSupportModal);
+  supportLink.addEventListener('click', function () { openSupportModal(); });
   supportClose.addEventListener('click', closeSupportModal);
   supportBackdrop.addEventListener('click', closeSupportModal);
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && !supportModal.hidden) closeSupportModal();
   });
+
+  // Per-track "Zahl was du willst" icons open the same modal, pre-checked
+  // for that track. Capture phase so it wins over the row/card's own click
+  // handler (which otherwise starts playback for that track).
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest && e.target.closest('.track-icons__support');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    openSupportModal(btn.getAttribute('data-support-key'));
+  }, true);
 
   supportProceedBtn.addEventListener('click', function () {
     var total = updateSupportTotal();
