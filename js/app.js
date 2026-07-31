@@ -529,8 +529,8 @@
       eyebrow: { de: 'Für Labels', en: 'For labels' },
       title: { de: 'Label-Anfrage', en: 'Label request' },
       desc: {
-        de: 'Lizenzierung, Remix oder Kollaboration — sag uns, worum es geht.',
-        en: 'Licensing, remix or collaboration — tell us what you have in mind.'
+        de: 'Lizenzierung, Remix oder Kollaboration — sag uns, worum es geht. GEMA-Mitglied.',
+        en: 'Licensing, remix or collaboration — tell us what you have in mind. GEMA member.'
       },
       fields: [
         { name: 'name', label: { de: 'Name / Label', en: 'Name / label' }, type: 'text', required: true },
