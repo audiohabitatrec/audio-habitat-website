@@ -454,6 +454,14 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   font-size: clamp(13px, 1.5vw, 16px);
   font-weight: 400;
   color: rgba(255,255,255,0.86);
+  margin: 0 0 10px;
+}
+
+.hero__slogan {
+  font-size: clamp(12px, 1.4vw, 15px);
+  font-weight: 650;
+  letter-spacing: 0.03em;
+  color: var(--accent);
   margin: 0 0 40px;
 }
 
@@ -467,7 +475,8 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 @media (max-height: 700px) {
   .hero__eyebrow { margin-bottom: 12px; }
   .hero__mark { width: min(480px, 62vw); margin-bottom: 14px; }
-  .hero__line { margin-bottom: 22px; }
+  .hero__line { margin-bottom: 8px; }
+  .hero__slogan { margin-bottom: 22px; }
   .hero__content .hero__cta { margin-top: clamp(56px, 12vh, 110px); }
 }
 
