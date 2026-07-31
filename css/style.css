@@ -338,7 +338,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 
 .hero__mark {
   display: block;
-  width: min(660px, 72vw);
+  width: min(760px, 82vw);
   height: auto;
   margin: 0 auto 26px;
   filter: drop-shadow(0 6px 24px rgba(0,0,0,0.35));
@@ -356,7 +356,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 }
 
 .hero__line {
-  font-size: clamp(16px, 2vw, 20px);
+  font-size: clamp(13px, 1.5vw, 16px);
   font-weight: 400;
   color: rgba(255,255,255,0.86);
   margin: 0 0 40px;
@@ -371,7 +371,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
    the block instead of just letting it spill into the photo. */
 @media (max-height: 700px) {
   .hero__eyebrow { margin-bottom: 12px; }
-  .hero__mark { width: min(420px, 54vw); margin-bottom: 14px; }
+  .hero__mark { width: min(480px, 62vw); margin-bottom: 14px; }
   .hero__line { margin-bottom: 22px; }
   .hero__content .hero__cta { margin-top: clamp(56px, 12vh, 110px); }
 }
