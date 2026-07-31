@@ -674,6 +674,7 @@
   var nav = document.getElementById('nav');
   var scrollHint = document.getElementById('scrollHint');
   var heroSun = document.getElementById('heroSun');
+  var heroBgWrap = document.getElementById('heroBgWrap');
   var heroEl = document.querySelector('.hero');
   var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -688,9 +689,31 @@
       var progress = Math.min(1, y / heroHeight);
       heroSun.style.transform = 'translate(-50%, -50%) translateX(' + (progress * -60) + 'px)';
     }
+
+    // Faint parallax: the photo lags a beat behind the actual scroll.
+    if (heroBgWrap && !prefersReducedMotion) {
+      heroBgWrap.style.transform = 'translateY(' + Math.min(48, y * 0.12) + 'px)';
+    }
   }
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
+
+  // ---------- A few drifting dust motes over the hero photo ----------
+  var heroDust = document.getElementById('heroDust');
+  if (heroDust && !prefersReducedMotion) {
+    var DUST_COUNT = 12;
+    for (var di = 0; di < DUST_COUNT; di++) {
+      var mote = document.createElement('span');
+      mote.className = 'dust-mote';
+      var moteSize = 2 + Math.random() * 2.5;
+      mote.style.width = moteSize + 'px';
+      mote.style.height = moteSize + 'px';
+      mote.style.left = Math.random() * 100 + '%';
+      mote.style.animationDuration = (16 + Math.random() * 12) + 's';
+      mote.style.animationDelay = (Math.random() * -26) + 's';
+      heroDust.appendChild(mote);
+    }
+  }
 
   // ---------- Reveal-on-scroll ----------
   // Rail cards are excluded on purpose: sliding them in while the visitor
