@@ -454,32 +454,6 @@ section {
 
 .cover-disc.is-playing .cover-disc__platter { opacity: 1; }
 
-/* tonearm overlay — sits over the photo's real (static) tonearm at rest */
-/* and swings toward the record once playback is cued up.               */
-.cover-disc__tonearm {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 2;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-
-.cover-disc.is-playing .cover-disc__tonearm { opacity: 1; }
-
-.cover-disc__tonearm-group {
-  transform-box: view-box;
-  transform-origin: 78.7% 27.1%;
-  transform: rotate(0deg);
-  transition: transform 1.1s var(--ease-spring);
-}
-
-.cover-disc.arm-active .cover-disc__tonearm-group {
-  transform: rotate(-55deg);
-}
-
 /* the actual song cover — fills the square at rest; once playing it   */
 /* flips over like a record and lands as a round label on the photo's  */
 /* platter, then spins in place.                                       */

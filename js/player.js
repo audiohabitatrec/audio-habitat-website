@@ -61,40 +61,10 @@
   }
 
   var PLATTER_IMG = 'assets/covers/platter.jpg';
-  var tonearmUid = 0;
-
-  function tonearmSvg() {
-    tonearmUid++;
-    var gradId = 'tonearmChrome-' + tonearmUid;
-    var blurId = 'tonearmSmudge-' + tonearmUid;
-    return '<svg class="cover-disc__tonearm" viewBox="0 0 100 100" aria-hidden="true">' +
-      '<defs>' +
-        '<linearGradient id="' + gradId + '" x1="0" y1="0" x2="1" y2="1">' +
-          '<stop offset="0%" stop-color="#8f8f8f"/>' +
-          '<stop offset="45%" stop-color="#f5f5f5"/>' +
-          '<stop offset="60%" stop-color="#e8e8e8"/>' +
-          '<stop offset="100%" stop-color="#767676"/>' +
-        '</linearGradient>' +
-        '<filter id="' + blurId + '" x="-50%" y="-50%" width="200%" height="200%">' +
-          '<feGaussianBlur stdDeviation="3.2"/>' +
-        '</filter>' +
-      '</defs>' +
-      '<path d="M78.7 27.1 Q76 47 74.35 67.2" stroke="#b7b2a9" stroke-width="7" ' +
-        'stroke-linecap="round" fill="none" opacity="0.85" filter="url(#' + blurId + ')"/>' +
-      '<g class="cover-disc__tonearm-group">' +
-        '<line x1="78.7" y1="27.1" x2="74.35" y2="67.2" stroke="url(#' + gradId + ')" ' +
-          'stroke-width="1.7" stroke-linecap="round"/>' +
-        '<rect x="71.6" y="63.4" width="5.2" height="7.4" rx="1.1" fill="#171717" ' +
-          'transform="rotate(-6.2 74.35 67.2)"/>' +
-        '<circle cx="78.7" cy="27.1" r="3.1" fill="#181818" stroke="#5a5a5a" stroke-width="0.5"/>' +
-      '</g>' +
-    '</svg>';
-  }
 
   function coverMarkup(cover) {
     return '<img class="cover-disc__platter" src="' + PLATTER_IMG + '" alt="" aria-hidden="true">' +
-      (cover ? '<img class="cover-art" src="' + cover + '" alt="">' : ICONS.note) +
-      tonearmSvg();
+      (cover ? '<img class="cover-art" src="' + cover + '" alt="">' : ICONS.note);
   }
 
   function pwywHref(title) {
@@ -141,16 +111,13 @@
     return entry;
   }
 
-  // Playback intro: the record lands & spins first, then the tonearm swings
-  // in, and only then does the audio actually start — see beginPlaybackSequence.
+  // Playback intro: the record lands & spins first, and only then does the
+  // audio actually start — see beginPlaybackSequence.
   var SPIN_UP_MS = 1100;
-  var ARM_SWING_MS = 1100;
   var spinTimer = null;
-  var armTimer = null;
 
   function clearSequenceTimers() {
     if (spinTimer) { clearTimeout(spinTimer); spinTimer = null; }
-    if (armTimer) { clearTimeout(armTimer); armTimer = null; }
   }
 
   function setPlaying(entry, on) {
@@ -158,15 +125,10 @@
     entry.cardEl.classList.toggle('is-active-card', on);
   }
 
-  function setArmActive(entry, on) {
-    entry.playToggleEls.forEach(function (el) { el.classList.toggle('arm-active', on); });
-  }
-
   function clearAllPlaying() {
     clearSequenceTimers();
     Object.keys(registry).forEach(function (k) {
       setPlaying(registry[k], false);
-      setArmActive(registry[k], false);
     });
     gridEl.classList.remove('has-active');
   }
@@ -182,17 +144,13 @@
     setPlaying(entry, true);
     spinTimer = setTimeout(function () {
       spinTimer = null;
-      setArmActive(entry, true);
-      armTimer = setTimeout(function () {
-        armTimer = null;
-        audio.play();
-      }, ARM_SWING_MS);
+      audio.play();
     }, SPIN_UP_MS);
   }
 
   function toggle(entry) {
     var isThis = audio.dataset.key === entry.key;
-    var isBusy = isThis && (spinTimer || armTimer || !audio.paused);
+    var isBusy = isThis && (spinTimer || !audio.paused);
     if (isBusy) {
       audio.pause();
       clearAllPlaying();
@@ -225,7 +183,6 @@
     clearAllPlaying();
     gridEl.classList.add('has-active');
     setPlaying(entry, true);
-    setArmActive(entry, true);
     audio.play();
   }
 
