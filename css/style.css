@@ -403,6 +403,7 @@ section {
   flex-shrink: 0;
   box-shadow: 0 10px 24px rgba(43,42,40,0.05);
   transition: box-shadow 0.4s ease;
+  perspective: 900px;
 }
 
 .cover-disc:active { transform: scale(0.98); }
@@ -419,11 +420,14 @@ section {
 }
 
 /* real turntable-machine photo (plinth, real platter, tonearm, pitch fader) */
+/* inset a bit so the machine reads smaller within the card, with some   */
+/* breathing room around it instead of bleeding to the edges.            */
 .cover-disc__platter {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  inset: 5%;
+  width: 90%;
+  height: 90%;
+  border-radius: 6px;
   object-fit: cover;
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -434,8 +438,8 @@ section {
 .cover-disc.is-playing .cover-disc__platter { opacity: 1; }
 
 /* the actual song cover — fills the square at rest; once playing it   */
-/* shrinks into a round label sitting exactly on the photo's platter   */
-/* and spins in place. */
+/* flips over like a record and lands as a round label on the photo's  */
+/* platter, then spins in place.                                       */
 .cover-art {
   position: absolute;
   inset: 0;
@@ -444,20 +448,26 @@ section {
   object-fit: cover;
   display: block;
   z-index: 1;
-  transition: top 0.55s var(--ease-spring), left 0.55s var(--ease-spring),
-              width 0.55s var(--ease-spring), height 0.55s var(--ease-spring),
-              border-radius 0.55s var(--ease-spring);
+  transition: top 0.65s var(--ease-spring), left 0.65s var(--ease-spring),
+              width 0.65s var(--ease-spring), height 0.65s var(--ease-spring),
+              border-radius 0.65s var(--ease-spring);
 }
 
 .cover-disc.is-playing .cover-art {
-  top: 46.5%;
-  left: 40%;
-  width: 80%;
-  height: 80%;
+  top: 46.9%;
+  left: 41%;
+  width: 72%;
+  height: 72%;
   border-radius: 50%;
-  transform: translate(-50%, -50%);
   box-shadow: 0 0 0 1px rgba(255,255,255,0.15), 0 4px 14px rgba(0,0,0,0.5);
-  animation: spinCover 8s linear infinite;
+  animation: flipOntoPlatter 0.65s var(--ease-spring) forwards,
+             spinCover 8s linear 0.65s infinite;
+}
+
+@keyframes flipOntoPlatter {
+  0%   { transform: translate(0, 0) rotateY(0deg) scale(1); }
+  45%  { transform: translate(-25%, -25%) rotateY(150deg) scale(0.8); }
+  100% { transform: translate(-50%, -50%) rotateY(360deg) scale(1); }
 }
 
 /* --- Seek bar (under the disc) --- */
