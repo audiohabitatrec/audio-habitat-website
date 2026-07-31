@@ -35,10 +35,21 @@
   var playerToggle = document.getElementById('playerToggle');
   var playerArt = document.getElementById('playerArt');
   var playerTitle = document.getElementById('playerTitle');
+  var playerTime = document.getElementById('playerTime');
   var playerSeek = document.getElementById('playerSeek');
   var playerFill = document.getElementById('playerFill');
+  var playerKnob = document.getElementById('playerKnob');
+  var playerSupport = document.getElementById('playerSupport');
 
   var supportLink = document.getElementById('supportLink');
+
+  function formatTime(sec) {
+    if (!isFinite(sec) || isNaN(sec)) return '0:00';
+    sec = Math.max(0, Math.floor(sec));
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
 
   var ICONS = {
     play: '<svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
@@ -113,12 +124,19 @@
     );
   }
 
+  function setPlayerProgress(ratio) {
+    ratio = Math.min(1, Math.max(0, ratio || 0));
+    playerFill.style.width = (ratio * 100) + '%';
+    playerKnob.style.left = (ratio * 100) + '%';
+  }
+
   function updatePlayerBar() {
     var entry = registry[activeKey];
     if (!entry) { playerEl.hidden = true; return; }
     playerEl.hidden = false;
     playerArt.src = entry.cover;
     playerTitle.textContent = entry.displayTitle;
+    playerTime.textContent = formatTime(audio.currentTime) + ' / ' + formatTime(audio.duration);
     playerEl.classList.toggle('is-playing', !audio.paused);
   }
 
@@ -236,12 +254,42 @@
     play(activeKey);
   });
 
-  playerSeek.addEventListener('click', function (e) {
-    if (!audio.duration) return;
+  // Drag-to-scrub on the mini player — pointer events cover mouse, touch
+  // and pen alike, so this works the same on a phone as on desktop.
+  var seekDragging = false;
+
+  function seekRatioFromEvent(e) {
     var rect = playerSeek.getBoundingClientRect();
-    var ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
-    audio.currentTime = ratio * audio.duration;
+    return Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+  }
+
+  playerSeek.addEventListener('pointerdown', function (e) {
+    if (!audio.duration) return;
+    seekDragging = true;
+    playerEl.classList.add('is-dragging');
+    if (playerSeek.setPointerCapture) playerSeek.setPointerCapture(e.pointerId);
+    setPlayerProgress(seekRatioFromEvent(e));
   });
+
+  playerSeek.addEventListener('pointermove', function (e) {
+    if (!seekDragging) return;
+    setPlayerProgress(seekRatioFromEvent(e));
+  });
+
+  function finishSeekDrag(e) {
+    if (!seekDragging) return;
+    seekDragging = false;
+    playerEl.classList.remove('is-dragging');
+    if (audio.duration) audio.currentTime = seekRatioFromEvent(e) * audio.duration;
+  }
+
+  playerSeek.addEventListener('pointerup', finishSeekDrag);
+  playerSeek.addEventListener('pointercancel', function () {
+    seekDragging = false;
+    playerEl.classList.remove('is-dragging');
+  });
+
+  playerSupport.addEventListener('click', function () { supportLink.click(); });
 
   var navLiveDot = document.getElementById('navLiveDot');
   function updateNavLiveDot() {
@@ -253,7 +301,8 @@
   audio.addEventListener('ended', function () { setActiveVisuals(); updatePlayerBar(); updateNavLiveDot(); });
   audio.addEventListener('timeupdate', function () {
     if (!audio.duration) return;
-    playerFill.style.width = ((audio.currentTime / audio.duration) * 100) + '%';
+    if (!seekDragging) setPlayerProgress(audio.currentTime / audio.duration);
+    playerTime.textContent = formatTime(audio.currentTime) + ' / ' + formatTime(audio.duration);
   });
 
   // ---------- Archive: expand in place, paginated SoundCloud embeds ----------
@@ -632,8 +681,11 @@
   onScroll();
 
   // ---------- Reveal-on-scroll ----------
+  // Rail cards are excluded on purpose: sliding them in while the visitor
+  // may also be swiping the row horizontally read as "cards moving around"
+  // rather than a static grid, especially on mobile.
   document.querySelectorAll(
-    '.featured__card, .rail-card, .archive__card, .contact .eyebrow, .contact .section-title, .contact__text, .contact__actions'
+    '.featured__card, .archive__card, .contact .eyebrow, .contact .section-title, .contact__text, .contact__actions'
   ).forEach(function (el) { el.classList.add('reveal'); });
 
   var io = new IntersectionObserver(function (entries) {
