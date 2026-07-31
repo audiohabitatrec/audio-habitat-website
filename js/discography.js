@@ -14,15 +14,6 @@
       (cover ? '<img class="cover-art" src="' + cover + '" alt="">' : ICONS.note);
   }
 
-  function turntableHtml() {
-    return '<div class="tonearm">' +
-        '<div class="tonearm__pivot"></div><div class="tonearm__lamp"></div>' +
-        '<div class="tonearm__head"><span class="tonearm__stylus"></span></div>' +
-      '</div>' +
-      '<div class="cover-wrap__pitch"></div>' +
-      '<div class="cover-wrap__led"></div>';
-  }
-
   OTHER_LABELS.forEach(function (group) {
     var section = document.createElement('div');
     section.className = 'discog-group';
@@ -50,16 +41,13 @@
             coverInner +
             '<div class="cover-disc__overlay">' + ICONS.external + '</div>' +
           '</div>' +
-          turntableHtml() +
         '</div>' +
         '<div class="discog-card__title">' + release.title + '</div>' +
         '<div class="discog-card__source">' + release.source + '</div>';
 
       var disc = a.querySelector('.cover-disc');
-      var deck = a.querySelector('.cover-wrap');
       function setOn(on) {
         disc.classList.toggle('is-playing', on);
-        deck.classList.toggle('is-playing', on);
       }
       a.addEventListener('mouseenter', function () { setOn(true); });
       a.addEventListener('mouseleave', function () { setOn(false); });

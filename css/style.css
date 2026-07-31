@@ -386,100 +386,10 @@ section {
 }
 
 /* --- Cover / turntable deck (shared by single + EP) --- */
-/* Layout mimics a Technics SL-1210: round platter on the left, */
-/* pitch fader in a slim strip on the right, tonearm top-right. */
+/* Real Schallplattenspieler.jpg photo as the machine background; only  */
+/* the round cover-art "label" spins over the platter when playing.    */
 .cover-wrap {
   position: relative;
-  padding-top: 0%;
-  padding-right: 0%;
-  overflow: visible;
-  transition: padding 0.6s var(--ease-spring);
-}
-
-.cover-wrap.is-playing {
-  padding-top: 13%;
-  padding-right: 21%;
-}
-
-.cover-wrap::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(160deg, #5c574f, #37332e);
-  border-radius: 14px;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
-  z-index: 0;
-}
-
-/* decorative pitch fader, right of the platter like on a 1210 */
-.cover-wrap__pitch {
-  position: absolute;
-  top: 34%;
-  right: 9%;
-  width: 4px;
-  height: 46%;
-  background: #0c0b0a;
-  border-radius: 3px;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
-  z-index: 2;
-  opacity: 0;
-  transform: translateY(6px);
-  transition: opacity 0.3s ease, transform 0.45s var(--ease-spring);
-}
-
-.cover-wrap.is-playing .cover-wrap__pitch {
-  opacity: 1;
-  transform: translateY(0);
-  transition-delay: 0.16s;
-}
-
-.cover-wrap__pitch::before {
-  content: '';
-  position: absolute;
-  top: 0; bottom: 0; left: 50%;
-  width: 1px;
-  background: repeating-linear-gradient(180deg, rgba(255,255,255,0.35) 0 1px, transparent 1px 6px);
-  transform: translateX(-50%);
-}
-
-.cover-wrap__pitch::after {
-  content: '';
-  position: absolute;
-  top: 38%;
-  left: 50%;
-  width: 10px;
-  height: 6px;
-  border-radius: 2px;
-  background: linear-gradient(180deg, #d8d3c8, #938d80);
-  transform: translateX(-50%);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.5);
-  transition: top 0.5s var(--ease-spring);
-}
-
-.cover-disc.is-playing ~ .cover-wrap__pitch::after { top: 44%; }
-
-/* power / play indicator LED */
-.cover-wrap__led {
-  position: absolute;
-  top: 6%;
-  right: 9%;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: #4a201a;
-  z-index: 2;
-  opacity: 0;
-  transition: opacity 0.3s ease, background 0.4s ease, box-shadow 0.4s ease;
-}
-
-.cover-wrap.is-playing .cover-wrap__led {
-  opacity: 1;
-  transition-delay: 0.26s;
-}
-
-.cover-disc.is-playing ~ .cover-wrap__led {
-  background: var(--accent);
-  box-shadow: 0 0 6px 1px rgba(224,112,63,0.8);
 }
 
 .cover-disc {
@@ -491,25 +401,24 @@ section {
   cursor: pointer;
   background: linear-gradient(135deg, var(--accent-soft), var(--sand));
   flex-shrink: 0;
-  transition: border-radius 0.6s var(--ease-spring), box-shadow 0.6s ease, transform 0.3s var(--ease-spring);
+  box-shadow: 0 10px 24px rgba(43,42,40,0.05);
+  transition: box-shadow 0.4s ease;
 }
 
-.cover-disc:active { transform: scale(0.96); }
+.cover-disc:active { transform: scale(0.98); }
 
 .cover-disc svg.note { width: 30%; height: 30%; fill: var(--accent); position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 2; }
 
 .cover-disc.is-playing {
-  border-radius: 50%;
-  animation: spinCover 8s linear infinite;
-  box-shadow: 0 0 0 10px #1b1816, 0 12px 30px rgba(0,0,0,0.35);
+  box-shadow: 0 14px 30px rgba(0,0,0,0.22);
 }
 
 @keyframes spinCover {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
-/* real turntable-platter photo, hidden until playing */
+/* real turntable-machine photo (plinth, real platter, tonearm, pitch fader) */
 .cover-disc__platter {
   position: absolute;
   inset: 0;
@@ -524,8 +433,9 @@ section {
 
 .cover-disc.is-playing .cover-disc__platter { opacity: 1; }
 
-/* the actual song cover — full bleed at rest, shrinks to the platter's */
-/* black label area once playing so the platter photo shows around it */
+/* the actual song cover — fills the square at rest; once playing it   */
+/* shrinks into a round label sitting exactly on the photo's platter   */
+/* and spins in place. */
 .cover-art {
   position: absolute;
   inset: 0;
@@ -534,116 +444,21 @@ section {
   object-fit: cover;
   display: block;
   z-index: 1;
-  transition: inset 0.55s var(--ease-spring), border-radius 0.55s var(--ease-spring);
+  transition: top 0.55s var(--ease-spring), left 0.55s var(--ease-spring),
+              width 0.55s var(--ease-spring), height 0.55s var(--ease-spring),
+              border-radius 0.55s var(--ease-spring);
 }
 
 .cover-disc.is-playing .cover-art {
-  inset: 12%;
+  top: 46.5%;
+  left: 40%;
+  width: 80%;
+  height: 80%;
   border-radius: 50%;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 4px 14px rgba(0,0,0,0.45);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.15), 0 4px 14px rgba(0,0,0,0.5);
+  animation: spinCover 8s linear infinite;
 }
-
-/* --- Tonearm (stays fully inside the cover-wrap, clipped by overflow:hidden) --- */
-.tonearm {
-  position: absolute;
-  top: 2%;
-  right: 26%;
-  width: 5px;
-  height: 40%;
-  background: linear-gradient(var(--ink), var(--charcoal));
-  border-radius: 3px;
-  transform-origin: top center;
-  transform: rotate(0deg);
-  opacity: 0;
-  transition: transform 0.8s cubic-bezier(.34,1.1,.4,1), opacity 0.3s ease;
-  z-index: 4;
-  pointer-events: none;
-}
-
-.cover-wrap.is-playing .tonearm {
-  opacity: 1;
-  transition-delay: 0.1s;
-}
-
-/* tonearm lamp — small light illuminating the stylus, like on a 1210 */
-.tonearm__lamp {
-  position: absolute;
-  top: -3px;
-  left: -9px;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: rgba(255, 222, 180, 0.18);
-  transition: background 0.5s ease, box-shadow 0.5s ease;
-}
-
-.cover-disc.is-playing ~ .tonearm .tonearm__lamp {
-  background: rgba(255, 232, 195, 0.95);
-  box-shadow: 0 0 7px 3px rgba(255, 205, 140, 0.55);
-}
-
-/* pivot / counterweight base */
-.tonearm__pivot {
-  position: absolute;
-  top: -7px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--charcoal);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.4), inset 0 0 0 2px rgba(255,255,255,0.15);
-}
-
-/* Ortofon Concorde-style headshell: flat-top wedge body tapering to the stylus */
-.tonearm__head {
-  position: absolute;
-  bottom: -13px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 9px;
-  height: 15px;
-  background: linear-gradient(135deg, #3c3833 0%, #171513 45%, #030302 100%);
-  clip-path: polygon(28% 0%, 72% 0%, 100% 28%, 84% 100%, 16% 100%, 0% 28%);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.18);
-}
-
-.tonearm__head::before {
-  content: '';
-  position: absolute;
-  top: 1.5px;
-  left: 1.5px;
-  width: 1.6px;
-  height: 1.6px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.55);
-}
-
-.tonearm__head::after {
-  content: '';
-  position: absolute;
-  top: 3px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 2px;
-  height: 7px;
-  border-radius: 1px;
-  background: linear-gradient(180deg, var(--accent-2), var(--accent));
-}
-
-.tonearm__stylus {
-  position: absolute;
-  bottom: -1px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: #e9e6e0;
-  box-shadow: 0 0 3px rgba(255,255,255,0.8);
-}
-
-.cover-disc.is-playing ~ .tonearm { transform: rotate(15deg); }
 
 /* --- Seek bar (under the disc) --- */
 .seek {
@@ -1105,8 +920,6 @@ footer {
 }
 
 .discog-card__cover .cover-disc svg.note { fill: var(--ink-soft); opacity: 0.6; }
-
-.discog-card__cover .tonearm { width: 4px; }
 
 .discog-card__title {
   margin-top: 10px;

@@ -34,15 +34,6 @@
       (cover ? '<img class="cover-art" src="' + cover + '" alt="">' : ICONS.note);
   }
 
-  function turntableHtml() {
-    return '<div class="tonearm">' +
-        '<div class="tonearm__pivot"></div><div class="tonearm__lamp"></div>' +
-        '<div class="tonearm__head"><span class="tonearm__stylus"></span></div>' +
-      '</div>' +
-      '<div class="cover-wrap__pitch"></div>' +
-      '<div class="cover-wrap__led"></div>';
-  }
-
   function pwywHref(title) {
     if (!paypalEmail) return '';
     return 'https://www.paypal.com/donate/?business=' + encodeURIComponent(paypalEmail) +
@@ -134,7 +125,6 @@
             coverInner +
             '<div class="cover-disc__overlay">' + ICONS.play + ICONS.pause + '</div>' +
           '</div>' +
-          turntableHtml() +
         '</div>' +
         '<div class="seek" role="slider" aria-label="Seek"><div class="seek__fill"></div></div>' +
         '<span class="ep__badge">EP</span>' +
@@ -201,7 +191,6 @@
             coverInner +
             '<div class="cover-disc__overlay">' + ICONS.play + ICONS.pause + '</div>' +
           '</div>' +
-          turntableHtml() +
         '</div>' +
         '<div class="seek" role="slider" aria-label="Seek"><div class="seek__fill"></div></div>' +
         '<div class="release-card__title">' + release.title + '</div>' +
