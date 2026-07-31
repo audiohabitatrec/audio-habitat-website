@@ -692,26 +692,6 @@
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
-  // ---------- Hero CTA: pinned low, just above the fade, but never over the text ----------
-  // Sits at a fixed % of the hero photo (keeps it clear of the DJ's shirt logo
-  // across viewport heights) unless the centered eyebrow/mark/tagline block
-  // — which grows wider (and taller, since the mark keeps its aspect ratio) on
-  // wide desktop viewports — would run into it; then it backs off just below.
-  var heroContent = document.querySelector('.hero__content');
-  var heroCta = document.querySelector('.hero__cta--floating');
-  function positionHeroCta() {
-    if (!heroEl || !heroContent || !heroCta) return;
-    var heroRect = heroEl.getBoundingClientRect();
-    var contentRect = heroContent.getBoundingClientRect();
-    var gap = 28;
-    var preferredBottom = heroRect.height * 0.18;
-    var maxAllowedBottom = heroRect.height - heroCta.offsetHeight - (contentRect.bottom - heroRect.top) - gap;
-    var bottom = Math.min(preferredBottom, maxAllowedBottom);
-    heroCta.style.bottom = Math.max(bottom, 40) + 'px';
-  }
-  window.addEventListener('resize', positionHeroCta);
-  positionHeroCta();
-
   // ---------- Reveal-on-scroll ----------
   // Rail cards are excluded on purpose: sliding them in while the visitor
   // may also be swiping the row horizontally read as "cards moving around"
