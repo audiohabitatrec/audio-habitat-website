@@ -1003,6 +1003,9 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   color: var(--ink-faint);
 }
 
+.footer__links { display: flex; align-items: center; gap: 18px; }
+.footer__note:hover { color: var(--ink); }
+
 /* ---------- Floating "now playing" glass player ---------- */
 .player {
   position: fixed;
