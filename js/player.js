@@ -27,11 +27,74 @@
     return '<div class="waveform"><span></span><span></span><span></span><span></span><span></span></div>';
   }
 
+  function hashKey(key) {
+    var h = 0;
+    for (var i = 0; i < key.length; i++) { h = (h * 31 + key.charCodeAt(i)) | 0; }
+    return Math.abs(h) || 1;
+  }
+
+  function seededRandom(seed) {
+    var s = seed % 2147483647;
+    if (s <= 0) s += 2147483646;
+    return function () {
+      s = (s * 16807) % 2147483647;
+      return (s - 1) / 2147483646;
+    };
+  }
+
+  function barsHtml(seedKey, count) {
+    var rnd = seededRandom(hashKey(seedKey));
+    var out = '';
+    for (var i = 0; i < count; i++) {
+      var h = Math.round(22 + rnd() * 78);
+      out += '<span style="height:' + h + '%"></span>';
+    }
+    return out;
+  }
+
+  function seekHtml(seedKey) {
+    var bars = barsHtml(seedKey, 50);
+    return '<div class="seek" role="slider" aria-label="Seek" tabindex="0">' +
+      '<div class="seek__bars">' + bars + '</div>' +
+      '<div class="seek__bars seek__bars--played">' + bars + '</div>' +
+    '</div>';
+  }
+
   var PLATTER_IMG = 'assets/covers/platter.jpg';
+  var tonearmUid = 0;
+
+  function tonearmSvg() {
+    tonearmUid++;
+    var gradId = 'tonearmChrome-' + tonearmUid;
+    var blurId = 'tonearmSmudge-' + tonearmUid;
+    return '<svg class="cover-disc__tonearm" viewBox="0 0 100 100" aria-hidden="true">' +
+      '<defs>' +
+        '<linearGradient id="' + gradId + '" x1="0" y1="0" x2="1" y2="1">' +
+          '<stop offset="0%" stop-color="#8f8f8f"/>' +
+          '<stop offset="45%" stop-color="#f5f5f5"/>' +
+          '<stop offset="60%" stop-color="#e8e8e8"/>' +
+          '<stop offset="100%" stop-color="#767676"/>' +
+        '</linearGradient>' +
+        '<filter id="' + blurId + '" x="-50%" y="-50%" width="200%" height="200%">' +
+          '<feGaussianBlur stdDeviation="3.2"/>' +
+        '</filter>' +
+      '</defs>' +
+      '<path d="M78.7 27.1 Q76 47 74.35 67.2" stroke="#b7b2a9" stroke-width="7" ' +
+        'stroke-linecap="round" fill="none" opacity="0.85" filter="url(#' + blurId + ')"/>' +
+      '<g class="cover-disc__tonearm-group">' +
+        '<line x1="78.7" y1="27.1" x2="74.35" y2="67.2" stroke="url(#' + gradId + ')" ' +
+          'stroke-width="1.7" stroke-linecap="round"/>' +
+        '<rect x="71.6" y="63.4" width="5.2" height="7.4" rx="1.1" fill="#171717" ' +
+          'transform="rotate(-6.2 74.35 67.2)"/>' +
+        '<circle cx="78.7" cy="27.1" r="3.1" fill="#181818" stroke="#5a5a5a" stroke-width="0.5"/>' +
+      '</g>' +
+    '</svg>';
+  }
 
   function coverMarkup(cover) {
     return '<img class="cover-disc__platter" src="' + PLATTER_IMG + '" alt="" aria-hidden="true">' +
-      (cover ? '<img class="cover-art" src="' + cover + '" alt="">' : ICONS.note);
+      (cover ? '<img class="cover-art" src="' + cover + '" alt="">' : ICONS.note) +
+      tonearmSvg();
   }
 
   function pwywHref(title) {
@@ -62,6 +125,7 @@
   }
 
   var registry = {}; // key -> entry
+  var pendingSeekRatio = null;
 
   function makeEntry(key, track, opts) {
     var entry = {
@@ -71,10 +135,22 @@
       cardEl: opts.cardEl,
       timeEl: opts.timeEl,
       seekEl: opts.seekEl,
-      seekFillEl: opts.seekFillEl
+      seekPlayedEl: opts.seekPlayedEl
     };
     registry[key] = entry;
     return entry;
+  }
+
+  // Playback intro: the record lands & spins first, then the tonearm swings
+  // in, and only then does the audio actually start — see beginPlaybackSequence.
+  var SPIN_UP_MS = 1100;
+  var ARM_SWING_MS = 1100;
+  var spinTimer = null;
+  var armTimer = null;
+
+  function clearSequenceTimers() {
+    if (spinTimer) { clearTimeout(spinTimer); spinTimer = null; }
+    if (armTimer) { clearTimeout(armTimer); armTimer = null; }
   }
 
   function setPlaying(entry, on) {
@@ -82,33 +158,109 @@
     entry.cardEl.classList.toggle('is-active-card', on);
   }
 
+  function setArmActive(entry, on) {
+    entry.playToggleEls.forEach(function (el) { el.classList.toggle('arm-active', on); });
+  }
+
   function clearAllPlaying() {
-    Object.keys(registry).forEach(function (k) { setPlaying(registry[k], false); });
+    clearSequenceTimers();
+    Object.keys(registry).forEach(function (k) {
+      setPlaying(registry[k], false);
+      setArmActive(registry[k], false);
+    });
     gridEl.classList.remove('has-active');
+  }
+
+  function setSeekProgress(entry, ratio) {
+    ratio = Math.min(1, Math.max(0, ratio || 0));
+    entry.seekPlayedEl.style.clipPath = 'inset(0 ' + ((1 - ratio) * 100) + '% 0 0)';
+  }
+
+  function beginPlaybackSequence(entry) {
+    clearSequenceTimers();
+    gridEl.classList.add('has-active');
+    setPlaying(entry, true);
+    spinTimer = setTimeout(function () {
+      spinTimer = null;
+      setArmActive(entry, true);
+      armTimer = setTimeout(function () {
+        armTimer = null;
+        audio.play();
+      }, ARM_SWING_MS);
+    }, SPIN_UP_MS);
   }
 
   function toggle(entry) {
     var isThis = audio.dataset.key === entry.key;
-    if (isThis && !audio.paused) {
+    var isBusy = isThis && (spinTimer || armTimer || !audio.paused);
+    if (isBusy) {
       audio.pause();
-    } else {
-      if (!isThis) {
-        audio.src = entry.file;
-        audio.dataset.key = entry.key;
-        entry.timeEl.textContent = '0:00 / --:--';
-        entry.seekFillEl.style.width = '0%';
-      }
-      audio.play();
+      clearAllPlaying();
+      return;
     }
+    audio.pause();
+    if (!isThis) {
+      audio.src = entry.file;
+      audio.dataset.key = entry.key;
+      entry.timeEl.textContent = '0:00 / --:--';
+      setSeekProgress(entry, 0);
+    }
+    clearAllPlaying();
+    beginPlaybackSequence(entry);
   }
 
-  function wireSeek(seekEl, seekFillEl, key) {
-    seekEl.addEventListener('click', function (e) {
-      if (audio.dataset.key !== key || !audio.duration) return;
-      var rect = seekEl.getBoundingClientRect();
-      var ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+  function playFromRatio(entry, ratio) {
+    clearSequenceTimers();
+    var isActive = audio.dataset.key === entry.key;
+    if (!isActive) {
+      pendingSeekRatio = ratio;
+      audio.src = entry.file;
+      audio.dataset.key = entry.key;
+      entry.timeEl.textContent = '0:00 / --:--';
+    } else if (audio.duration) {
       audio.currentTime = ratio * audio.duration;
+    } else {
+      pendingSeekRatio = ratio;
+    }
+    clearAllPlaying();
+    gridEl.classList.add('has-active');
+    setPlaying(entry, true);
+    setArmActive(entry, true);
+    audio.play();
+  }
+
+  function wireSeek(seekEl, getEntry) {
+    var dragging = false;
+
+    function ratioFromEvent(e) {
+      var rect = seekEl.getBoundingClientRect();
+      return Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+    }
+
+    seekEl.addEventListener('pointerdown', function (e) {
+      var entry = getEntry();
+      if (!entry) return;
+      dragging = true;
+      if (seekEl.setPointerCapture) seekEl.setPointerCapture(e.pointerId);
+      setSeekProgress(entry, ratioFromEvent(e));
     });
+
+    seekEl.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      var entry = getEntry();
+      if (!entry) return;
+      setSeekProgress(entry, ratioFromEvent(e));
+    });
+
+    function finish(e) {
+      if (!dragging) return;
+      dragging = false;
+      var entry = getEntry();
+      if (entry) playFromRatio(entry, ratioFromEvent(e));
+    }
+
+    seekEl.addEventListener('pointerup', finish);
+    seekEl.addEventListener('pointercancel', function () { dragging = false; });
   }
 
   releases.forEach(function (release, ri) {
@@ -126,7 +278,7 @@
             '<div class="cover-disc__overlay">' + ICONS.play + ICONS.pause + '</div>' +
           '</div>' +
         '</div>' +
-        '<div class="seek" role="slider" aria-label="Seek"><div class="seek__fill"></div></div>' +
+        seekHtml('ep-' + ri) +
         '<span class="ep__badge">EP</span>' +
         '<div class="ep__title">' + release.title + '</div>';
       card.appendChild(coverWrap);
@@ -134,7 +286,7 @@
       var coverEl = coverWrap.querySelector('.cover-disc');
       var deckEl = coverWrap.querySelector('.cover-wrap');
       var epSeekEl = coverWrap.querySelector('.seek');
-      var epSeekFillEl = coverWrap.querySelector('.seek__fill');
+      var epSeekPlayedEl = coverWrap.querySelector('.seek__bars--played');
 
       var list = document.createElement('ul');
       list.className = 'ep__tracks';
@@ -160,17 +312,18 @@
           cardEl: card,
           timeEl: timeEl,
           seekEl: epSeekEl,
-          seekFillEl: epSeekFillEl
+          seekPlayedEl: epSeekPlayedEl
         });
 
         if (ti === 0) epActiveKey = key;
-        wireSeek(epSeekEl, epSeekFillEl, key);
 
         li.querySelector('.ep-track__play').addEventListener('click', function () {
           epActiveKey = key;
           toggle(entry);
         });
       });
+
+      wireSeek(epSeekEl, function () { return registry[epActiveKey]; });
 
       coverEl.addEventListener('click', function () {
         if (epActiveKey && registry[epActiveKey]) toggle(registry[epActiveKey]);
@@ -192,7 +345,7 @@
             '<div class="cover-disc__overlay">' + ICONS.play + ICONS.pause + '</div>' +
           '</div>' +
         '</div>' +
-        '<div class="seek" role="slider" aria-label="Seek"><div class="seek__fill"></div></div>' +
+        seekHtml(key) +
         '<div class="release-card__title">' + release.title + '</div>' +
         '<div class="release-card__row">' + waveformHtml() +
           '<div class="release-card__time">--:--</div>' +
@@ -205,26 +358,17 @@
       var deckEl = card.querySelector('.cover-wrap');
       var timeEl = card.querySelector('.release-card__time');
       var seekEl = card.querySelector('.seek');
-      var seekFillEl = card.querySelector('.seek__fill');
+      var seekPlayedEl = card.querySelector('.seek__bars--played');
       var entry = makeEntry(key, track, {
         playToggleEls: [card, coverEl, deckEl],
         cardEl: card,
         timeEl: timeEl,
         seekEl: seekEl,
-        seekFillEl: seekFillEl
+        seekPlayedEl: seekPlayedEl
       });
 
-      wireSeek(seekEl, seekFillEl, key);
+      wireSeek(seekEl, function () { return entry; });
       coverEl.addEventListener('click', function () { toggle(entry); });
-    }
-  });
-
-  audio.addEventListener('play', function () {
-    clearAllPlaying();
-    var entry = registry[audio.dataset.key];
-    if (entry) {
-      gridEl.classList.add('has-active');
-      setPlaying(entry, true);
     }
   });
 
@@ -233,13 +377,17 @@
   audio.addEventListener('loadedmetadata', function () {
     var entry = registry[audio.dataset.key];
     if (entry) entry.timeEl.textContent = formatTime(audio.currentTime) + ' / ' + formatTime(audio.duration);
+    if (pendingSeekRatio != null && audio.duration) {
+      audio.currentTime = pendingSeekRatio * audio.duration;
+      pendingSeekRatio = null;
+    }
   });
 
   audio.addEventListener('timeupdate', function () {
     var entry = registry[audio.dataset.key];
     if (!entry || !audio.duration) return;
     entry.timeEl.textContent = formatTime(audio.currentTime) + ' / ' + formatTime(audio.duration);
-    entry.seekFillEl.style.width = ((audio.currentTime / audio.duration) * 100) + '%';
+    setSeekProgress(entry, audio.currentTime / audio.duration);
   });
 
   audio.addEventListener('ended', function () {
@@ -247,7 +395,7 @@
     var entry = registry[audio.dataset.key];
     if (entry) {
       entry.timeEl.textContent = '0:00 / ' + formatTime(audio.duration);
-      entry.seekFillEl.style.width = '0%';
+      setSeekProgress(entry, 0);
     }
   });
 })();

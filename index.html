@@ -11,10 +11,10 @@
 <body>
 
 <header class="topbar">
-  <div class="topbar__brand">
+  <a class="topbar__brand" href="impressum.html">
     <img src="assets/ids-music-hub-logo-web.jpg" alt="iDs Music Hub Logo">
     <span>iDs Music Hub</span>
-  </div>
+  </a>
   <div class="lang-toggle" id="langToggle">
     <button type="button" data-set-lang="de">DE</button>
     <button type="button" data-set-lang="en">EN</button>
@@ -33,8 +33,8 @@
   <div class="hero__haze" aria-hidden="true"></div>
   <div class="hero__content">
     <div class="hero__kicker">
-      <span data-lang="de">iDs Music Hub präsentiert</span>
-      <span data-lang="en">iDs Music Hub presents</span>
+      <span data-lang="de"><span class="hero__kicker-main">iDs Music Hub</span><span class="hero__kicker-sub">präsentiert</span></span>
+      <span data-lang="en"><span class="hero__kicker-main">iDs Music Hub</span><span class="hero__kicker-sub">presents</span></span>
     </div>
     <img class="hero__logo" src="assets/audio-habitat-logo.png" alt="Audio Habitat">
     <div class="hero__socials">
@@ -55,16 +55,14 @@
       </div>
       <div class="hero__homage-text">
         <div data-lang="de">
-          <p>Drum &amp; Bass ist keine Musikrichtung. Es ist ein Herzschlag, der Kontinente verbindet.</p>
-          <p>Er beginnt in kleinen Kellern, hallt durch verlassene Lagerhallen, trägt Menschen über Festivals unter freiem Himmel und findet seinen Weg in jeden Winkel der Welt. Von London nach Berlin, von Tokio bis Rio – ein Beat, ein Bass, ein einziger Moment genügt. Plötzlich verschwinden Grenzen. Herkunft verliert ihre Bedeutung. Sprache wird überflüssig. Denn auf dem Dancefloor sprechen wir alle dieselbe Sprache: Rhythmus.</p>
-          <p>Musik schafft etwas, das Worte nur selten erreichen. Sie lässt Fremde gemeinsam springen, gemeinsam fühlen und gemeinsam Erinnerungen erschaffen. Aus einzelnen Menschen wird eine Crowd. Aus einer Crowd wird eine Familie.</p>
-          <p>Genau dafür steht iDs Music Hub. Für Menschen, die dieselbe Leidenschaft teilen. Für Künstler, die Emotionen in Schall verwandeln. Für Zusammenhalt statt Ego. Und für jeden einzelnen Track, der irgendwo auf der Welt Menschen verbindet, ohne auch nur ein einziges Wort sagen zu müssen.</p>
+          <p>Drum &amp; Bass ist kein Genre. Es ist ein Herzschlag.</p>
+          <p>Ein Beat. Ein Bass. Ein Moment. Und plötzlich spielt es keine Rolle mehr, wer du bist oder woher du kommst. Auf dem Dancefloor werden Fremde zu einer Familie.</p>
+          <p>Genau dafür steht iDs Music Hub. Für Musik, die Menschen verbindet.</p>
         </div>
         <div data-lang="en">
-          <p>Drum &amp; Bass isn't a music genre. It's a heartbeat that connects continents.</p>
-          <p>It begins in small basements, echoes through abandoned warehouses, carries people across festivals under open skies, and finds its way into every corner of the world. From London to Berlin, from Tokyo to Rio — one beat, one bassline, a single moment is enough. Suddenly borders disappear. Where you're from stops mattering. Language becomes unnecessary. Because on the dancefloor, we all speak the same language: rhythm.</p>
-          <p>Music creates something words rarely reach. It lets strangers jump together, feel together, and build memories together. Individuals become a crowd. A crowd becomes a family.</p>
-          <p>That's exactly what iDs Music Hub stands for. For people who share the same passion. For artists who turn emotion into sound. For unity over ego. And for every single track that connects people somewhere in the world, without ever needing to say a word.</p>
+          <p>Drum &amp; Bass isn't a genre. It's a heartbeat.</p>
+          <p>One beat. One bass. One moment. And suddenly it no longer matters who you are or where you're from. On the dancefloor, strangers become family.</p>
+          <p>That's exactly what iDs Music Hub stands for. For music that connects people.</p>
         </div>
       </div>
       <div class="hero__homage-signoff">— Daniel da Silva</div>
@@ -114,6 +112,33 @@
     </div>
 
     <audio id="audioPlayer" preload="none"></audio>
+  </div>
+</section>
+
+<section class="soundcloud-releases" id="soundcloud">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">
+        <span data-lang="de">Mehr Musik</span>
+        <span data-lang="en">More Music</span>
+      </div>
+      <h2>
+        <span data-lang="de">Weitere Releases auf SoundCloud</span>
+        <span data-lang="en">More Releases on SoundCloud</span>
+      </h2>
+      <p style="margin-top:16px;color:var(--ink-soft);font-size:14px;">
+        <span data-lang="de">Ältere Tracks &amp; Back-Catalog von Audio Habitat — direkt hier abspielen.</span>
+        <span data-lang="en">Older tracks &amp; back catalog from Audio Habitat — play them right here.</span>
+      </p>
+    </div>
+
+    <div class="soundcloud-list" id="soundcloudList"></div>
+    <div class="soundcloud-pager" id="soundcloudPager"></div>
+
+    <a class="btn" style="margin-top:20px;" href="https://soundcloud.com/audiohabitatrec" target="_blank" rel="noopener">
+      <span data-lang="de">Auf SoundCloud ansehen</span>
+      <span data-lang="en">View on SoundCloud</span>
+    </a>
   </div>
 </section>
 
@@ -172,6 +197,8 @@
 
 <script src="js/tracks.js"></script>
 <script src="js/player.js"></script>
+<script src="js/soundcloud-archive.js"></script>
+<script src="js/soundcloud.js"></script>
 <!-- Discography (other labels) temporarily disabled — js/other-releases.js and js/discography.js still contain the data/logic, ready to re-enable later. -->
 <script src="js/main.js"></script>
 </body>
