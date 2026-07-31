@@ -479,6 +479,13 @@ section {
   box-shadow: 0 0 0 1px rgba(255,255,255,0.15), 0 4px 14px rgba(0,0,0,0.5);
   animation: flipOntoPlatter 1.1s var(--ease-spring) forwards,
              spinCover 10s linear 1.1s infinite;
+  cursor: grab;
+  touch-action: none;
+}
+
+.cover-disc.is-scratching .cover-art {
+  cursor: grabbing;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.15), 0 6px 20px rgba(0,0,0,0.6);
 }
 
 @keyframes flipOntoPlatter {

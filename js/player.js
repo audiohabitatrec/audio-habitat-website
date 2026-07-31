@@ -138,6 +138,22 @@
     entry.seekPlayedEl.style.clipPath = 'inset(0 ' + ((1 - ratio) * 100) + '% 0 0)';
   }
 
+  // Grabbing the spinning record ("scratching"): holding it pauses playback,
+  // twisting it clockwise/counter-clockwise scrubs forward/backward, and
+  // letting go resumes playback from wherever it was left — the audio only
+  // really stops when the track ends or another track starts.
+  var SEC_PER_ROTATION = 10; // matches the spinCover animation's rotation speed
+  var scratchPauseGuard = false;
+
+  function getSpinAnimation(artEl) {
+    if (!artEl.getAnimations) return null;
+    var anims = artEl.getAnimations();
+    for (var i = 0; i < anims.length; i++) {
+      if (anims[i].animationName === 'spinCover') return anims[i];
+    }
+    return null;
+  }
+
   function beginPlaybackSequence(entry) {
     clearSequenceTimers();
     gridEl.classList.add('has-active');
@@ -220,6 +236,84 @@
     seekEl.addEventListener('pointercancel', function () { dragging = false; });
   }
 
+  function wireScratch(coverEl) {
+    var artEl = coverEl.querySelector('.cover-art');
+    if (!artEl) return;
+
+    var dragging = false;
+    var suppressClick = false;
+    var centerX, centerY, lastAngle, spinAnim, entryKey, resumeTime;
+
+    function angleAt(e) {
+      return Math.atan2(e.clientY - centerY, e.clientX - centerX) * 180 / Math.PI;
+    }
+
+    artEl.addEventListener('pointerdown', function (e) {
+      if (!coverEl.classList.contains('is-playing') || audio.paused) return;
+      spinAnim = getSpinAnimation(artEl);
+      if (!spinAnim) return;
+
+      dragging = true;
+      suppressClick = true;
+      entryKey = audio.dataset.key;
+      resumeTime = audio.currentTime;
+      var rect = artEl.getBoundingClientRect();
+      centerX = rect.left + rect.width / 2;
+      centerY = rect.top + rect.height / 2;
+      lastAngle = angleAt(e);
+
+      spinAnim.pause();
+      coverEl.classList.add('is-scratching');
+      scratchPauseGuard = true;
+      audio.pause();
+
+      if (artEl.setPointerCapture) artEl.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+
+    artEl.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      var angle = angleAt(e);
+      var delta = angle - lastAngle;
+      if (delta > 180) delta -= 360;
+      if (delta < -180) delta += 360;
+      lastAngle = angle;
+
+      spinAnim.currentTime = (spinAnim.currentTime || 0) + (delta / 360) * SEC_PER_ROTATION * 1000;
+
+      if (audio.duration) {
+        resumeTime = Math.min(audio.duration, Math.max(0, resumeTime + (delta / 360) * SEC_PER_ROTATION));
+        audio.currentTime = resumeTime;
+      }
+    });
+
+    function endDrag() {
+      if (!dragging) return;
+      dragging = false;
+      coverEl.classList.remove('is-scratching');
+      if (spinAnim) spinAnim.play();
+      if (audio.dataset.key === entryKey) {
+        audio.currentTime = resumeTime;
+        audio.play();
+      }
+    }
+
+    artEl.addEventListener('pointerup', endDrag);
+    artEl.addEventListener('pointercancel', endDrag);
+
+    // Suppress the synthetic click that follows a scratch gesture — capture
+    // phase on coverEl catches it regardless of which element it ends up
+    // targeting (mouse "click" isn't always re-targeted by pointer capture
+    // the way pointer events are).
+    coverEl.addEventListener('click', function (e) {
+      if (suppressClick) {
+        suppressClick = false;
+        e.stopImmediatePropagation();
+        e.preventDefault();
+      }
+    }, true);
+  }
+
   releases.forEach(function (release, ri) {
     if (release.type === 'ep') {
       var card = document.createElement('div');
@@ -281,6 +375,7 @@
       });
 
       wireSeek(epSeekEl, function () { return registry[epActiveKey]; });
+      wireScratch(coverEl);
 
       coverEl.addEventListener('click', function () {
         if (epActiveKey && registry[epActiveKey]) toggle(registry[epActiveKey]);
@@ -325,11 +420,15 @@
       });
 
       wireSeek(seekEl, function () { return entry; });
+      wireScratch(coverEl);
       coverEl.addEventListener('click', function () { toggle(entry); });
     }
   });
 
-  audio.addEventListener('pause', clearAllPlaying);
+  audio.addEventListener('pause', function () {
+    if (scratchPauseGuard) { scratchPauseGuard = false; return; }
+    clearAllPlaying();
+  });
 
   audio.addEventListener('loadedmetadata', function () {
     var entry = registry[audio.dataset.key];
