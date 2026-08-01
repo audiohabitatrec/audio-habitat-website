@@ -1580,12 +1580,14 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 .support__price span { font-size: 13px; color: var(--ink-soft); }
 
 .support__price input {
-  width: 46px;
+  width: 54px;
   border: none;
   background: var(--paper-dim);
   border-radius: 8px;
   padding: 5px 6px;
-  font-size: 13px;
+  /* 16px to stop iOS Safari auto-zooming the page on focus (see the
+     matching note on .inquiry-field input). */
+  font-size: 16px;
   font-family: inherit;
   color: var(--ink);
   text-align: right;
@@ -1666,7 +1668,10 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   background: var(--paper-dim);
   border-radius: 10px;
   padding: 11px 13px;
-  font-size: 14px;
+  /* 16px, not smaller: iOS Safari auto-zooms the whole page on focus for
+     any input under 16px, which — inside a fixed-position modal — makes
+     the field look broken/unwritable rather than just visually bigger. */
+  font-size: 16px;
   font-family: inherit;
   color: var(--ink);
   transition: border-color 0.2s ease, background 0.2s ease;
