@@ -705,8 +705,12 @@
   var heroSun = document.getElementById('heroSun');
   var heroBgWrap = document.getElementById('heroBgWrap');
   var heroMarkWrap = document.getElementById('heroMarkWrap');
-  var heroTextEls = document.querySelectorAll('.hero__eyebrow, .hero__line, .hero__slogan, .hero__cta');
   var heroEl = document.querySelector('.hero');
+  // Scoped to heroEl on purpose: .hero__cta is reused as a generic button
+  // style all over the page (contact cards, PayPal, inquiry forms), so an
+  // unscoped document-wide query here was fading out and disabling every
+  // button on the site once scrolled past ~60% of the hero's height.
+  var heroTextEls = heroEl ? heroEl.querySelectorAll('.hero__eyebrow, .hero__line, .hero__slogan, .hero__cta') : [];
   var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function onScroll() {
