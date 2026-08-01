@@ -511,7 +511,11 @@
     selected.forEach(function (track) {
       var a = document.createElement('a');
       a.className = 'support__download-item';
-      a.href = track.wav;
+      // GitHub Pages can't resolve Git LFS pointers, so it serves the WAV
+      // files' tiny pointer text instead of the actual audio — falling
+      // back to the M4A here until the WAVs are hosted somewhere that
+      // isn't Pages+LFS. Revert this once that's sorted (see track.wav).
+      a.href = track.file;
       a.download = '';
       a.innerHTML =
         '<img src="' + track.cover + '" alt="">' +
