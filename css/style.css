@@ -1697,6 +1697,8 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 .support__download-item > .support__download-title { flex: 1; }
 .support__download-item > svg { flex-shrink: 0; fill: currentColor; }
 
+.support__download-item.is-loading { opacity: 0.6; pointer-events: none; }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 860px) {
   .nav__links { display: none; }

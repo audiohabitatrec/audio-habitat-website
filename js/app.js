@@ -510,12 +510,51 @@
       a.className = 'support__download-item';
       // track.wav falls back to the M4A for the one track whose WAV master
       // is too large for a normal (non-LFS) file on GitHub Pages.
-      a.href = track.wav;
-      a.download = 'Audio Habitat - ' + track.trackTitle + track.wav.slice(track.wav.lastIndexOf('.'));
+      var fileUrl = track.wav;
+      var fileName = 'Audio Habitat - ' + track.trackTitle + fileUrl.slice(fileUrl.lastIndexOf('.'));
+      a.href = fileUrl;
+      a.download = fileName;
+      var labelHtml = '<span>' + track.title + '</span>';
       a.innerHTML =
         '<img src="' + track.cover + '" alt="">' +
-        '<span class="support__download-title"><span>' + track.title + '</span></span>' +
+        '<span class="support__download-title">' + labelHtml + '</span>' +
         '<svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 3v12M7 10l5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+      // Plain `download="..."` is unreliable on iOS Safari for larger
+      // files — it silently falls back to the URL's own filename. Fetching
+      // the file ourselves and saving it as a blob forces the browser to
+      // use our filename instead.
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (a.classList.contains('is-loading')) return;
+        a.classList.add('is-loading');
+        var titleEl = a.querySelector('.support__download-title');
+        var originalLabel = titleEl.innerHTML;
+        titleEl.innerHTML = '<span data-lang="de">Lädt …</span><span data-lang="en">Loading …</span>';
+        fetch(fileUrl)
+          .then(function (res) { return res.blob(); })
+          .then(function (blob) {
+            var blobUrl = URL.createObjectURL(blob);
+            var tempA = document.createElement('a');
+            tempA.href = blobUrl;
+            tempA.download = fileName;
+            document.body.appendChild(tempA);
+            tempA.click();
+            tempA.remove();
+            setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 30000);
+          })
+          .catch(function () {
+            // Fetch failed (offline, etc.) — fall back to a normal
+            // navigation, which still downloads the file, just possibly
+            // under its raw filename.
+            window.location.href = fileUrl;
+          })
+          .finally(function () {
+            a.classList.remove('is-loading');
+            titleEl.innerHTML = originalLabel;
+          });
+      });
+
       supportDownloadsEl.appendChild(a);
     });
 
