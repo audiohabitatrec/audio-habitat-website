@@ -22,35 +22,35 @@ var RELEASES = [
     title: "4 Reasons",
     cover: "assets/covers/4reasons.jpg",
     tracks: [
-      { title: "The Reason", file: "assets/tracks/the-reason.m4a" },
-      { title: "Nightfall", file: "assets/tracks/nightfall.m4a" },
-      { title: "Mind of Blank", file: "assets/tracks/mind-of-blank.m4a" },
-      { title: "Nowhere to Hide", file: "assets/tracks/nowhere-to-hide.m4a" }
+      { title: "The Reason", file: "assets/tracks/the-reason.m4a", wav: "assets/tracks/the-reason.wav" },
+      { title: "Nightfall", file: "assets/tracks/nightfall.m4a", wav: "assets/tracks/nightfall.wav" },
+      { title: "Mind of Blank", file: "assets/tracks/mind-of-blank.m4a", wav: "assets/tracks/mind-of-blank.wav" },
+      { title: "Nowhere to Hide", file: "assets/tracks/nowhere-to-hide.m4a", wav: "assets/tracks/nowhere-to-hide.wav" }
     ]
   },
   { type: "single", title: "Signal", cover: "assets/covers/signal.jpg",
-    tracks: [{ title: "Signal", file: "assets/tracks/signal.m4a",
+    tracks: [{ title: "Signal", file: "assets/tracks/signal.m4a", wav: "assets/tracks/signal.wav",
       apple: "https://music.apple.com/de/album/signal-single/6789963854" }] },
   { type: "single", title: "Dope Bass", cover: "assets/covers/dope-bass.jpg",
-    tracks: [{ title: "Dope Bass", file: "assets/tracks/dope-bass.m4a" }] },
+    tracks: [{ title: "Dope Bass", file: "assets/tracks/dope-bass.m4a", wav: "assets/tracks/dope-bass.wav" }] },
   { type: "single", title: "Reece Drop", cover: "assets/covers/reece-drop.jpg",
-    tracks: [{ title: "Reece Drop", file: "assets/tracks/reece-drop.m4a" }] },
+    tracks: [{ title: "Reece Drop", file: "assets/tracks/reece-drop.m4a", wav: "assets/tracks/reece-drop.wav" }] },
   { type: "single", title: "Cold Static", cover: "assets/covers/cold-static.jpg",
-    tracks: [{ title: "Cold Static", file: "assets/tracks/cold-static.m4a" }] },
+    tracks: [{ title: "Cold Static", file: "assets/tracks/cold-static.m4a", wav: "assets/tracks/cold-static.wav" }] },
   { type: "single", title: "Shadow Pulse", cover: "assets/covers/shadow-pulse.jpg",
-    tracks: [{ title: "Shadow Pulse", file: "assets/tracks/shadow-pulse.m4a" }] },
+    tracks: [{ title: "Shadow Pulse", file: "assets/tracks/shadow-pulse.m4a", wav: "assets/tracks/shadow-pulse.wav" }] },
   { type: "single", title: "Pressure Rise", cover: "assets/covers/pressure-rise.jpg",
-    tracks: [{ title: "Pressure Rise", file: "assets/tracks/pressure-rise.m4a" }] },
+    tracks: [{ title: "Pressure Rise", file: "assets/tracks/pressure-rise.m4a", wav: "assets/tracks/pressure-rise.wav" }] },
   { type: "single", title: "Silent Hunter", cover: "assets/covers/silent-hunter.jpg",
-    tracks: [{ title: "Silent Hunter", file: "assets/tracks/silent-hunter.m4a" }] },
+    tracks: [{ title: "Silent Hunter", file: "assets/tracks/silent-hunter.m4a", wav: "assets/tracks/silent-hunter.wav" }] },
   { type: "single", title: "Step in the Rhythm", cover: "assets/covers/step-in-the-rhythm.jpg",
-    tracks: [{ title: "Step in the Rhythm", file: "assets/tracks/step-in-the-rhythm.m4a" }] },
+    tracks: [{ title: "Step in the Rhythm", file: "assets/tracks/step-in-the-rhythm.m4a", wav: "assets/tracks/step-in-the-rhythm.wav" }] },
   { type: "single", title: "Let's Go", cover: "assets/covers/lets-go.jpg",
-    tracks: [{ title: "Let's Go", file: "assets/tracks/lets-go.m4a" }] },
+    tracks: [{ title: "Let's Go", file: "assets/tracks/lets-go.m4a", wav: "assets/tracks/lets-go.wav" }] },
   { type: "single", title: "Change Your Mind", cover: "assets/covers/change-your-mind.jpg",
-    tracks: [{ title: "Change Your Mind", file: "assets/tracks/change-your-mind.m4a" }] },
+    tracks: [{ title: "Change Your Mind", file: "assets/tracks/change-your-mind.m4a", wav: "assets/tracks/change-your-mind.wav" }] },
   { type: "single", title: "Face the Future", cover: DEFAULT_COVER,
-    tracks: [{ title: "Face the Future", file: "assets/tracks/face-the-future.m4a" }] }
+    tracks: [{ title: "Face the Future", file: "assets/tracks/face-the-future.m4a", wav: "assets/tracks/face-the-future.wav" }] }
 ];
 
 /*

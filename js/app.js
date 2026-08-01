@@ -387,7 +387,8 @@
         key: makeKey(ri, ti),
         title: release.type === 'ep' ? (release.title + ' — ' + track.title) : release.title,
         cover: assetPath(release.cover),
-        file: assetPath(track.file)
+        file: assetPath(track.file),
+        wav: track.wav ? assetPath(track.wav) : assetPath(track.file)
       });
     });
   });
@@ -510,7 +511,7 @@
     selected.forEach(function (track) {
       var a = document.createElement('a');
       a.className = 'support__download-item';
-      a.href = track.file;
+      a.href = track.wav;
       a.download = '';
       a.innerHTML =
         '<img src="' + track.cover + '" alt="">' +
