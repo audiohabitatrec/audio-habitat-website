@@ -970,7 +970,11 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   -webkit-backdrop-filter: blur(24px) saturate(1.25);
   box-shadow: 0 20px 46px -28px rgba(23,20,15,0.24);
   transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease), border-color 0.5s ease;
-  overflow: hidden;
+  /* No overflow:hidden here: combined with backdrop-filter + the hover
+     transform below, that trio is a known Safari/WebKit compositing bug
+     that can render the card's content blank or partial. The decorative
+     ::before line is inset far enough not to need corner clipping. */
+  will-change: transform;
 }
 
 .contact-card::before {
@@ -1372,6 +1376,86 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   color: var(--ink-faint);
   text-align: center;
   margin: 14px 0 0;
+}
+
+/* ---------- Hero easter egg: a small pulsing dot + glass manifesto ---------- */
+.hero__hint {
+  position: absolute;
+  top: 88%;
+  left: 74%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.hero__hint-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 0 rgba(224,112,63,0.55);
+  animation: heroHintPulse 2.2s ease-out infinite;
+}
+
+@keyframes heroHintPulse {
+  0% { box-shadow: 0 0 0 0 rgba(224,112,63,0.55); }
+  70% { box-shadow: 0 0 0 14px rgba(224,112,63,0); }
+  100% { box-shadow: 0 0 0 0 rgba(224,112,63,0); }
+}
+
+.hero__hint-label {
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.05em;
+  color: rgba(255,255,255,0.75);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__hint-dot { animation: none; }
+}
+
+/* Frosted-glass variant of the shared .modal__panel, used for the
+   manifesto — content shows through faintly instead of a solid card. */
+.modal__panel--glass {
+  background: rgba(255,255,255,0.10);
+  backdrop-filter: blur(30px) saturate(1.8);
+  -webkit-backdrop-filter: blur(30px) saturate(1.8);
+  border: 1px solid rgba(255,255,255,0.22);
+  box-shadow: 0 30px 70px -20px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.25);
+  color: #fff;
+  text-align: center;
+  padding: 48px 40px;
+}
+
+.modal__close--glass {
+  background: rgba(255,255,255,0.14);
+  color: #fff;
+}
+
+.modal__close--glass:hover { background: rgba(255,255,255,0.26); color: #fff; }
+
+.manifesto__text {
+  font-size: 17px;
+  line-height: 1.6;
+  font-weight: 400;
+  margin: 0 0 22px;
+  color: rgba(255,255,255,0.92);
+}
+
+.manifesto__signature {
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  color: var(--accent);
+  margin: 0;
 }
 
 .modal__hint--note {

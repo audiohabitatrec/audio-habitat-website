@@ -66,6 +66,13 @@
     <span data-lang="en">Scroll</span>
     <svg viewBox="0 0 24 24" width="14" height="14"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </div>
+  <button class="hero__hint" id="heroHintBtn" type="button" aria-haspopup="dialog">
+    <span class="hero__hint-dot" aria-hidden="true"></span>
+    <span class="hero__hint-label">
+      <span data-lang="de">Klick hier</span>
+      <span data-lang="en">Click here</span>
+    </span>
+  </button>
 </header>
 
 <main>
@@ -389,6 +396,27 @@
         <span data-lang="en">Email didn't open? Click here</span>
       </a>
     </div>
+  </div>
+</div>
+
+<div class="modal" id="manifestoModal" hidden>
+  <div class="modal__backdrop" id="manifestoBackdrop"></div>
+  <div class="modal__panel modal__panel--glass" role="dialog" aria-modal="true">
+    <button class="modal__close modal__close--glass" id="manifestoClose" type="button" aria-label="Schließen">
+      <svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <p class="manifesto__text">
+      <span data-lang="de">Wir glauben,<br>dass Musik mehr sein kann<br>als Unterhaltung.</span>
+      <span data-lang="en">We believe<br>music can be more<br>than entertainment.</span>
+    </p>
+    <p class="manifesto__text">
+      <span data-lang="de">Ein Beat kann Menschen verbinden,<br>Erinnerungen schaffen<br>und Fremde zu einer Community machen.</span>
+      <span data-lang="en">A beat can connect people,<br>create memories<br>and turn strangers into a community.</span>
+    </p>
+    <p class="manifesto__signature">
+      <span data-lang="de">Genau deshalb gibt es Audio Habitat.</span>
+      <span data-lang="en">That's exactly why Audio Habitat exists.</span>
+    </p>
   </div>
 </div>
 
