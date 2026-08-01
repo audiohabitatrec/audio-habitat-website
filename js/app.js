@@ -383,6 +383,7 @@
       allTracks.push({
         key: makeKey(ri, ti),
         title: release.type === 'ep' ? (release.title + ' — ' + track.title) : release.title,
+        trackTitle: track.title,
         cover: assetPath(release.cover),
         file: assetPath(track.file),
         wav: track.wav ? assetPath(track.wav) : assetPath(track.file)
@@ -507,12 +508,10 @@
     selected.forEach(function (track) {
       var a = document.createElement('a');
       a.className = 'support__download-item';
-      // GitHub Pages can't resolve Git LFS pointers, so it serves the WAV
-      // files' tiny pointer text instead of the actual audio — falling
-      // back to the M4A here until the WAVs are hosted somewhere that
-      // isn't Pages+LFS. Revert this once that's sorted (see track.wav).
-      a.href = track.file;
-      a.download = '';
+      // track.wav falls back to the M4A for the one track whose WAV master
+      // is too large for a normal (non-LFS) file on GitHub Pages.
+      a.href = track.wav;
+      a.download = 'Audio Habitat - ' + track.trackTitle + track.wav.slice(track.wav.lastIndexOf('.'));
       a.innerHTML =
         '<img src="' + track.cover + '" alt="">' +
         '<span class="support__download-title"><span>' + track.title + '</span></span>' +

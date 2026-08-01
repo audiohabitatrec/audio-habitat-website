@@ -36,7 +36,9 @@ var RELEASES = [
   { type: "single", title: "Reece Drop", cover: "assets/covers/reece-drop.jpg",
     tracks: [{ title: "Reece Drop", file: "assets/tracks/reece-drop.m4a", wav: "assets/tracks/reece-drop.wav" }] },
   { type: "single", title: "Cold Static", cover: "assets/covers/cold-static.jpg",
-    tracks: [{ title: "Cold Static", file: "assets/tracks/cold-static.m4a", wav: "assets/tracks/cold-static.wav" }] },
+    // No wav: field — the WAV master is ~110MB, over GitHub's 100MB file
+    // limit, so this one falls back to the M4A for downloads (see app.js).
+    tracks: [{ title: "Cold Static", file: "assets/tracks/cold-static.m4a" }] },
   { type: "single", title: "Shadow Pulse", cover: "assets/covers/shadow-pulse.jpg",
     tracks: [{ title: "Shadow Pulse", file: "assets/tracks/shadow-pulse.m4a", wav: "assets/tracks/shadow-pulse.wav" }] },
   { type: "single", title: "Pressure Rise", cover: "assets/covers/pressure-rise.jpg",
