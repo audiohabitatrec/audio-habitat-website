@@ -494,9 +494,15 @@
     // A price of €0 skips PayPal entirely — downloads unlock right away.
     if (total > 0 && paypalEmail) {
       var itemName = selected.length === 1 ? selected[0].title : selected.length + ' Tracks – Audio Habitat';
+      // "return" is best-effort: it's honored by PayPal's classic Payments
+      // Standard flow, which this donate link is built on, but PayPal
+      // doesn't document it for the current hosted /donate/ page, so this
+      // doesn't always fire. Harmless to include either way — worst case
+      // PayPal just ignores it and shows its own confirmation screen.
       var url = 'https://www.paypal.com/donate/?business=' + encodeURIComponent(paypalEmail) +
         '&currency_code=EUR&no_recurring=0&amount=' + total.toFixed(2) +
-        '&item_name=' + encodeURIComponent('Audio Habitat – ' + itemName);
+        '&item_name=' + encodeURIComponent('Audio Habitat – ' + itemName) +
+        '&return=' + encodeURIComponent('https://audiohabitatrec.com/');
       window.open(url, '_blank', 'noopener');
     }
 
