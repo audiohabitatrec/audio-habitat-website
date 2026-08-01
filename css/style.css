@@ -24,7 +24,11 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+/* Without this, jumping to a section via the nav lands it exactly at the
+   viewport top — but the nav itself is fixed and overlaps that same
+   space, hiding the section's first ~70px (title, top of the rail cards)
+   until the visitor scrolls a bit further by hand. */
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
 
 body {
   margin: 0;
