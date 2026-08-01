@@ -1532,34 +1532,6 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 
 .support__row.is-checked .support__row-title { color: var(--ink); }
 
-/* ---------- Format badge (WAV) ---------- */
-.format-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  flex-shrink: 0;
-  padding: 3px 7px 3px 5px;
-  border-radius: 999px;
-  background: var(--paper-dim);
-  color: var(--ink-faint);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
-.format-badge svg { width: 10px; height: 12px; fill: currentColor; }
-
-.support__row.is-checked .format-badge,
-.support__download-item .format-badge {
-  background: rgba(224,112,63,0.14);
-  color: var(--accent);
-}
-
-.support__download-item:hover .format-badge {
-  background: rgba(255,255,255,0.22);
-  color: #fff;
-}
-
 .support__download-title {
   display: flex;
   align-items: center;

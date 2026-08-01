@@ -58,11 +58,8 @@
     apple: '<svg viewBox="0 0 24 24"><path d="M17.5 2h-11A4.5 4.5 0 0 0 2 6.5v11A4.5 4.5 0 0 0 6.5 22h11a4.5 4.5 0 0 0 4.5-4.5v-11A4.5 4.5 0 0 0 17.5 2zM16 8.02v6.53a2.1 2.1 0 0 1-1.66 2.08l-.9.2a1.6 1.6 0 1 1-.69-3.12l1.4-.3a.4.4 0 0 0 .32-.4V8.9l-4.8 1.03v6.1a2.1 2.1 0 0 1-1.66 2.08l-.9.2a1.6 1.6 0 1 1-.69-3.12l1.4-.3a.4.4 0 0 0 .32-.4V6.9a.9.9 0 0 1 .7-.88l6.6-1.42a.9.9 0 0 1 1.1.88z"/></svg>',
     soundcloud: '<svg viewBox="0 0 24 24"><path d="M9 17h9.5a3.5 3.5 0 0 0 .4-6.98 5 5 0 0 0-9.62-1.7A3.5 3.5 0 0 0 5.5 14.4 3.5 3.5 0 0 0 9 17zM3.5 12.2c.14 0 .25.1.27.24l.4 4.3-.4 4.15a.27.27 0 0 1-.54 0l-.35-4.15.35-4.3a.27.27 0 0 1 .27-.24zm2 1.05c.16 0 .28.12.3.28l.32 3.2-.32 3.14a.3.3 0 0 1-.6 0l-.28-3.14.28-3.2c.02-.16.14-.28.3-.28z"/></svg>',
     deezer: '<svg viewBox="0 0 24 24"><rect x="2" y="15" width="4" height="3" rx="0.6"/><rect x="7.3" y="11.5" width="4" height="6.5" rx="0.6"/><rect x="12.6" y="8" width="4" height="10" rx="0.6"/><rect x="17.9" y="4.5" width="4" height="13.5" rx="0.6"/></svg>',
-    pwyw: '<svg viewBox="0 0 24 24"><path d="M12 21s-6.7-4.35-9.33-8.2C.9 10.1 1.4 6.6 4.2 5.1c2.2-1.2 4.6-.5 5.8 1.2 1.2-1.7 3.6-2.4 5.8-1.2 2.8 1.5 3.3 5 1.53 7.7C18.7 16.65 12 21 12 21z"/></svg>',
-    wave: '<svg viewBox="0 0 24 24"><rect x="1" y="10" width="2" height="4" rx="1"/><rect x="5" y="6" width="2" height="12" rx="1"/><rect x="9" y="2" width="2" height="20" rx="1"/><rect x="13" y="7" width="2" height="10" rx="1"/><rect x="17" y="4" width="2" height="16" rx="1"/><rect x="21" y="9" width="2" height="6" rx="1"/></svg>'
+    pwyw: '<svg viewBox="0 0 24 24"><path d="M12 21s-6.7-4.35-9.33-8.2C.9 10.1 1.4 6.6 4.2 5.1c2.2-1.2 4.6-.5 5.8 1.2 1.2-1.7 3.6-2.4 5.8-1.2 2.8 1.5 3.3 5 1.53 7.7C18.7 16.65 12 21 12 21z"/></svg>'
   };
-
-  var WAV_BADGE = '<span class="format-badge">' + ICONS.wave + '<span>WAV</span></span>';
 
   function platformIconsHtml(track, title, key) {
     var spotifyHref = track.spotify || links.spotify;
@@ -403,7 +400,6 @@
         '<img src="' + track.cover + '" alt="">' +
         '<span class="support__row-main">' +
           '<span class="support__row-title">' + track.title + '</span>' +
-          WAV_BADGE +
         '</span>' +
         '<span class="support__price">' +
           '<span>€</span>' +
@@ -519,7 +515,7 @@
       a.download = '';
       a.innerHTML =
         '<img src="' + track.cover + '" alt="">' +
-        '<span class="support__download-title"><span>' + track.title + '</span>' + WAV_BADGE + '</span>' +
+        '<span class="support__download-title"><span>' + track.title + '</span></span>' +
         '<svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 3v12M7 10l5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       supportDownloadsEl.appendChild(a);
     });
