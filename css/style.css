@@ -609,6 +609,16 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   margin: 0 0 12px;
 }
 
+.featured__new-tag {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  vertical-align: middle;
+}
+
 .featured__title {
   font-size: clamp(30px, 3.4vw, 42px);
   font-weight: 650;
@@ -810,6 +820,11 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   font-weight: 700;
   letter-spacing: 0.06em;
   vertical-align: middle;
+}
+
+.rail-card__tag--new {
+  background: var(--accent);
+  color: #fff;
 }
 
 /* ---------- Archive ---------- */

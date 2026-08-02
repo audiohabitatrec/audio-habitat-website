@@ -131,11 +131,14 @@
     playerEl.classList.toggle('is-playing', !audio.paused);
   }
 
+  var NEW_TAG_HTML = '<span data-lang="de">Neu</span><span data-lang="en">New</span>';
+
   function applyFeaturedText() {
     if (currentFeaturedIndex < 0) return;
     var release = releases[currentFeaturedIndex];
     var t = I18N[currentLang()];
-    featuredKicker.textContent = (release.type === 'ep' ? 'EP' : 'Single') + ' · 2026';
+    var newTag = release.isNew ? '<span class="featured__new-tag">' + NEW_TAG_HTML + '</span>' : '';
+    featuredKicker.innerHTML = newTag + (release.type === 'ep' ? 'EP' : 'Single') + ' · 2026';
     featuredDescEl.textContent = release.type === 'ep' ? t.epDesc : t.singleDesc;
   }
 
@@ -211,7 +214,10 @@
         '<img src="' + assetPath(release.cover) + '" alt="' + release.title + '">' +
         '<div class="rail-card__play">' + ICONS.play + ICONS.pause + '</div>' +
       '</div>' +
-      '<div class="rail-card__title">' + release.title + (release.type === 'ep' ? ' <span class="rail-card__tag">EP</span>' : '') + '</div>' +
+      '<div class="rail-card__title">' + release.title +
+        (release.isNew ? ' <span class="rail-card__tag rail-card__tag--new">' + NEW_TAG_HTML + '</span>' : '') +
+        (release.type === 'ep' ? ' <span class="rail-card__tag">EP</span>' : '') +
+      '</div>' +
       platformIconsHtml(track0, release.title, entry.key);
     railEl.appendChild(card);
 

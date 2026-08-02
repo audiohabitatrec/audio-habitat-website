@@ -17,6 +17,8 @@
 var DEFAULT_COVER = "assets/covers/cover-singles.jpg";
 
 var RELEASES = [
+  { type: "single", title: "D-Chords", cover: "assets/covers/d-chords.jpg", isNew: true,
+    tracks: [{ title: "D-Chords", file: "assets/tracks/d-chords.m4a", wav: "assets/tracks/d-chords.wav" }] },
   {
     type: "ep",
     title: "4 Reasons",
