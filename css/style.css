@@ -867,6 +867,8 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 /* ---------- Archive ---------- */
 .archive { padding: 0 0 130px; }
 
+.archive__panel + .archive__card { margin-top: 24px; }
+
 .archive__card {
   display: flex;
   align-items: center;

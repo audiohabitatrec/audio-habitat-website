@@ -1,13 +1,34 @@
 /*
-  Ältere SoundCloud-Releases (vor 2026), die nicht schon oben im eigenen
-  Player auftauchen. Die aktuellen 2026er Singles/EP werden hier bewusst
-  nicht gelistet, da sie bereits im Haupt-Player zu hören sind.
+  Die aktuellen 2026er Singles, die es auch auf SoundCloud gibt — separat
+  von SOUNDCLOUD_ARCHIVE, damit "Neu" und "Archiv" zwei eigene auf-/zu-
+  klappbare Bereiche sind statt einer gemischten Liste.
+
+  Nur 9 der 16 aktuellen Releases sind überhaupt auf SoundCloud hochgeladen:
+  D-Chords, Reece Drop, Cold Static und alle vier "4 Reasons"-EP-Tracks
+  fehlen im Profil komplett und können hier nicht auftauchen, solange sie
+  nicht selbst hochgeladen werden.
+*/
+var SOUNDCLOUD_NEW = [
+  { title: "Step in the Rhythm", url: "https://soundcloud.com/audiohabitatrec/step-in-the-rhythm" },
+  { title: "Signal", url: "https://soundcloud.com/audiohabitatrec/signal" },
+  { title: "Pressure Rise", url: "https://soundcloud.com/audiohabitatrec/pressure-rise" },
+  { title: "Silent Hunter", url: "https://soundcloud.com/audiohabitatrec/silent-hunter" },
+  { title: "Face the Future", url: "https://soundcloud.com/audiohabitatrec/face-the-future" },
+  { title: "Shadow Pulse", url: "https://soundcloud.com/audiohabitatrec/shadow-pulse" },
+  { title: "Dope Bass", url: "https://soundcloud.com/audiohabitatrec/dope-bass" },
+  { title: "Let's Go", url: "https://soundcloud.com/audiohabitatrec/audio-habitat-lets-go-wav" },
+  { title: "Change Your Mind", url: "https://soundcloud.com/audiohabitatrec/audio-habitat-change-youre" }
+];
+
+/*
+  Ältere SoundCloud-Releases (vor 2026) — die 9 Tracks oben laufen bereits
+  im Haupt-Player UND in der "Neu"-Sektion, deshalb hier ausgeschlossen.
 
   Vollständige Liste aller 94 Tracks des Profils, live per Browser von
   soundcloud.com/audiohabitatrec/tracks geladen (nicht per curl/statischem
   Fetch — SoundCloud lädt die Trackliste per JS nach, ein einfacher HTML-
-  Abruf sieht sie gar nicht). Minus die 9 Tracks, die bereits im
-  Haupt-Player laufen, bleiben 85 hier im Archiv.
+  Abruf sieht sie gar nicht). Minus die 9 Tracks oben bleiben 85 hier im
+  Archiv.
 */
 
 var SOUNDCLOUD_ARCHIVE = [

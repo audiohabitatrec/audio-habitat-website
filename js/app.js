@@ -312,7 +312,7 @@
 
   audio.addEventListener('play', function () {
     setActiveVisuals(); updatePlayerBar(); updateNavLiveDot();
-    scWidgets.forEach(function (w) { w.pause(); });
+    pauseAllSoundCloudEmbeds();
   });
   audio.addEventListener('pause', function () { setActiveVisuals(); updatePlayerBar(); updateNavLiveDot(); });
   audio.addEventListener('ended', function () { setActiveVisuals(); updatePlayerBar(); updateNavLiveDot(); });
@@ -322,90 +322,113 @@
     playerTime.textContent = formatTime(audio.currentTime) + ' / ' + formatTime(audio.duration);
   });
 
-  // ---------- Archive: expand in place, paginated SoundCloud embeds ----------
-  var archiveToggle = document.getElementById('archiveToggle');
-  var archivePanel = document.getElementById('archivePanel');
-  var archiveList = document.getElementById('archiveList');
-  var archivePager = document.getElementById('archivePager');
-  var ARCHIVE_PER_PAGE = 6;
-  var archivePages = [];
-  var archiveCurrentPage = 0;
+  // ---------- Archive: two independent expand-in-place SoundCloud groups ----------
+  // ("Neu" — current 2026 singles that also exist on SoundCloud — and
+  // "Archiv" — everything older). Every embedded track is its own
+  // <iframe>, so nothing stops several of them (or the site's own player)
+  // playing at once by default. The SoundCloud Widget API lets us listen
+  // for PLAY on each embed and pause everything else in response.
+  var archiveGroups = [];
 
-  // Each archive track is its own independent <iframe>, so nothing stops
-  // several of them (or the site's own player) playing at once by default.
-  // The SoundCloud Widget API lets us listen for PLAY on each embed and
-  // pause everything else in response — see pauseOtherPlayback() below.
-  var scWidgets = [];
+  function pauseAllSoundCloudEmbeds() {
+    archiveGroups.forEach(function (g) {
+      g.widgets.forEach(function (w) { w.pause(); });
+    });
+  }
 
   function pauseOtherPlayback(exceptWidget) {
     if (!audio.paused) audio.pause();
-    scWidgets.forEach(function (w) {
-      if (w !== exceptWidget) w.pause();
+    archiveGroups.forEach(function (g) {
+      g.widgets.forEach(function (w) {
+        if (w !== exceptWidget) w.pause();
+      });
     });
   }
 
-  function buildArchiveEmbed(track) {
-    var wrap = document.createElement('div');
-    wrap.className = 'archive-embed';
-    var iframe = document.createElement('iframe');
-    iframe.title = 'Audio Habitat – ' + track.title;
-    iframe.width = '100%';
-    iframe.height = '104';
-    iframe.scrolling = 'no';
-    iframe.frameBorder = 'no';
-    iframe.loading = 'lazy';
-    iframe.allow = 'autoplay';
-    iframe.src = 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(track.url) +
-      '&color=%23e0703f&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false';
-    wrap.appendChild(iframe);
+  function createArchiveGroup(opts) {
+    var toggle = document.getElementById(opts.toggleId);
+    var panel = document.getElementById(opts.panelId);
+    var list = document.getElementById(opts.listId);
+    var pager = opts.pagerId ? document.getElementById(opts.pagerId) : null;
+    var perPage = opts.perPage || Infinity;
+    var group = { pages: [], widgets: [] };
+    archiveGroups.push(group);
 
-    if (typeof SC !== 'undefined' && SC.Widget) {
-      var widget = SC.Widget(iframe);
-      scWidgets.push(widget);
-      widget.bind(SC.Widget.Events.PLAY, function () { pauseOtherPlayback(widget); });
+    function buildEmbed(track) {
+      var wrap = document.createElement('div');
+      wrap.className = 'archive-embed';
+      var iframe = document.createElement('iframe');
+      iframe.title = 'Audio Habitat – ' + track.title;
+      iframe.width = '100%';
+      iframe.height = '104';
+      iframe.scrolling = 'no';
+      iframe.frameBorder = 'no';
+      iframe.loading = 'lazy';
+      iframe.allow = 'autoplay';
+      iframe.src = 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(track.url) +
+        '&color=%23e0703f&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false';
+      wrap.appendChild(iframe);
+
+      if (typeof SC !== 'undefined' && SC.Widget) {
+        var widget = SC.Widget(iframe);
+        group.widgets.push(widget);
+        widget.bind(SC.Widget.Events.PLAY, function () { pauseOtherPlayback(widget); });
+      }
+
+      return wrap;
     }
 
-    return wrap;
-  }
-
-  function showArchivePage(i) {
-    archiveCurrentPage = i;
-    scWidgets = [];
-    archiveList.innerHTML = '';
-    archivePages[i].forEach(function (track) { archiveList.appendChild(buildArchiveEmbed(track)); });
-    archivePager.querySelectorAll('button').forEach(function (btn, idx) {
-      btn.classList.toggle('is-active', idx === i);
-    });
-  }
-
-  function buildArchive() {
-    if (archivePages.length || typeof SOUNDCLOUD_ARCHIVE === 'undefined') return;
-    for (var i = 0; i < SOUNDCLOUD_ARCHIVE.length; i += ARCHIVE_PER_PAGE) {
-      archivePages.push(SOUNDCLOUD_ARCHIVE.slice(i, i + ARCHIVE_PER_PAGE));
+    function showPage(i) {
+      group.widgets = [];
+      list.innerHTML = '';
+      group.pages[i].forEach(function (track) { list.appendChild(buildEmbed(track)); });
+      if (pager) {
+        pager.querySelectorAll('button').forEach(function (btn, idx) {
+          btn.classList.toggle('is-active', idx === i);
+        });
+      }
     }
-    if (archivePages.length > 1) {
-      archivePages.forEach(function (_, i) {
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.textContent = String(i + 1);
-        btn.addEventListener('click', function () { showArchivePage(i); });
-        archivePager.appendChild(btn);
+
+    function build() {
+      if (group.pages.length || typeof opts.data === 'undefined') return;
+      for (var i = 0; i < opts.data.length; i += perPage) {
+        group.pages.push(opts.data.slice(i, i + perPage));
+      }
+      if (pager && group.pages.length > 1) {
+        group.pages.forEach(function (_, i) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = String(i + 1);
+          btn.addEventListener('click', function () { showPage(i); });
+          pager.appendChild(btn);
+        });
+      }
+      showPage(0);
+    }
+
+    function updateLabel(isOpen) {
+      toggle.querySelectorAll('span[data-lang]').forEach(function (span) {
+        span.textContent = isOpen ? span.getAttribute('data-open') : span.getAttribute('data-closed');
       });
     }
-    showArchivePage(0);
-  }
 
-  function updateArchiveLabel(isOpen) {
-    archiveToggle.querySelectorAll('span[data-lang]').forEach(function (span) {
-      span.textContent = isOpen ? span.getAttribute('data-open') : span.getAttribute('data-closed');
+    toggle.addEventListener('click', function () {
+      var isOpen = panel.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      updateLabel(isOpen);
+      if (isOpen) build();
     });
+
+    return { updateLabel: function () { updateLabel(panel.classList.contains('is-open')); } };
   }
 
-  archiveToggle.addEventListener('click', function () {
-    var isOpen = archivePanel.classList.toggle('is-open');
-    archiveToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    updateArchiveLabel(isOpen);
-    if (isOpen) buildArchive();
+  var archiveNewGroup = createArchiveGroup({
+    toggleId: 'archiveNewToggle', panelId: 'archiveNewPanel', listId: 'archiveNewList',
+    data: (typeof SOUNDCLOUD_NEW !== 'undefined') ? SOUNDCLOUD_NEW : []
+  });
+  var archiveOldGroup = createArchiveGroup({
+    toggleId: 'archiveOldToggle', panelId: 'archiveOldPanel', listId: 'archiveOldList', pagerId: 'archiveOldPager',
+    perPage: 6, data: (typeof SOUNDCLOUD_ARCHIVE !== 'undefined') ? SOUNDCLOUD_ARCHIVE : []
   });
 
   // ---------- Support modal: pick tracks → set a price each → PayPal → download ----------
@@ -943,7 +966,8 @@
       btn.classList.toggle('is-active', btn.getAttribute('data-set-lang') === lang);
     });
     applyFeaturedText();
-    updateArchiveLabel(archivePanel.classList.contains('is-open'));
+    archiveNewGroup.updateLabel();
+    archiveOldGroup.updateLabel();
     if (currentInquiryKey && !inquiryModal.hidden) renderInquiry(currentInquiryKey);
   }
 
