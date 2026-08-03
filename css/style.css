@@ -250,6 +250,23 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 
 /* Soft glow standing in for the sun in the photo — drifts slightly on */
 /* scroll so the whole scene feels alive rather than a static cutout. */
+/* Recolors just the upper sky toward blue without touching the crowd —
+   mix-blend-mode: color keeps the photo's existing brightness/contrast,
+   it only swaps in this layer's hue/saturation. Fades out before the sun
+   glow so it doesn't fight the warm sunset tone there. */
+.hero__sky-tint {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom,
+    rgba(70,130,200,0.24) 0%,
+    rgba(70,130,200,0.15) 14%,
+    rgba(70,130,200,0.05) 24%,
+    rgba(70,130,200,0) 34%);
+  mix-blend-mode: color;
+  pointer-events: none;
+  z-index: 1;
+}
+
 .hero__sun {
   position: absolute;
   top: 44%;
