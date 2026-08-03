@@ -310,7 +310,10 @@
     if (navLiveDot) navLiveDot.classList.toggle('is-live', !audio.paused);
   }
 
-  audio.addEventListener('play', function () { setActiveVisuals(); updatePlayerBar(); updateNavLiveDot(); });
+  audio.addEventListener('play', function () {
+    setActiveVisuals(); updatePlayerBar(); updateNavLiveDot();
+    scWidgets.forEach(function (w) { w.pause(); });
+  });
   audio.addEventListener('pause', function () { setActiveVisuals(); updatePlayerBar(); updateNavLiveDot(); });
   audio.addEventListener('ended', function () { setActiveVisuals(); updatePlayerBar(); updateNavLiveDot(); });
   audio.addEventListener('timeupdate', function () {
@@ -328,6 +331,19 @@
   var archivePages = [];
   var archiveCurrentPage = 0;
 
+  // Each archive track is its own independent <iframe>, so nothing stops
+  // several of them (or the site's own player) playing at once by default.
+  // The SoundCloud Widget API lets us listen for PLAY on each embed and
+  // pause everything else in response — see pauseOtherPlayback() below.
+  var scWidgets = [];
+
+  function pauseOtherPlayback(exceptWidget) {
+    if (!audio.paused) audio.pause();
+    scWidgets.forEach(function (w) {
+      if (w !== exceptWidget) w.pause();
+    });
+  }
+
   function buildArchiveEmbed(track) {
     var wrap = document.createElement('div');
     wrap.className = 'archive-embed';
@@ -342,11 +358,19 @@
     iframe.src = 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(track.url) +
       '&color=%23e0703f&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false';
     wrap.appendChild(iframe);
+
+    if (typeof SC !== 'undefined' && SC.Widget) {
+      var widget = SC.Widget(iframe);
+      scWidgets.push(widget);
+      widget.bind(SC.Widget.Events.PLAY, function () { pauseOtherPlayback(widget); });
+    }
+
     return wrap;
   }
 
   function showArchivePage(i) {
     archiveCurrentPage = i;
+    scWidgets = [];
     archiveList.innerHTML = '';
     archivePages[i].forEach(function (track) { archiveList.appendChild(buildArchiveEmbed(track)); });
     archivePager.querySelectorAll('button').forEach(function (btn, idx) {
