@@ -6,6 +6,20 @@
   var paypalEmail = (typeof PAYPAL_EMAIL !== 'undefined') ? PAYPAL_EMAIL : '';
   var DEEZER_FALLBACK = 'https://www.deezer.com/search/Audio%20Habitat';
 
+  // Form submissions (booking/label inquiries, ratings) go straight to this
+  // endpoint — no mail app, no backend of our own. Site stays static.
+  var FORMSPREE_ENDPOINT = 'https://formspree.io/f/mykrrpqz';
+  function submitToFormspree(fields) {
+    return fetch(FORMSPREE_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(fields)
+    }).then(function (res) {
+      if (!res.ok) throw new Error('Formspree ' + res.status);
+      return res;
+    });
+  }
+
   // ---------- i18n for the bits that are rendered from JS ----------
   var I18N = {
     de: {
@@ -39,7 +53,7 @@
   var playerSeek = document.getElementById('playerSeek');
   var playerFill = document.getElementById('playerFill');
   var playerKnob = document.getElementById('playerKnob');
-  var playerSupport = document.getElementById('playerSupport');
+  var playerActions = document.getElementById('playerActions');
 
   var supportLink = document.getElementById('supportLink');
 
@@ -58,7 +72,9 @@
     apple: '<svg viewBox="0 0 24 24"><path d="M17.5 2h-11A4.5 4.5 0 0 0 2 6.5v11A4.5 4.5 0 0 0 6.5 22h11a4.5 4.5 0 0 0 4.5-4.5v-11A4.5 4.5 0 0 0 17.5 2zM16 8.02v6.53a2.1 2.1 0 0 1-1.66 2.08l-.9.2a1.6 1.6 0 1 1-.69-3.12l1.4-.3a.4.4 0 0 0 .32-.4V8.9l-4.8 1.03v6.1a2.1 2.1 0 0 1-1.66 2.08l-.9.2a1.6 1.6 0 1 1-.69-3.12l1.4-.3a.4.4 0 0 0 .32-.4V6.9a.9.9 0 0 1 .7-.88l6.6-1.42a.9.9 0 0 1 1.1.88z"/></svg>',
     soundcloud: '<svg viewBox="0 0 24 24"><path d="M9 17h9.5a3.5 3.5 0 0 0 .4-6.98 5 5 0 0 0-9.62-1.7A3.5 3.5 0 0 0 5.5 14.4 3.5 3.5 0 0 0 9 17zM3.5 12.2c.14 0 .25.1.27.24l.4 4.3-.4 4.15a.27.27 0 0 1-.54 0l-.35-4.15.35-4.3a.27.27 0 0 1 .27-.24zm2 1.05c.16 0 .28.12.3.28l.32 3.2-.32 3.14a.3.3 0 0 1-.6 0l-.28-3.14.28-3.2c.02-.16.14-.28.3-.28z"/></svg>',
     deezer: '<svg viewBox="0 0 24 24"><rect x="2" y="15" width="4" height="3" rx="0.6"/><rect x="7.3" y="11.5" width="4" height="6.5" rx="0.6"/><rect x="12.6" y="8" width="4" height="10" rx="0.6"/><rect x="17.9" y="4.5" width="4" height="13.5" rx="0.6"/></svg>',
-    pwyw: '<svg viewBox="0 0 24 24"><path d="M12 21s-6.7-4.35-9.33-8.2C.9 10.1 1.4 6.6 4.2 5.1c2.2-1.2 4.6-.5 5.8 1.2 1.2-1.7 3.6-2.4 5.8-1.2 2.8 1.5 3.3 5 1.53 7.7C18.7 16.65 12 21 12 21z"/></svg>'
+    pwyw: '<svg viewBox="0 0 24 24"><path d="M12 21s-6.7-4.35-9.33-8.2C.9 10.1 1.4 6.6 4.2 5.1c2.2-1.2 4.6-.5 5.8 1.2 1.2-1.7 3.6-2.4 5.8-1.2 2.8 1.5 3.3 5 1.53 7.7C18.7 16.65 12 21 12 21z"/></svg>',
+    stream: '<svg viewBox="0 0 24 24"><path d="M4 11a8 8 0 0 1 16 0M7 11a5 5 0 0 1 10 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="18" r="2.2"/></svg>',
+    star: '<svg viewBox="0 0 24 24"><path d="M12 3.5l2.3 5.1 5.6.6-4.2 3.8 1.2 5.5L12 15.8l-5 2.7 1.2-5.5-4.2-3.8 5.6-.6z"/></svg>'
   };
 
   function platformIconsHtml(track, title, key) {
@@ -73,6 +89,24 @@
         (soundcloudHref ? '<a href="' + soundcloudHref + '" target="_blank" rel="noopener" aria-label="SoundCloud" onclick="event.stopPropagation()">' + ICONS.soundcloud + '</a>' : '') +
         (deezerHref ? '<a href="' + deezerHref + '" target="_blank" rel="noopener" aria-label="Deezer" onclick="event.stopPropagation()">' + ICONS.deezer + '</a>' : '') +
         (paypalEmail ? '<a class="track-icons__support" href="#" data-support-key="' + key + '" aria-label="Zahl was du willst">' + ICONS.pwyw + '</a>' : '') +
+      '</span>'
+    );
+  }
+
+  // Three large, labeled buttons — used on the featured "Jetzt läuft" track
+  // row instead of the small icon strip. Rail cards keep platformIconsHtml.
+  function trackActionsHtml(key) {
+    return (
+      '<span class="track-actions">' +
+        '<button class="track-action track-action--stream" type="button" data-action="stream" data-key="' + key + '">' +
+          ICONS.stream + '<span data-lang="de">Streaming</span><span data-lang="en">Streaming</span>' +
+        '</button>' +
+        '<button class="track-action track-action--buy" type="button" data-action="buy" data-key="' + key + '">' +
+          ICONS.pwyw + '<span data-lang="de">Kaufen</span><span data-lang="en">Buy</span>' +
+        '</button>' +
+        '<button class="track-action track-action--rate" type="button" data-action="rate" data-key="' + key + '">' +
+          ICONS.star + '<span data-lang="de">Bewerten</span><span data-lang="en">Rate</span>' +
+        '</button>' +
       '</span>'
     );
   }
@@ -129,6 +163,9 @@
     playerTitle.textContent = entry.displayTitle;
     playerTime.textContent = formatTime(audio.currentTime) + ' / ' + formatTime(audio.duration);
     playerEl.classList.toggle('is-playing', !audio.paused);
+    playerActions.querySelectorAll('.player__action').forEach(function (btn) {
+      btn.setAttribute('data-key', activeKey);
+    });
   }
 
   var NEW_TAG_HTML = '<span data-lang="de">Neu</span><span data-lang="en">New</span>';
@@ -162,7 +199,7 @@
       li.innerHTML =
         '<span class="track-num">' + (ti + 1) + '</span>' +
         '<span class="track-title">' + track.title + '</span>' +
-        platformIconsHtml(track, release.title + ' – ' + track.title, entry.key) +
+        trackActionsHtml(entry.key) +
         '<button class="track-play" type="button" aria-label="Play">' + ICONS.play + ICONS.pause + '</button>';
       entry.featuredLi = li;
       li.addEventListener('click', function () { play(entry.key); });
@@ -285,8 +322,6 @@
     seekDragging = false;
     playerEl.classList.remove('is-dragging');
   });
-
-  playerSupport.addEventListener('click', function () { supportLink.click(); });
 
   var navLiveDot = document.getElementById('navLiveDot');
   function updateNavLiveDot() {
@@ -485,6 +520,165 @@
     openSupportModal(btn.getAttribute('data-support-key'));
   }, true);
 
+  // key looks like "<releaseIndex>-<trackIndex>" (see makeKey) — both are
+  // plain integers, so splitting on '-' is safe.
+  function releaseAndTrackFromKey(key) {
+    var parts = key.split('-');
+    var release = releases[Number(parts[0])];
+    var track = release ? release.tracks[Number(parts[1])] : null;
+    return { release: release, track: track };
+  }
+
+  // ---------- Streaming popup: big Spotify/Apple/SoundCloud buttons up   ----------
+  // top, plus a clickable "band" linking out to the release's DistroKid   ----------
+  // HyperFollow page for every other platform (Tidal, Amazon Music, etc.) ----------
+  var streamModal = document.getElementById('streamModal');
+  var streamBackdrop = document.getElementById('streamBackdrop');
+  var streamClose = document.getElementById('streamClose');
+  var streamTitle = document.getElementById('streamTitle');
+  var streamPrimary = document.getElementById('streamPrimary');
+  var streamBand = document.getElementById('streamBand');
+
+  function openStreamModal(key) {
+    var pair = releaseAndTrackFromKey(key);
+    if (!pair.release || !pair.track) return;
+    var release = pair.release, track = pair.track;
+    streamTitle.textContent = release.type === 'ep' ? release.title + ' — ' + track.title : release.title;
+
+    // SoundCloud is intentionally excluded here — that's where self-
+    // uploaded, non-distributed material lives (see the Archive section),
+    // not an official release platform for this track.
+    var spotifyHref = track.spotify || links.spotify;
+    var appleHref = track.apple || links.apple;
+    var primary = [];
+    if (spotifyHref) primary.push('<a href="' + spotifyHref + '" target="_blank" rel="noopener">' + ICONS.spotify + '<span>Spotify</span></a>');
+    if (appleHref) primary.push('<a href="' + appleHref + '" target="_blank" rel="noopener">' + ICONS.apple + '<span>Apple Music</span></a>');
+    streamPrimary.innerHTML = primary.join('');
+
+    if (release.hyperfollow) {
+      streamBand.href = release.hyperfollow;
+      streamBand.hidden = false;
+    } else {
+      streamBand.hidden = true;
+    }
+
+    streamModal.hidden = false;
+  }
+
+  function closeStreamModal() { streamModal.hidden = true; }
+
+  streamClose.addEventListener('click', closeStreamModal);
+  streamBackdrop.addEventListener('click', closeStreamModal);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !streamModal.hidden) closeStreamModal();
+  });
+
+  // ---------- Rating popup: stars + optional comment, sent by mailto —  ----------
+  // no backend, mirrors the existing booking/label inquiry form pattern. ----------
+  var rateModal = document.getElementById('rateModal');
+  var rateBackdrop = document.getElementById('rateBackdrop');
+  var rateClose = document.getElementById('rateClose');
+  var rateTitle = document.getElementById('rateTitle');
+  var rateStarsEl = document.getElementById('rateStars');
+  var rateComment = document.getElementById('rateComment');
+  var rateSubmit = document.getElementById('rateSubmit');
+  var rateStepForm = document.getElementById('rateStepForm');
+  var rateStepDone = document.getElementById('rateStepDone');
+  var rateErrorMsg = document.getElementById('rateErrorMsg');
+  var rateErrorFallbackDe = document.getElementById('rateErrorFallbackDe');
+  var rateErrorFallbackEn = document.getElementById('rateErrorFallbackEn');
+  var currentRateKey = null;
+  var currentRateValue = 0;
+
+  function setRateStars(val) {
+    currentRateValue = val;
+    rateStarsEl.querySelectorAll('.rate-star').forEach(function (star) {
+      star.classList.toggle('is-active', Number(star.getAttribute('data-val')) <= val);
+    });
+    rateSubmit.disabled = val < 1;
+  }
+
+  rateStarsEl.querySelectorAll('.rate-star').forEach(function (star) {
+    star.addEventListener('click', function () { setRateStars(Number(star.getAttribute('data-val'))); });
+  });
+
+  function openRateModal(key) {
+    var pair = releaseAndTrackFromKey(key);
+    if (!pair.track) return;
+    currentRateKey = key;
+    rateTitle.textContent = pair.track.title;
+    rateComment.value = '';
+    setRateStars(0);
+    rateErrorMsg.hidden = true;
+    rateStepForm.hidden = false;
+    rateStepDone.hidden = true;
+    rateModal.hidden = false;
+  }
+
+  function closeRateModal() { rateModal.hidden = true; }
+
+  rateClose.addEventListener('click', closeRateModal);
+  rateBackdrop.addEventListener('click', closeRateModal);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !rateModal.hidden) closeRateModal();
+  });
+
+  rateSubmit.addEventListener('click', function () {
+    if (currentRateValue < 1) return;
+    var pair = releaseAndTrackFromKey(currentRateKey);
+    if (!pair.track) return;
+
+    var stars = new Array(currentRateValue + 1).join('★') + new Array(5 - currentRateValue + 1).join('☆');
+    var comment = rateComment.value.trim();
+    var fields = {
+      _subject: 'Bewertung: ' + pair.track.title,
+      track: pair.track.title,
+      rating: currentRateValue + '/5 (' + stars + ')',
+      comment: comment
+    };
+
+    // Kept only as a fallback if the direct send fails — not the primary path anymore.
+    var lines = ['Track: ' + pair.track.title, 'Bewertung: ' + stars + ' (' + currentRateValue + '/5)'];
+    if (comment) lines.push('Kommentar: ' + comment);
+    var mailtoFallback = 'mailto:' + encodeURIComponent(paypalEmail) +
+      '?subject=' + encodeURIComponent('Bewertung: ' + pair.track.title) +
+      '&body=' + encodeURIComponent(lines.join('\n'));
+
+    rateErrorMsg.hidden = true;
+    rateSubmit.disabled = true;
+    var originalLabel = rateSubmit.innerHTML;
+    rateSubmit.innerHTML = '<span data-lang="de">Sende …</span><span data-lang="en">Sending …</span>';
+
+    submitToFormspree(fields).then(function () {
+      rateStepForm.hidden = true;
+      rateStepDone.hidden = false;
+    }).catch(function () {
+      rateErrorFallbackDe.href = mailtoFallback;
+      rateErrorFallbackEn.href = mailtoFallback;
+      rateErrorMsg.hidden = false;
+    }).then(function () {
+      rateSubmit.innerHTML = originalLabel;
+      rateSubmit.disabled = currentRateValue < 1;
+    });
+  });
+
+  // Routes clicks on the three Streaming/Kaufen/Bewerten buttons to their
+  // popups — both the big labeled ones on the featured track row
+  // (.track-action) and the compact icon-only ones on the mini player
+  // (.player__action). Capture phase + stopPropagation so a click never
+  // also starts/stops playback via the row's own click handler.
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest && e.target.closest('.track-action, .player__action');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var key = btn.getAttribute('data-key');
+    var action = btn.getAttribute('data-action');
+    if (action === 'stream') openStreamModal(key);
+    else if (action === 'buy') openSupportModal(key);
+    else if (action === 'rate') openRateModal(key);
+  }, true);
+
   supportProceedBtn.addEventListener('click', function () {
     var total = updateSupportTotal();
     if (total > 0 && !supportWaiverCheckbox.checked) return;
@@ -621,7 +815,10 @@
   var inquiryForm = document.getElementById('inquiryForm');
   var inquiryStepForm = document.getElementById('inquiryStepForm');
   var inquiryStepDone = document.getElementById('inquiryStepDone');
-  var inquiryFallback = document.getElementById('inquiryFallback');
+  var inquirySubmit = document.getElementById('inquirySubmit');
+  var inquiryErrorMsg = document.getElementById('inquiryErrorMsg');
+  var inquiryErrorFallbackDe = document.getElementById('inquiryErrorFallbackDe');
+  var inquiryErrorFallbackEn = document.getElementById('inquiryErrorFallbackEn');
   var currentInquiryKey = null;
 
   function fieldHtml(field) {
@@ -669,6 +866,7 @@
 
   function openInquiry(key) {
     renderInquiry(key);
+    inquiryErrorMsg.hidden = true;
     inquiryStepForm.hidden = false;
     inquiryStepDone.hidden = true;
     inquiryModal.hidden = false;
@@ -707,28 +905,38 @@
   inquiryForm.addEventListener('submit', function (e) {
     e.preventDefault();
     var config = INQUIRY_FORMS[currentInquiryKey];
-    if (!config || !paypalEmail) return;
+    if (!config) return;
 
+    var fields = { _subject: config.subject, formType: currentInquiryKey };
     var lines = [];
     config.fields.forEach(function (field) {
       var el = inquiryFieldsEl.querySelector('[name="' + field.name + '"]');
       var value = el ? el.value.trim() : '';
+      fields[field.name] = value;
       if (value) lines.push(field.label[currentLang()] + ': ' + value);
     });
 
-    var mailto = 'mailto:' + encodeURIComponent(paypalEmail) +
+    // Kept only as a fallback if the direct send fails — not the primary path anymore.
+    var mailtoFallback = 'mailto:' + encodeURIComponent(paypalEmail) +
       '?subject=' + encodeURIComponent(config.subject) +
       '&body=' + encodeURIComponent(lines.join('\n'));
 
-    // A real mailto link never navigates the page away — it just hands off
-    // to the OS mail client, so the site stays exactly where it is.
-    var a = document.createElement('a');
-    a.href = mailto;
-    a.click();
+    inquiryErrorMsg.hidden = true;
+    inquirySubmit.disabled = true;
+    var originalLabel = inquirySubmit.innerHTML;
+    inquirySubmit.innerHTML = '<span data-lang="de">Sende …</span><span data-lang="en">Sending …</span>';
 
-    inquiryFallback.href = mailto;
-    inquiryStepForm.hidden = true;
-    inquiryStepDone.hidden = false;
+    submitToFormspree(fields).then(function () {
+      inquiryStepForm.hidden = true;
+      inquiryStepDone.hidden = false;
+    }).catch(function () {
+      inquiryErrorFallbackDe.href = mailtoFallback;
+      inquiryErrorFallbackEn.href = mailtoFallback;
+      inquiryErrorMsg.hidden = false;
+    }).then(function () {
+      inquirySubmit.innerHTML = originalLabel;
+      inquirySubmit.disabled = false;
+    });
   });
 
   // ---------- Language toggle ----------

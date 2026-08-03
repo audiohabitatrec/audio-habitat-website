@@ -16,13 +16,19 @@
 
 var DEFAULT_COVER = "assets/covers/cover-singles.jpg";
 
+// hyperfollow: DistroKid's "one link, every platform" page per RELEASE
+// (not per track — an EP has one page covering all its tracks). Slugs are
+// NOT reliably derivable from the file name (e.g. "4 Reasons" -> "4-reasons-2",
+// not "4reasons"), so these have to be pasted in by hand, one at a time.
 var RELEASES = [
   { type: "single", title: "D-Chords", cover: "assets/covers/d-chords.jpg", isNew: true,
+    hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/d-chords?ref=release",
     tracks: [{ title: "D-Chords", file: "assets/tracks/d-chords.m4a", wav: "assets/tracks/d-chords.wav" }] },
   {
     type: "ep",
     title: "4 Reasons",
     cover: "assets/covers/4reasons.jpg",
+    hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/4-reasons-2?ref=release",
     tracks: [
       { title: "The Reason", file: "assets/tracks/the-reason.m4a", wav: "assets/tracks/the-reason.wav" },
       { title: "Nightfall", file: "assets/tracks/nightfall.m4a", wav: "assets/tracks/nightfall.wav" },
@@ -31,29 +37,40 @@ var RELEASES = [
     ]
   },
   { type: "single", title: "Signal", cover: "assets/covers/signal.jpg",
+    hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/signal-2?ref=release",
     tracks: [{ title: "Signal", file: "assets/tracks/signal.m4a", wav: "assets/tracks/signal.wav",
       apple: "https://music.apple.com/de/album/signal-single/6789963854" }] },
   { type: "single", title: "Dope Bass", cover: "assets/covers/dope-bass.jpg",
+    hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/dope-bass?ref=release",
     tracks: [{ title: "Dope Bass", file: "assets/tracks/dope-bass.m4a", wav: "assets/tracks/dope-bass.wav" }] },
   { type: "single", title: "Reece Drop", cover: "assets/covers/reece-drop.jpg",
+    hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/reece-drop?ref=release",
     tracks: [{ title: "Reece Drop", file: "assets/tracks/reece-drop.m4a", wav: "assets/tracks/reece-drop.wav" }] },
   { type: "single", title: "Cold Static", cover: "assets/covers/cold-static.jpg",
+    hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/cold-static?ref=release",
     // No wav: field — the WAV master is ~110MB, over GitHub's 100MB file
     // limit, so this one falls back to the M4A for downloads (see app.js).
     tracks: [{ title: "Cold Static", file: "assets/tracks/cold-static.m4a" }] },
   { type: "single", title: "Shadow Pulse", cover: "assets/covers/shadow-pulse.jpg",
+    hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/shadow-pulse?ref=release",
     tracks: [{ title: "Shadow Pulse", file: "assets/tracks/shadow-pulse.m4a", wav: "assets/tracks/shadow-pulse.wav" }] },
   { type: "single", title: "Pressure Rise", cover: "assets/covers/pressure-rise.jpg",
+    hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/pressure-rise?ref=release",
     tracks: [{ title: "Pressure Rise", file: "assets/tracks/pressure-rise.m4a", wav: "assets/tracks/pressure-rise.wav" }] },
   { type: "single", title: "Silent Hunter", cover: "assets/covers/silent-hunter.jpg",
+    hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/silent-hunter-2?ref=release",
     tracks: [{ title: "Silent Hunter", file: "assets/tracks/silent-hunter.m4a", wav: "assets/tracks/silent-hunter.wav" }] },
   { type: "single", title: "Step in the Rhythm", cover: "assets/covers/step-in-the-rhythm.jpg",
+    hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/step-in-the-rhythm?ref=release",
     tracks: [{ title: "Step in the Rhythm", file: "assets/tracks/step-in-the-rhythm.m4a", wav: "assets/tracks/step-in-the-rhythm.wav" }] },
   { type: "single", title: "Let's Go", cover: "assets/covers/lets-go.jpg",
+    hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/lets-go?ref=release",
     tracks: [{ title: "Let's Go", file: "assets/tracks/lets-go.m4a", wav: "assets/tracks/lets-go.wav" }] },
   { type: "single", title: "Change Your Mind", cover: "assets/covers/change-your-mind.jpg",
+    hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/change-your-mind?ref=release",
     tracks: [{ title: "Change Your Mind", file: "assets/tracks/change-your-mind.m4a", wav: "assets/tracks/change-your-mind.wav" }] },
   { type: "single", title: "Face the Future", cover: DEFAULT_COVER,
+    hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/face-the-future?ref=release",
     tracks: [{ title: "Face the Future", file: "assets/tracks/face-the-future.m4a", wav: "assets/tracks/face-the-future.wav" }] }
 ];
 
