@@ -4,7 +4,6 @@
 
   var links = (typeof ARTIST_LINKS !== 'undefined') ? ARTIST_LINKS : {};
   var paypalEmail = (typeof PAYPAL_EMAIL !== 'undefined') ? PAYPAL_EMAIL : '';
-  var DEEZER_FALLBACK = 'https://www.deezer.com/search/Audio%20Habitat';
 
   // Form submissions (booking/label inquiries, ratings) go straight to this
   // endpoint — no mail app, no backend of our own. Site stays static.
@@ -77,34 +76,18 @@
     star: '<svg viewBox="0 0 24 24"><path d="M12 3.5l2.3 5.1 5.6.6-4.2 3.8 1.2 5.5L12 15.8l-5 2.7 1.2-5.5-4.2-3.8 5.6-.6z"/></svg>'
   };
 
-  function platformIconsHtml(track, title, key) {
-    var spotifyHref = track.spotify || links.spotify;
-    var appleHref = track.apple || links.apple;
-    var soundcloudHref = track.soundcloud || links.soundcloud;
-    var deezerHref = track.deezer || links.deezer || DEEZER_FALLBACK;
-    return (
-      '<span class="track-icons">' +
-        (spotifyHref ? '<a href="' + spotifyHref + '" target="_blank" rel="noopener" aria-label="Spotify" onclick="event.stopPropagation()">' + ICONS.spotify + '</a>' : '') +
-        (appleHref ? '<a href="' + appleHref + '" target="_blank" rel="noopener" aria-label="Apple Music" onclick="event.stopPropagation()">' + ICONS.apple + '</a>' : '') +
-        (soundcloudHref ? '<a href="' + soundcloudHref + '" target="_blank" rel="noopener" aria-label="SoundCloud" onclick="event.stopPropagation()">' + ICONS.soundcloud + '</a>' : '') +
-        (deezerHref ? '<a href="' + deezerHref + '" target="_blank" rel="noopener" aria-label="Deezer" onclick="event.stopPropagation()">' + ICONS.deezer + '</a>' : '') +
-        (paypalEmail ? '<a class="track-icons__support" href="#" data-support-key="' + key + '" aria-label="Zahl was du willst">' + ICONS.pwyw + '</a>' : '') +
-      '</span>'
-    );
-  }
-
   // Three large, labeled buttons — used on the featured "Jetzt läuft" track
   // row instead of the small icon strip. Rail cards keep platformIconsHtml.
   function trackActionsHtml(key) {
     return (
       '<span class="track-actions">' +
-        '<button class="track-action track-action--stream" type="button" data-action="stream" data-key="' + key + '">' +
+        '<button class="track-action track-action--stream" type="button" data-action="stream" data-key="' + key + '" aria-label="Streaming">' +
           ICONS.stream + '<span data-lang="de">Streaming</span><span data-lang="en">Streaming</span>' +
         '</button>' +
-        '<button class="track-action track-action--buy" type="button" data-action="buy" data-key="' + key + '">' +
+        '<button class="track-action track-action--buy" type="button" data-action="buy" data-key="' + key + '" aria-label="Kaufen">' +
           ICONS.pwyw + '<span data-lang="de">Kaufen</span><span data-lang="en">Buy</span>' +
         '</button>' +
-        '<button class="track-action track-action--rate" type="button" data-action="rate" data-key="' + key + '">' +
+        '<button class="track-action track-action--rate" type="button" data-action="rate" data-key="' + key + '" aria-label="Bewerten">' +
           ICONS.star + '<span data-lang="de">Bewerten</span><span data-lang="en">Rate</span>' +
         '</button>' +
       '</span>'
@@ -254,8 +237,7 @@
       '<div class="rail-card__title">' + release.title +
         (release.isNew ? ' <span class="rail-card__tag rail-card__tag--new">' + NEW_TAG_HTML + '</span>' : '') +
         (release.type === 'ep' ? ' <span class="rail-card__tag">EP</span>' : '') +
-      '</div>' +
-      platformIconsHtml(track0, release.title, entry.key);
+      '</div>';
     railEl.appendChild(card);
 
     entry.railEl = card;
@@ -508,17 +490,6 @@
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && !supportModal.hidden) closeSupportModal();
   });
-
-  // Per-track "Zahl was du willst" icons open the same modal, pre-checked
-  // for that track. Capture phase so it wins over the row/card's own click
-  // handler (which otherwise starts playback for that track).
-  document.addEventListener('click', function (e) {
-    var btn = e.target.closest && e.target.closest('.track-icons__support');
-    if (!btn) return;
-    e.preventDefault();
-    e.stopPropagation();
-    openSupportModal(btn.getAttribute('data-support-key'));
-  }, true);
 
   // key looks like "<releaseIndex>-<trackIndex>" (see makeKey) — both are
   // plain integers, so splitting on '-' is safe.

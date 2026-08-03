@@ -685,10 +685,11 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 .featured__tracks li.is-active .icon-play { display: none; }
 .featured__tracks li.is-active .icon-pause { display: block; }
 
-/* ---------- Track action buttons (Streaming / Kaufen / Bewerten) — replaces */
-/* the small icon row on the featured "Jetzt läuft" track list only. Rail    */
-/* cards keep the compact .track-icons row further down (not enough room     */
-/* here for three labeled buttons per thumbnail).                           */
+/* ---------- Track action buttons (Streaming / Kaufen / Bewerten) — used   */
+/* on the featured "Jetzt läuft" track list and the mini player. Rail cards */
+/* stay plain covers + title; clicking one scrolls to the featured card,    */
+/* which already has the full set of actions, so a second copy there was    */
+/* just visual noise.                                                       */
 .track-actions {
   display: flex;
   align-items: center;
@@ -716,54 +717,36 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 .track-action:hover { background: var(--ink); color: var(--paper); transform: translateY(-1px); }
 .track-action--buy svg { fill: currentColor; stroke: none; }
 
+/* A row of three inline labeled pills reliably overflows narrow phones     */
+/* (German "Bewerten" alone is wider than the space three equal pills       */
+/* leave). Below 640px each action stacks icon-over-label instead — narrow  */
+/* per button, but the label stays readable so icons alone don't have to    */
+/* carry the meaning.                                                      */
 @media (max-width: 640px) {
-  .featured__tracks .track-actions { order: 3; width: 100%; margin-top: 10px; padding-left: 34px; gap: 8px; }
-  .track-action { flex: 1; justify-content: center; padding: 9px 6px; }
-}
-
-/* ---------- Platform / support icon row (Spotify, Apple, SoundCloud, Deezer, PWYW) ---------- */
-.track-icons {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  opacity: 0.45;
-}
-
-.track-icons a {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--ink-soft);
-}
-
-.track-icons svg { width: 14px; height: 14px; fill: currentColor; }
-
-.rail-card .track-icons {
-  margin-top: 8px;
-  opacity: 0.55;
-}
-
-/* Hover-only affordances — kept off touch devices on purpose. Without   */
-/* this, iOS/Android leave a tapped element stuck in :hover until the    */
-/* next tap elsewhere, which reads as icons randomly resizing/shifting.  */
-@media (hover: hover) and (pointer: fine) {
-  .track-icons { transition: opacity 0.25s ease; }
-  .featured__tracks li:hover .track-icons,
-  .rail-card:hover .track-icons,
-  .rail-card.is-active .track-icons {
-    opacity: 1;
+  .featured__tracks li { flex-wrap: wrap; }
+  .featured__tracks .track-actions { order: 3; width: auto; margin-top: 12px; padding-left: 34px; gap: 8px; }
+  .track-action {
+    flex: 0 0 auto;
+    flex-direction: column;
+    width: auto;
+    min-width: 60px;
+    padding: 8px 6px 7px;
+    gap: 4px;
+    border-radius: 14px;
   }
-  .track-icons a { transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease; }
-  .track-icons a:hover {
-    color: var(--ink);
-    background: var(--paper-dim);
-    transform: translateY(-1px);
+  .track-action svg { width: 15px; height: 15px; }
+
+  /* Mirrors the site-wide de/en toggle pattern (html[lang="x"] [data-lang="x"])
+     but scoped to .track-action so only the active language's label shows,
+     switched from inline (desktop) to block (stacked under the icon). */
+  html[lang="de"] .track-action span[data-lang="de"],
+  html[lang="en"] .track-action span[data-lang="en"] {
+    display: block;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
   }
-  .track-icons__support:hover { color: var(--accent); }
 }
 
 /* ---------- Discography rail ---------- */
@@ -1850,11 +1833,6 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   .rail-card, .rail-card__art { width: 200px; height: 200px; }
   .rail-card { scroll-snap-stop: always; }
   .player { left: 12px; right: 12px; transform: none; min-width: 0; }
-  .featured__tracks li { flex-wrap: wrap; }
-  .featured__tracks .track-icons { order: 3; width: 100%; padding-left: 34px; margin-top: -4px; opacity: 0.7; }
-  .rail-card .track-icons { gap: 2px; opacity: 0.65; }
-  .rail-card .track-icons a { width: 21px; height: 21px; }
-  .rail-card .track-icons svg { width: 12px; height: 12px; }
   .contact-grid { grid-template-columns: 1fr; }
   .archive__list { grid-template-columns: 1fr; }
   .contact__actions { flex-direction: column; }
