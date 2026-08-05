@@ -776,7 +776,12 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   padding: 8px 32px 20px;
   scroll-snap-type: x proximity;
   scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
+  /* No -webkit-overflow-scrolling here: on iOS Safari that legacy property
+     is the trigger for a known bug where cards past the first screenful
+     of this horizontal rail never get painted when the section is merely
+     scrolled into view vertically — they only render once the rail itself
+     receives a touch. Forcing each card onto its own compositing layer
+     (below) fixes it without needing that property. */
 }
 
 .rail::-webkit-scrollbar { display: none; }
@@ -798,6 +803,8 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   overflow: hidden;
   background: var(--paper-dim);
   transition: transform 0.45s var(--ease), box-shadow 0.45s var(--ease);
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 @media (hover: hover) and (pointer: fine) {
