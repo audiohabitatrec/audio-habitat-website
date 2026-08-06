@@ -76,6 +76,7 @@
     star: '<svg viewBox="0 0 24 24"><path d="M12 3.5l2.3 5.1 5.6.6-4.2 3.8 1.2 5.5L12 15.8l-5 2.7 1.2-5.5-4.2-3.8 5.6-.6z"/></svg>',
     share: '<svg viewBox="0 0 24 24"><path d="M12 15V3M8 7l4-4 4 4M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     whatsapp: '<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.05-1.36A10 10 0 1 0 12 2zm0 18.2a8.16 8.16 0 0 1-4.17-1.14l-.3-.18-3.1.83.83-3.02-.2-.31A8.2 8.2 0 1 1 12 20.2zm4.52-6.13c-.25-.12-1.47-.72-1.7-.81-.23-.08-.4-.12-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.23-1.46-1.37-1.7-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.25-.86.84-.86 2.06s.88 2.4 1 2.56c.12.17 1.73 2.64 4.2 3.7.59.25 1.05.4 1.4.52.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.68-1.18.2-.58.2-1.08.14-1.18-.06-.1-.23-.16-.48-.28z"/></svg>',
+    sms: '<svg viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H9l-4.4 3.3A.6.6 0 0 1 3 19.8V16H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>',
     x: '<svg viewBox="0 0 24 24"><path d="M18.9 2h3.3l-7.2 8.2L23.5 22h-6.7l-5.2-6.8L5.6 22H2.3l7.7-8.8L1.5 2h6.9l4.7 6.2zm-1.2 18h1.8L7.4 4H5.5z"/></svg>',
     mail: '<svg viewBox="0 0 24 24"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M4 6.5l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     link: '<svg viewBox="0 0 24 24"><path d="M10 14a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07l-1.5 1.5M14 10a5 5 0 0 0-7.07 0l-2.83 2.83a5 5 0 0 0 7.07 7.07l1.5-1.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>'
@@ -630,6 +631,7 @@
     var msg = encodeURIComponent(text + ' ' + url);
     sharePrimary.innerHTML =
       '<a href="https://wa.me/?text=' + msg + '" target="_blank" rel="noopener">' + ICONS.whatsapp + '<span>WhatsApp</span></a>' +
+      '<a href="sms:?&body=' + msg + '">' + ICONS.sms + '<span data-lang="de">Nachrichten</span><span data-lang="en">Messages</span></a>' +
       '<a href="https://twitter.com/intent/tweet?text=' + msg + '" target="_blank" rel="noopener">' + ICONS.x + '<span>X</span></a>' +
       '<a href="mailto:?subject=' + encodeURIComponent(title) + '&body=' + msg + '">' + ICONS.mail + '<span>Mail</span></a>';
     setShareCopyLabel(false);
