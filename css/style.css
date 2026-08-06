@@ -1242,6 +1242,23 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   margin: 0 0 14px;
 }
 
+.team__skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -4px 0 16px;
+}
+
+.team__skill-tag {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--paper-dim);
+  color: var(--ink-soft);
+}
+
 .team__bio {
   font-size: 14.5px;
   line-height: 1.65;
@@ -1345,6 +1362,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 @media (max-width: 860px) {
   .team__founder { flex-direction: column; text-align: center; padding: 40px 30px; }
   .team__founder-body h3, .team__role { text-align: center; }
+  .team__skill-tags { justify-content: center; }
 }
 
 @media (max-width: 560px) {
