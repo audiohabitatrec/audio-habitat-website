@@ -1024,6 +1024,26 @@
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
+  // ---------- Mobile nav menu (hamburger) ----------
+  var navMenuToggle = document.getElementById('navMenuToggle');
+  var navLinks = document.getElementById('navLinks');
+  if (navMenuToggle && navLinks) {
+    var closeNavMenu = function () {
+      nav.classList.remove('is-menu-open');
+      navMenuToggle.setAttribute('aria-expanded', 'false');
+    };
+    navMenuToggle.addEventListener('click', function () {
+      var isOpen = nav.classList.toggle('is-menu-open');
+      navMenuToggle.setAttribute('aria-expanded', String(isOpen));
+    });
+    navLinks.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', closeNavMenu);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeNavMenu();
+    });
+  }
+
   // ---------- A few drifting dust motes over the hero photo ----------
   var heroDust = document.getElementById('heroDust');
   if (heroDust && !prefersReducedMotion) {

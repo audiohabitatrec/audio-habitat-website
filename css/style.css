@@ -202,6 +202,23 @@ ul { list-style: none; margin: 0; padding: 0; }
   color: #fff;
 }
 
+/* ---------- Mobile nav menu (hamburger) ---------- */
+.nav__menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.nav__menu-toggle svg circle { fill: currentColor; }
+
 /* ---------- Bilingual content (DE default, EN via html[lang]) ---------- */
 [data-lang] { display: none; }
 html[lang="de"] [data-lang="de"],
@@ -2043,7 +2060,37 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 860px) {
-  .nav__links { display: none; }
+  .nav__menu-toggle { display: flex; }
+
+  .nav__links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 0;
+    padding: 4px 32px 16px;
+    /* Solid, not the nav bar's translucent --glass-bg: this panel can sit
+       over page content (not just the hero photo), and 60%-opacity text
+       bleeding through hurt legibility. */
+    background: var(--paper);
+    box-shadow: 0 1px 0 var(--line), 0 12px 24px -12px rgba(23,20,15,0.25);
+    color: var(--ink);
+  }
+
+  .nav.is-menu-open .nav__links { display: flex; }
+
+  .nav__links a {
+    padding: 14px 0;
+    font-size: 15px;
+    font-weight: 600;
+    opacity: 1;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .nav__links a:last-child { border-bottom: none; }
+
   .featured__card { grid-template-columns: 1fr; }
   .featured__body { padding: 32px 28px 40px; }
   .archive__card { flex-wrap: wrap; }

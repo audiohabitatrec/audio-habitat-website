@@ -22,7 +22,7 @@
       <span>iDs Music Hub</span>
     </a>
     <div class="nav__right">
-      <div class="nav__links">
+      <div class="nav__links" id="navLinks">
         <a href="index.html#featured"><span data-lang="de">Jetzt läuft</span><span data-lang="en">Now Playing</span></a>
         <a href="index.html#discography"><span data-lang="de">Musik</span><span data-lang="en">Music</span></a>
         <a href="index.html#archive"><span data-lang="de">Archiv</span><span data-lang="en">Archive</span></a>
@@ -33,6 +33,9 @@
         <button type="button" data-set-lang="de">DE</button>
         <button type="button" data-set-lang="en">EN</button>
       </div>
+      <button class="nav__menu-toggle" id="navMenuToggle" type="button" aria-label="Menü" aria-expanded="false" aria-controls="navLinks">
+        <svg viewBox="0 0 24 24" width="20" height="20"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
+      </button>
     </div>
   </div>
 </nav>
@@ -322,6 +325,26 @@
       btn.addEventListener('click', function () { setLang(btn.getAttribute('data-set-lang')); });
     });
     setLang(document.documentElement.lang === 'en' ? 'en' : 'de');
+
+    var nav = document.getElementById('nav');
+    var navMenuToggle = document.getElementById('navMenuToggle');
+    var navLinks = document.getElementById('navLinks');
+    if (nav && navMenuToggle && navLinks) {
+      var closeNavMenu = function () {
+        nav.classList.remove('is-menu-open');
+        navMenuToggle.setAttribute('aria-expanded', 'false');
+      };
+      navMenuToggle.addEventListener('click', function () {
+        var isOpen = nav.classList.toggle('is-menu-open');
+        navMenuToggle.setAttribute('aria-expanded', String(isOpen));
+      });
+      navLinks.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', closeNavMenu);
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeNavMenu();
+      });
+    }
   })();
 </script>
 </body>
