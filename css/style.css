@@ -1708,6 +1708,8 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   border-top: 1px solid var(--line);
 }
 
+.share-copy { margin-top: 14px; }
+
 .stream-band .distro-marquee { margin-bottom: 8px; }
 .stream-band .distro-marquee__row { animation-duration: 18s; }
 

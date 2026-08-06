@@ -531,6 +531,22 @@
   </div>
 </div>
 
+<div class="modal" id="shareModal" hidden>
+  <div class="modal__backdrop" id="shareBackdrop"></div>
+  <div class="modal__panel" role="dialog" aria-modal="true">
+    <button class="modal__close" id="shareClose" type="button" aria-label="Schließen">
+      <svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <p class="eyebrow"><span data-lang="de">Teilen</span><span data-lang="en">Share</span></p>
+    <h3 class="modal__title" id="shareTitle">—</h3>
+    <div class="stream-primary" id="sharePrimary"></div>
+    <button class="hero__cta hero__cta--dark support__proceed share-copy" id="shareCopyBtn" type="button">
+      <span data-lang="de" data-copy="Link kopieren" data-copied="Link kopiert ✓">Link kopieren</span>
+      <span data-lang="en" data-copy="Copy link" data-copied="Link copied ✓">Copy link</span>
+    </button>
+  </div>
+</div>
+
 <div class="modal" id="manifestoModal" hidden>
   <div class="modal__backdrop" id="manifestoBackdrop"></div>
   <div class="modal__panel modal__panel--glass" role="dialog" aria-modal="true">
