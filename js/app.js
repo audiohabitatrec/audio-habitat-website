@@ -1046,8 +1046,7 @@
   // may also be swiping the row horizontally read as "cards moving around"
   // rather than a static grid, especially on mobile.
   document.querySelectorAll(
-    '.featured__card, .archive__card, .contact .eyebrow, .contact .section-title, .contact__text, .contact__actions, ' +
-    '.team .eyebrow, .team .section-title, .team__intro-text, .team__founder, .team-card'
+    '.featured__card, .archive__card, .contact .eyebrow, .contact .section-title, .contact__text, .contact__actions'
   ).forEach(function (el) { el.classList.add('reveal'); });
 
   var io = new IntersectionObserver(function (entries) {
