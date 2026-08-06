@@ -21,7 +21,10 @@ var DEFAULT_COVER = "assets/covers/cover-singles.jpg";
 // NOT reliably derivable from the file name (e.g. "4 Reasons" -> "4-reasons-2",
 // not "4reasons"), so these have to be pasted in by hand, one at a time.
 var RELEASES = [
-  { type: "single", title: "D-Chords", cover: "assets/covers/d-chords.jpg", isNew: true,
+  { type: "single", title: "Beast Mode", cover: "assets/covers/beast-mode.jpg", isNew: true,
+    hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/beast-mode?ref=release",
+    tracks: [{ title: "Beast Mode", file: "assets/tracks/beast-mode.m4a", wav: "assets/tracks/beast-mode.wav" }] },
+  { type: "single", title: "D-Chords", cover: "assets/covers/d-chords.jpg",
     hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/d-chords?ref=release",
     tracks: [{ title: "D-Chords", file: "assets/tracks/d-chords.m4a", wav: "assets/tracks/d-chords.wav" }] },
   {
