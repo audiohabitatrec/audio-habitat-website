@@ -575,8 +575,11 @@
     // SoundCloud is intentionally excluded here — that's where self-
     // uploaded, non-distributed material lives (see the Archive section),
     // not an official release platform for this track.
-    var spotifyHref = track.spotify || links.spotify;
-    var appleHref = track.apple || links.apple;
+    // Falls back to the release's Hyperfollow page (lands on the right
+    // song/EP, just platform-agnostic) rather than the generic artist
+    // profile when no dedicated per-track link is set.
+    var spotifyHref = track.spotify || release.hyperfollow || links.spotify;
+    var appleHref = track.apple || release.hyperfollow || links.apple;
     var primary = [];
     if (spotifyHref) primary.push('<a href="' + spotifyHref + '" target="_blank" rel="noopener">' + ICONS.spotify + '<span>Spotify</span></a>');
     if (appleHref) primary.push('<a href="' + appleHref + '" target="_blank" rel="noopener">' + ICONS.apple + '<span>Apple Music</span></a>');
