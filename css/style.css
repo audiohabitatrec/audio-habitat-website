@@ -976,6 +976,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 
 .archive__pager {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 4px;
 }
