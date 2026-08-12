@@ -41,6 +41,8 @@
   var featuredKicker = document.getElementById('featuredKicker');
   var featuredTitleEl = document.getElementById('featuredTitle');
   var featuredDescEl = document.getElementById('featuredDesc');
+  var featuredMore = document.getElementById('featuredMore');
+  var featuredMoreLink = document.getElementById('featuredMoreLink');
   var featuredPlayBtn = document.getElementById('featuredPlay');
   var railEl = document.getElementById('rail');
 
@@ -169,6 +171,12 @@
     var newTag = release.isNew ? '<span class="featured__new-tag">' + NEW_TAG_HTML + '</span>' : '';
     featuredKicker.innerHTML = newTag + (release.type === 'ep' ? 'EP' : 'Single') + ' · 2026';
     featuredDescEl.textContent = release.type === 'ep' ? t.epDesc : t.singleDesc;
+    if (release.page) {
+      featuredMoreLink.href = release.page;
+      featuredMore.hidden = false;
+    } else {
+      featuredMore.hidden = true;
+    }
   }
 
   function renderFeatured(ri) {

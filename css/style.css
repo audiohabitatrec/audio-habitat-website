@@ -671,6 +671,19 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 
 .featured__tracks { display: flex; flex-direction: column; }
 
+.featured__more {
+  margin: 18px 0 0;
+}
+
+.featured__more a {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  transition: color 0.2s ease;
+}
+
+.featured__more a:hover { color: var(--accent); }
+
 .featured__tracks li {
   display: flex;
   align-items: center;
