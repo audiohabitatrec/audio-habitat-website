@@ -9,9 +9,9 @@
 
   var PLATTER_IMG = 'assets/covers/platter.jpg';
 
-  function coverMarkup(cover) {
+  function coverMarkup(cover, title) {
     return '<img class="cover-disc__platter" src="' + PLATTER_IMG + '" alt="" aria-hidden="true">' +
-      (cover ? '<img class="cover-art" src="' + cover + '" alt="">' : ICONS.note);
+      (cover ? '<img class="cover-art" src="' + cover + '" alt="' + title + '">' : ICONS.note);
   }
 
   OTHER_LABELS.forEach(function (group) {
@@ -33,7 +33,7 @@
       a.target = '_blank';
       a.rel = 'noopener';
 
-      var coverInner = coverMarkup(release.cover);
+      var coverInner = coverMarkup(release.cover, release.title);
 
       a.innerHTML =
         '<div class="cover-wrap discog-card__cover">' +
