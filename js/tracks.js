@@ -140,7 +140,8 @@ var ARTIST_LINKS = {
   spotify: "https://open.spotify.com/artist/2eo8TqrCseukiJaOIK2rhc",
   apple: "https://music.apple.com/us/artist/audio-habitat/4291320",
   soundcloud: "https://soundcloud.com/audiohabitatrec",
-  beatport: "https://www.beatport.com/de/artist/audio-habitat/82070"
+  beatport: "https://www.beatport.com/de/artist/audio-habitat/82070",
+  discogs: "https://www.discogs.com/de/artist/1003425-Audio-Habitat"
 };
 
 var PAYPAL_EMAIL = "audiohabitatrec@googlemail.com";
