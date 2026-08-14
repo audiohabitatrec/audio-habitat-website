@@ -129,6 +129,11 @@
       <div class="featured__card">
         <div class="featured__art">
           <img src="../../assets/covers/cold-static.jpg" alt="Cold Static — Audio Habitat">
+          <button class="featured__play" id="releasePlay" type="button" aria-label="Play/Pause">
+            <svg class="icon-play" viewBox="0 0 24 24" width="22" height="22"><path d="M8 5v14l11-7z"/></svg>
+            <svg class="icon-pause" viewBox="0 0 24 24" width="22" height="22" hidden><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+          </button>
+          <audio id="releaseAudio" preload="none" src="../../assets/tracks/cold-static.m4a"></audio>
         </div>
         <div class="featured__body">
           <p class="featured__kicker">Single · Audio Habitat</p>
@@ -235,6 +240,49 @@
       document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') closeNavMenu();
       });
+    }
+  })();
+</script>
+<script>
+  (function () {
+    var audio = document.getElementById('releaseAudio');
+    if (!audio) return;
+
+    var singlePlay = document.getElementById('releasePlay');
+    if (singlePlay) {
+      singlePlay.addEventListener('click', function () {
+        if (audio.paused) audio.play(); else audio.pause();
+      });
+      audio.addEventListener('play', function () { singlePlay.classList.add('is-playing'); });
+      audio.addEventListener('pause', function () { singlePlay.classList.remove('is-playing'); });
+      audio.addEventListener('ended', function () { singlePlay.classList.remove('is-playing'); });
+    }
+
+    var trackButtons = document.querySelectorAll('.track-play');
+    if (trackButtons.length) {
+      var activeLi = null;
+      trackButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var li = btn.closest('li');
+          var file = btn.getAttribute('data-file');
+          if (activeLi === li && !audio.paused) {
+            audio.pause();
+          } else {
+            if (audio.getAttribute('src') !== file) audio.src = file;
+            audio.play();
+            activeLi = li;
+          }
+        });
+      });
+      function syncActive() {
+        trackButtons.forEach(function (btn) {
+          var li = btn.closest('li');
+          li.classList.toggle('is-active', li === activeLi && !audio.paused);
+        });
+      }
+      audio.addEventListener('play', syncActive);
+      audio.addEventListener('pause', syncActive);
+      audio.addEventListener('ended', function () { activeLi = null; syncActive(); });
     }
   })();
 </script>

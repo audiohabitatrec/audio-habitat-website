@@ -255,6 +255,10 @@
               <a href="https://open.spotify.com/track/7h3ik4iBz9xyRwyoal5Tk0" target="_blank" rel="noopener" aria-label="The Reason on Spotify">Spotify</a>
               <a href="https://music.apple.com/us/song/the-reason/6793720234" target="_blank" rel="noopener" aria-label="The Reason on Apple Music">Apple Music</a>
             </span>
+            <button class="track-play" type="button" data-file="../../assets/tracks/the-reason.m4a" aria-label="Play/Pause The Reason">
+              <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              <svg class="icon-pause" viewBox="0 0 24 24" hidden><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+            </button>
           </li>
           <li>
             <span class="track-num">2</span>
@@ -263,6 +267,10 @@
               <a href="https://open.spotify.com/track/2Mep8GGPcet3FoaqyR8QWK" target="_blank" rel="noopener" aria-label="Nightfall on Spotify">Spotify</a>
               <a href="https://music.apple.com/us/song/nightfall/6793720237" target="_blank" rel="noopener" aria-label="Nightfall on Apple Music">Apple Music</a>
             </span>
+            <button class="track-play" type="button" data-file="../../assets/tracks/nightfall.m4a" aria-label="Play/Pause Nightfall">
+              <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              <svg class="icon-pause" viewBox="0 0 24 24" hidden><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+            </button>
           </li>
           <li>
             <span class="track-num">3</span>
@@ -271,6 +279,10 @@
               <a href="https://open.spotify.com/track/744RIxP3COz62e2IA3MPCt" target="_blank" rel="noopener" aria-label="Mind of Blank on Spotify">Spotify</a>
               <a href="https://music.apple.com/us/song/mind-of-blank/6793720236" target="_blank" rel="noopener" aria-label="Mind of Blank on Apple Music">Apple Music</a>
             </span>
+            <button class="track-play" type="button" data-file="../../assets/tracks/mind-of-blank.m4a" aria-label="Play/Pause Mind of Blank">
+              <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              <svg class="icon-pause" viewBox="0 0 24 24" hidden><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+            </button>
           </li>
           <li>
             <span class="track-num">4</span>
@@ -279,8 +291,13 @@
               <a href="https://open.spotify.com/track/4UmgkKO7hNO4FwpFlce6Dn" target="_blank" rel="noopener" aria-label="Nowhere to Hide on Spotify">Spotify</a>
               <a href="https://music.apple.com/us/song/nowhere-to-hide/6793720239" target="_blank" rel="noopener" aria-label="Nowhere to Hide on Apple Music">Apple Music</a>
             </span>
+            <button class="track-play" type="button" data-file="../../assets/tracks/nowhere-to-hide.m4a" aria-label="Play/Pause Nowhere to Hide">
+              <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              <svg class="icon-pause" viewBox="0 0 24 24" hidden><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+            </button>
           </li>
         </ul>
+        <audio id="releaseAudio" preload="none"></audio>
         <div class="release__track-descs">
           <p><strong>The Reason:</strong> <span data-lang="de">The Reason eröffnet die 4-Reasons-EP mit warmem Liquid Funk auf 174 BPM — der Sound für den ersten Cocktail am Strand.</span><span data-lang="en">The Reason opens the 4 Reasons EP with warm Liquid Funk at 174 BPM — the sound for the first cocktail on the beach.</span></p>
           <p><strong>Nightfall:</strong> <span data-lang="de">Nightfall zieht das Tempo auf 175 BPM an und fängt den Moment ein, in dem die Beach-Party in die Nacht kippt.</span><span data-lang="en">Nightfall picks up the pace to 175 BPM, capturing the moment the beach party tips over into the night.</span></p>
@@ -380,6 +397,49 @@
       document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') closeNavMenu();
       });
+    }
+  })();
+</script>
+<script>
+  (function () {
+    var audio = document.getElementById('releaseAudio');
+    if (!audio) return;
+
+    var singlePlay = document.getElementById('releasePlay');
+    if (singlePlay) {
+      singlePlay.addEventListener('click', function () {
+        if (audio.paused) audio.play(); else audio.pause();
+      });
+      audio.addEventListener('play', function () { singlePlay.classList.add('is-playing'); });
+      audio.addEventListener('pause', function () { singlePlay.classList.remove('is-playing'); });
+      audio.addEventListener('ended', function () { singlePlay.classList.remove('is-playing'); });
+    }
+
+    var trackButtons = document.querySelectorAll('.track-play');
+    if (trackButtons.length) {
+      var activeLi = null;
+      trackButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var li = btn.closest('li');
+          var file = btn.getAttribute('data-file');
+          if (activeLi === li && !audio.paused) {
+            audio.pause();
+          } else {
+            if (audio.getAttribute('src') !== file) audio.src = file;
+            audio.play();
+            activeLi = li;
+          }
+        });
+      });
+      function syncActive() {
+        trackButtons.forEach(function (btn) {
+          var li = btn.closest('li');
+          li.classList.toggle('is-active', li === activeLi && !audio.paused);
+        });
+      }
+      audio.addEventListener('play', syncActive);
+      audio.addEventListener('pause', syncActive);
+      audio.addEventListener('ended', function () { activeLi = null; syncActive(); });
     }
   })();
 </script>
