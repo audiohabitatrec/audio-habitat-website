@@ -13,6 +13,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://audiohabitatrec.com/about.html</loc>
+    <lastmod>2026-08-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://audiohabitatrec.com/music/4-reasons/</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>monthly</changefreq>
