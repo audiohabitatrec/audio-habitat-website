@@ -960,14 +960,18 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 .archive__chev { transition: transform 0.4s var(--ease); }
 .archive__link[aria-expanded="true"] .archive__chev { transform: rotate(180deg); }
 
-/* Smooth height animation without a fixed max-height, via the grid-rows trick */
+/* Smooth expand/collapse via max-height — the grid-rows 0fr/1fr trick this
+   replaced doesn't reliably animate (or even expand) in Safari, which left
+   the archive stuck shut there. max-height is the boring, universally
+   supported way to do this; 3000px comfortably exceeds any real page of
+   embeds without capping actual content. */
 .archive__panel {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.55s var(--ease);
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.55s var(--ease);
 }
 
-.archive__panel.is-open { grid-template-rows: 1fr; }
+.archive__panel.is-open { max-height: 3000px; }
 
 .archive__panel-inner { overflow: hidden; }
 
