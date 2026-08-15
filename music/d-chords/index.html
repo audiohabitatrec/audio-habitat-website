@@ -208,6 +208,24 @@
   </div>
 </footer>
 
+<div class="player" id="releasePlayer" hidden>
+  <button class="player__toggle" id="releasePlayerToggle" type="button" aria-label="Play/Pause">
+    <svg class="icon-play" viewBox="0 0 24 24" width="16" height="16"><path d="M8 5v14l11-7z"/></svg>
+    <svg class="icon-pause" viewBox="0 0 24 24" width="16" height="16" hidden><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+  </button>
+  <img class="player__art" id="releasePlayerArt" alt="">
+  <div class="player__meta">
+    <div class="player__row">
+      <div class="player__title" id="releasePlayerTitle">—</div>
+      <div class="player__time" id="releasePlayerTime">0:00 / 0:00</div>
+    </div>
+    <div class="player__seek" id="releasePlayerSeek" role="slider" aria-label="Seek">
+      <div class="player__seek-fill" id="releasePlayerFill"></div>
+      <div class="player__seek-knob" id="releasePlayerKnob"></div>
+    </div>
+  </div>
+</div>
+
 <script>
   (function () {
     var langToggle = document.getElementById('langToggle');
@@ -248,10 +266,54 @@
     var audio = document.getElementById('releaseAudio');
     if (!audio) return;
 
+    // Mini player bar — same markup/behavior as the homepage's, so seeking
+    // works the same way here as everywhere else on the site.
+    var playerEl = document.getElementById('releasePlayer');
+    var playerToggle = document.getElementById('releasePlayerToggle');
+    var playerArt = document.getElementById('releasePlayerArt');
+    var playerTitle = document.getElementById('releasePlayerTitle');
+    var playerTime = document.getElementById('releasePlayerTime');
+    var playerSeek = document.getElementById('releasePlayerSeek');
+    var playerFill = document.getElementById('releasePlayerFill');
+    var playerKnob = document.getElementById('releasePlayerKnob');
+    if (!playerEl) return;
+
+    var coverImg = document.querySelector('.featured__art img');
+    var coverSrc = coverImg ? coverImg.src : '';
+    var titleEl = document.querySelector('.section-title');
+    var releaseTitle = titleEl ? titleEl.textContent : '';
+
+    function formatTime(sec) {
+      if (!isFinite(sec) || isNaN(sec)) return '0:00';
+      sec = Math.max(0, Math.floor(sec));
+      var m = Math.floor(sec / 60);
+      var s = sec % 60;
+      return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function setProgress(ratio) {
+      ratio = Math.min(1, Math.max(0, ratio || 0));
+      playerFill.style.width = (ratio * 100) + '%';
+      playerKnob.style.left = (ratio * 100) + '%';
+    }
+
+    function updatePlayerBar() {
+      playerEl.hidden = false;
+      document.body.classList.add('has-player');
+      playerArt.src = coverSrc;
+      playerTime.textContent = formatTime(audio.currentTime) + ' / ' + formatTime(audio.duration);
+      playerEl.classList.toggle('is-playing', !audio.paused);
+    }
+
     var singlePlay = document.getElementById('releasePlay');
     if (singlePlay) {
       singlePlay.addEventListener('click', function () {
-        if (audio.paused) audio.play(); else audio.pause();
+        if (audio.paused) {
+          playerTitle.textContent = releaseTitle;
+          audio.play();
+        } else {
+          audio.pause();
+        }
       });
       audio.addEventListener('play', function () { singlePlay.classList.add('is-playing'); });
       audio.addEventListener('pause', function () { singlePlay.classList.remove('is-playing'); });
@@ -259,9 +321,10 @@
     }
 
     var trackButtons = document.querySelectorAll('.track-play');
+    var activeLi = null;
     if (trackButtons.length) {
-      var activeLi = null;
       trackButtons.forEach(function (btn) {
+        var title = (btn.getAttribute('aria-label') || '').replace(/^Play\/Pause\s*/, '') || releaseTitle;
         btn.addEventListener('click', function () {
           var li = btn.closest('li');
           var file = btn.getAttribute('data-file');
@@ -269,6 +332,7 @@
             audio.pause();
           } else {
             if (audio.getAttribute('src') !== file) audio.src = file;
+            playerTitle.textContent = title;
             audio.play();
             activeLi = li;
           }
@@ -284,6 +348,54 @@
       audio.addEventListener('pause', syncActive);
       audio.addEventListener('ended', function () { activeLi = null; syncActive(); });
     }
+
+    audio.addEventListener('play', updatePlayerBar);
+    audio.addEventListener('pause', updatePlayerBar);
+    audio.addEventListener('ended', updatePlayerBar);
+
+    playerToggle.addEventListener('click', function () {
+      if (audio.paused) audio.play(); else audio.pause();
+    });
+
+    // Drag-to-scrub — pointer events cover mouse, touch and pen alike.
+    var seekDragging = false;
+
+    function seekRatioFromEvent(e) {
+      var rect = playerSeek.getBoundingClientRect();
+      return Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+    }
+
+    playerSeek.addEventListener('pointerdown', function (e) {
+      if (!audio.duration) return;
+      seekDragging = true;
+      playerEl.classList.add('is-dragging');
+      if (playerSeek.setPointerCapture) playerSeek.setPointerCapture(e.pointerId);
+      setProgress(seekRatioFromEvent(e));
+    });
+
+    playerSeek.addEventListener('pointermove', function (e) {
+      if (!seekDragging) return;
+      setProgress(seekRatioFromEvent(e));
+    });
+
+    function finishSeekDrag(e) {
+      if (!seekDragging) return;
+      seekDragging = false;
+      playerEl.classList.remove('is-dragging');
+      if (audio.duration) audio.currentTime = seekRatioFromEvent(e) * audio.duration;
+    }
+
+    playerSeek.addEventListener('pointerup', finishSeekDrag);
+    playerSeek.addEventListener('pointercancel', function () {
+      seekDragging = false;
+      playerEl.classList.remove('is-dragging');
+    });
+
+    audio.addEventListener('timeupdate', function () {
+      if (!audio.duration) return;
+      if (!seekDragging) setProgress(audio.currentTime / audio.duration);
+      playerTime.textContent = formatTime(audio.currentTime) + ' / ' + formatTime(audio.duration);
+    });
   })();
 </script>
 </body>
