@@ -385,20 +385,28 @@
       iframe.src = 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(track.url) +
         '&color=%23e0703f&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false';
       wrap.appendChild(iframe);
+      return { wrap: wrap, iframe: iframe };
+    }
 
-      if (typeof SC !== 'undefined' && SC.Widget) {
-        var widget = SC.Widget(iframe);
-        group.widgets.push(widget);
-        widget.bind(SC.Widget.Events.PLAY, function () { pauseOtherPlayback(widget); });
-      }
-
-      return wrap;
+    // SC.Widget().bind() posts a message to iframe.contentWindow to set up
+    // its handshake — that's null until the iframe is attached to the
+    // document, so wiring it up on a still-detached iframe throws
+    // synchronously and aborts whichever tracks hadn't been wired up yet.
+    // Widgets are only created here, after every iframe for the page is
+    // already in the DOM.
+    function wireWidget(iframe) {
+      if (typeof SC === 'undefined' || !SC.Widget) return;
+      var widget = SC.Widget(iframe);
+      group.widgets.push(widget);
+      widget.bind(SC.Widget.Events.PLAY, function () { pauseOtherPlayback(widget); });
     }
 
     function showPage(i) {
       group.widgets = [];
       list.innerHTML = '';
-      group.pages[i].forEach(function (track) { list.appendChild(buildEmbed(track)); });
+      var embeds = group.pages[i].map(buildEmbed);
+      embeds.forEach(function (e) { list.appendChild(e.wrap); });
+      embeds.forEach(function (e) { wireWidget(e.iframe); });
       if (pager) {
         pager.querySelectorAll('button').forEach(function (btn, idx) {
           btn.classList.toggle('is-active', idx === i);
