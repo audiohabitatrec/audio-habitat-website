@@ -5,3 +5,5 @@ assets/iDs Music Hub Logo.jpg
 assets/Audio Habitat Logo.png
 .claude/scheduled_tasks.lock
 assets/tracks/cold-static.wav
+assets/covers/incoming/*
+!assets/covers/incoming/README.md
