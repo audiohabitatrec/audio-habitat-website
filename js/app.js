@@ -209,7 +209,7 @@
     setActiveVisuals();
   }
 
-  function play(key) {
+  function play(key, autoAdvance) {
     var entry = registry[key];
     if (!entry) return;
 
@@ -217,7 +217,7 @@
       renderFeatured(entry.releaseIndex);
     }
 
-    if (activeKey === key) {
+    if (activeKey === key && !autoAdvance) {
       if (audio.paused) audio.play(); else audio.pause();
     } else {
       activeKey = key;
@@ -228,6 +228,9 @@
     updatePlayerBar();
     setActiveVisuals();
 
+    // Skip the scroll-to-player jump when a track advances on its own —
+    // it's only meant to reveal what's playing right after a manual tap.
+    if (autoAdvance) return;
     var featuredSection = document.getElementById('featured');
     var rect = featuredSection.getBoundingClientRect();
     if (rect.top < 0 || rect.top > 120) {
@@ -332,7 +335,20 @@
     pauseAllSoundCloudEmbeds();
   });
   audio.addEventListener('pause', function () { setActiveVisuals(); updatePlayerBar(); updateNavLiveDot(); });
-  audio.addEventListener('ended', function () { setActiveVisuals(); updatePlayerBar(); updateNavLiveDot(); });
+  audio.addEventListener('ended', function () {
+    setActiveVisuals(); updatePlayerBar(); updateNavLiveDot();
+    playNextTrack();
+  });
+
+  // Continuous playback: once a track finishes, keep going through the
+  // rest of the catalogue in order, looping back to the start after the
+  // last track — press play once, the whole discography plays through.
+  function playNextTrack() {
+    if (!allTracks.length) return;
+    var idx = allTracks.findIndex(function (t) { return t.key === activeKey; });
+    var nextIdx = (idx + 1) % allTracks.length;
+    play(allTracks[nextIdx].key, true);
+  }
   audio.addEventListener('timeupdate', function () {
     if (!audio.duration) return;
     if (!seekDragging) setPlayerProgress(audio.currentTime / audio.duration);
