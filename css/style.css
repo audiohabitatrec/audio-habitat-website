@@ -510,7 +510,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   margin: 0 0 40px;
 }
 
-.hero__content .hero__cta {
+.hero__content .btn {
   margin-top: clamp(60px, 11vh, 170px);
 }
 
@@ -522,53 +522,67 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   .hero__mark-wrap { width: min(480px, 62vw, 40vh); margin-bottom: 14px; }
   .hero__line { margin-bottom: 2px; }
   .hero__slogan { margin-bottom: 22px; }
-  .hero__content .hero__cta { margin-top: clamp(56px, 12vh, 110px); }
+  .hero__content .btn { margin-top: clamp(56px, 12vh, 110px); }
 }
 
-.hero__cta {
+/* ---------- Button system: one shared family for every page-level CTA ----------
+   .btn is the base (shape/spacing); .btn--primary/--ghost/--glass are the
+   only three visual identities. Anything using filled/outlined/frosted
+   buttons anywhere on the site — homepage, About, release pages, 404,
+   Impressum, Datenschutz — draws from this instead of a page-local copy. */
+.btn {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   padding: 15px 26px;
   border-radius: 999px;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background 0.3s var(--ease), color 0.3s var(--ease), border-color 0.3s var(--ease), transform 0.3s var(--ease), filter 0.3s var(--ease);
+}
+
+.btn svg { flex-shrink: 0; }
+
+.btn--block { width: 100%; justify-content: center; }
+
+/* Compact size for tight contexts (e.g. a topbar back-link) — pairs with
+   any of the three color variants above. */
+.btn--sm { padding: 9px 16px; gap: 6px; font-size: 12.5px; }
+
+.btn--primary {
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  color: var(--paper);
+}
+
+/* filter: brightness() (not a hardcoded hover color) so this darkens
+   correctly on hover in both themes, even though --ink/--paper swap
+   values under dark mode. */
+.btn--primary:hover { filter: brightness(0.88); transform: translateY(-2px); }
+
+.btn--ghost {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.btn--ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Frosted glass — only ever sits on top of the hero photo, so its colors
+   are intentionally hardcoded rather than theme variables. */
+.btn--glass {
   background: rgba(255,255,255,0.14);
   border: 1px solid rgba(255,255,255,0.3);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  font-size: 14px;
-  font-weight: 600;
   color: #fff;
-  transition: background 0.3s var(--ease), transform 0.3s var(--ease), border-color 0.3s ease;
 }
 
-.hero__cta:hover {
+.btn--glass:hover {
   background: rgba(255,255,255,0.24);
   transform: translateY(-2px);
 }
-
-.hero__cta svg { flex-shrink: 0; }
-
-.hero__cta--dark {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: var(--paper);
-}
-
-.hero__cta--dark:hover { background: #322c22; }
-
-.hero__cta--ghost {
-  background: transparent;
-  border-color: var(--line);
-  color: var(--ink);
-}
-
-.hero__cta--ghost:hover {
-  background: var(--paper-dim);
-  border-color: var(--paper-dim);
-  transform: translateY(-2px);
-}
-
-.hero__cta--ghost svg { color: var(--accent); }
 
 /* ---------- Featured ---------- */
 .featured { padding: 150px 0 120px; }
@@ -956,28 +970,10 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 .archive__note { margin: 10px 0 0; font-size: 12.5px; color: var(--ink-faint); }
 .archive__note a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 
-.archive__toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 14px;
-  padding: 11px 20px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--ink);
-  font-size: 13px;
-  font-weight: 650;
-  font-family: inherit;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: border-color 0.3s var(--ease), color 0.3s var(--ease);
-}
-
-.archive__toggle:hover { border-color: var(--accent); color: var(--accent); }
+#archiveOldToggle { margin-top: 14px; }
 
 .archive__chev { transition: transform 0.4s var(--ease); }
-.archive__toggle[aria-expanded="true"] .archive__chev { transform: rotate(180deg); }
+.btn[aria-expanded="true"] .archive__chev { transform: rotate(180deg); }
 
 /* Smooth expand/collapse via max-height — the grid-rows 0fr/1fr trick this
    replaced doesn't reliably animate (or even expand) in Safari, which left
@@ -1058,14 +1054,6 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   color: var(--ink-soft);
   margin: 0 auto 32px;
   max-width: 40ch;
-}
-
-.contact__actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  flex-wrap: wrap;
 }
 
 .contact-grid {
@@ -1180,7 +1168,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   flex-shrink: 0;
 }
 
-.contact-card .hero__cta {
+.contact-card .btn {
   width: 100%;
   justify-content: center;
   padding: 13px 20px;
@@ -2163,8 +2151,6 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   .player { left: 12px; right: 12px; transform: none; min-width: 0; }
   .contact-grid { grid-template-columns: 1fr; }
   .archive__list { grid-template-columns: 1fr; }
-  .contact__actions { flex-direction: column; }
-  .contact__actions .hero__cta { width: 100%; justify-content: center; }
   .modal__panel { padding: 30px 22px; max-height: 92vh; }
   .support__row { grid-template-columns: 18px 30px 1fr auto; gap: 8px; }
 }
