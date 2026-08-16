@@ -363,6 +363,7 @@
   var DEFAULT_PRICE = 2;
 
   var supportModal = document.getElementById('supportModal');
+  var supportPanel = supportModal.querySelector('.modal__panel');
   var supportBackdrop = document.getElementById('supportBackdrop');
   var supportClose = document.getElementById('supportClose');
   var supportStepSelect = document.getElementById('supportStepSelect');
@@ -414,6 +415,10 @@
     supportListEl.querySelectorAll('.support__row').forEach(function (row) {
       var checked = row.querySelector('input[type="checkbox"]').checked;
       row.classList.toggle('is-checked', checked);
+      // pointer-events:none (via .support__price's dimmed default state)
+      // only blocks the mouse — without this, keyboard/screen-reader users
+      // could still tab into and edit the price for an unchecked track.
+      row.querySelector('input[type="number"]').disabled = !checked;
       if (checked) {
         anyChecked = true;
         var price = parseFloat(row.querySelector('input[type="number"]').value) || 0;
@@ -454,6 +459,7 @@
     updateSupportTotal();
     supportStepSelect.hidden = false;
     supportStepDownload.hidden = true;
+    supportPanel.setAttribute('aria-labelledby', 'supportTitleSelect');
     supportModal.hidden = false;
   }
 
@@ -792,6 +798,7 @@
 
     supportStepSelect.hidden = true;
     supportStepDownload.hidden = false;
+    supportPanel.setAttribute('aria-labelledby', 'supportTitleDownload');
   });
 
   // ---------- Inquiry modals: Booking & For Labels — form stays in-page, ----------

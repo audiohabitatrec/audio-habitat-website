@@ -7,11 +7,21 @@
 :root {
   --ink: #17140f;
   --ink-soft: rgba(23,20,15,0.62);
-  --ink-faint: rgba(23,20,15,0.4);
+  --ink-faint: rgba(23,20,15,0.6);
   --paper: #faf7f2;
   --paper-dim: #f2ede4;
   --line: rgba(23,20,15,0.09);
   --accent: #e0703f;
+  /* Same hue, darkened for use as small TEXT on paper — the raw --accent
+     only hits ~3:1 there, short of the 4.5:1 small-text minimum. Keep
+     --accent itself unchanged for backgrounds/borders/accent-color,
+     where the brighter, more recognizable orange is fine. */
+  --accent-text: #b1491d;
+  /* Fixed dark color for small text sitting directly on an --accent
+     background (badges, the active DE/EN pill). --accent itself doesn't
+     change between themes, so this shouldn't either — var(--ink) would
+     flip to a near-white color in dark mode and fail contrast there. */
+  --on-accent: #17140f;
   --glass-bg: rgba(255,255,255,0.6);
   --glass-bg-dark: rgba(23,20,15,0.55);
   --glass-border: rgba(255,255,255,0.7);
@@ -59,7 +69,7 @@ ul { list-style: none; margin: 0; padding: 0; }
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--accent-text);
   margin: 0 0 14px;
 }
 
@@ -216,7 +226,9 @@ ul { list-style: none; margin: 0; padding: 0; }
 .lang-toggle button.is-active {
   opacity: 1;
   background: var(--accent);
-  color: #fff;
+  /* Dark text, not white — white-on-accent only hits 3.2:1, short of the
+     4.5:1 small-text minimum; --on-accent clears it at ~5.7:1. */
+  color: var(--on-accent);
 }
 
 /* ---------- Mobile nav menu (hamburger) ---------- */
@@ -531,7 +543,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   font-size: clamp(12px, 1.4vw, 15px);
   font-weight: 650;
   letter-spacing: 0.03em;
-  color: var(--accent);
+  color: var(--accent-text);
   margin: 0 0 40px;
 }
 
@@ -592,7 +604,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   color: var(--ink);
 }
 
-.btn--ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn--ghost:hover { border-color: var(--accent); color: var(--accent-text); }
 
 /* Frosted glass — only ever sits on top of the hero photo, so its colors
    are intentionally hardcoded rather than theme variables. */
@@ -679,7 +691,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   font-weight: 650;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--accent-text);
   margin: 0 0 12px;
 }
 
@@ -689,7 +701,8 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   padding: 3px 9px;
   border-radius: 999px;
   background: var(--accent);
-  color: #fff;
+  /* Not white — white-on-accent at this size only hits 3.2:1. */
+  color: var(--on-accent);
   vertical-align: middle;
 }
 
@@ -721,7 +734,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   transition: color 0.2s ease;
 }
 
-.featured__more a:hover { color: var(--accent); }
+.featured__more a:hover { color: var(--accent-text); }
 
 .featured__tracks li {
   display: flex;
@@ -749,7 +762,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 }
 
 .featured__tracks li:hover .track-title,
-.featured__tracks li.is-active .track-title { color: var(--accent); }
+.featured__tracks li.is-active .track-title { color: var(--accent-text); }
 
 .track-play {
   width: 30px;
@@ -964,7 +977,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   letter-spacing: -0.005em;
 }
 
-.rail-card__title.is-accent { color: var(--accent); }
+.rail-card__title.is-accent { color: var(--accent-text); }
 
 .rail-card__meta {
   margin-top: 4px;
@@ -987,7 +1000,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 
 .rail-card__tag--new {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 /* ---------- Archive toggle (compact, embedded in the About page's "Frühe
@@ -1069,7 +1082,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   transition: color 0.2s ease;
 }
 
-.archive__source:hover { color: var(--accent); }
+.archive__source:hover { color: var(--accent-text); }
 
 /* ---------- Contact ---------- */
 .contact { padding: 0 0 150px; text-align: center; }
@@ -1143,7 +1156,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   align-items: center;
   justify-content: center;
   background: radial-gradient(circle at 30% 30%, rgba(224,112,63,0.18), var(--paper-dim) 70%);
-  color: var(--accent);
+  color: var(--accent-text);
   box-shadow: inset 0 0 0 1px rgba(224,112,63,0.16);
   transition: transform 0.5s var(--ease);
 }
@@ -1179,7 +1192,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   font-size: 11px;
   font-weight: 650;
   letter-spacing: 0.04em;
-  color: var(--accent);
+  color: var(--accent-text);
   opacity: 0.75;
   margin-top: 10px;
 }
@@ -1274,7 +1287,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 }
 
 .team__role-tag--human {
-  color: var(--accent);
+  color: var(--accent-text);
   background: rgba(224,112,63,0.12);
 }
 
@@ -1388,7 +1401,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .team-grid {
@@ -1464,7 +1477,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   font-size: 12.5px;
   font-weight: 650;
   letter-spacing: 0.02em;
-  color: var(--accent);
+  color: var(--accent-text);
   margin: 0 0 14px;
 }
 
@@ -1506,8 +1519,10 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  /* --ink-faint already carries the intended de-emphasis; stacking an
+     opacity on top dropped this to ~1.7:1 contrast, well under the
+     4.5:1 minimum for text this size. */
   color: var(--ink-faint);
-  opacity: 0.6;
   line-height: 1.7;
 }
 
@@ -1543,7 +1558,8 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   font-size: 12.5px;
   font-weight: 600;
   white-space: nowrap;
-  opacity: 0.55;
+  /* --ink-soft is already the de-emphasized tone; the extra opacity on
+     top dropped this to ~2.2:1, below the 4.5:1 minimum. */
 }
 
 .distro-logo svg {
@@ -1872,7 +1888,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   text-align: center;
   font-size: 12.5px;
   font-weight: 650;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 /* ---------- Rating popup ---------- */
@@ -1895,7 +1911,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 
 .rate-star svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linejoin: round; transition: fill 0.15s ease, stroke 0.15s ease; }
 .rate-star:hover { transform: scale(1.1); }
-.rate-star.is-active { color: var(--accent); }
+.rate-star.is-active { color: var(--accent-text); }
 .rate-star.is-active svg { fill: var(--accent); }
 
 .modal__hint--note {
@@ -1905,7 +1921,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   border-top: 1px solid var(--line);
 }
 
-.modal__hint--error { color: var(--accent); font-weight: 600; }
+.modal__hint--error { color: var(--accent-text); font-weight: 600; }
 .modal__hint--error a { text-decoration: underline; }
 
 .support__list {
@@ -2196,10 +2212,13 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   :root {
     --ink: #f3efe7;
     --ink-soft: rgba(243,239,231,0.66);
-    --ink-faint: rgba(243,239,231,0.42);
+    --ink-faint: rgba(243,239,231,0.52);
     --paper: #14120f;
     --paper-dim: #1d1a15;
     --line: rgba(243,239,231,0.1);
+    /* --accent already reads fine as text against the dark paper here
+       (~5.8:1) — no darkening needed the way light mode requires. */
+    --accent-text: #e0703f;
     --glass-bg: rgba(30,27,22,0.6);
     --glass-border: rgba(255,255,255,0.08);
   }
