@@ -113,6 +113,10 @@ ul { list-style: none; margin: 0; padding: 0; }
   display: flex;
   align-items: center;
   gap: 10px;
+  /* Padding + matching negative margin grows the tap target to ~44px
+     tall without changing the visible logo/nav row height. */
+  padding: 10px 0;
+  margin: -10px 0;
 }
 
 .nav__brand img {
@@ -182,6 +186,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .nav.is-solid .lang-toggle { background: var(--paper-dim); }
 
 .lang-toggle button {
+  position: relative;
   border: none;
   background: transparent;
   color: inherit;
@@ -196,6 +201,18 @@ ul { list-style: none; margin: 0; padding: 0; }
   transition: background 0.25s ease, color 0.25s ease, opacity 0.25s ease;
 }
 
+/* Grows the tap target to ~44px tall without widening the visible pill —
+   DE and EN sit only 2px apart, so any horizontal growth here would make
+   the two targets overlap and mis-taps more likely, not less. */
+.lang-toggle button::before {
+  content: '';
+  position: absolute;
+  top: -11px;
+  bottom: -11px;
+  left: 0;
+  right: 0;
+}
+
 .lang-toggle button.is-active {
   opacity: 1;
   background: var(--accent);
@@ -204,6 +221,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 
 /* ---------- Mobile nav menu (hamburger) ---------- */
 .nav__menu-toggle {
+  position: relative;
   display: none;
   align-items: center;
   justify-content: center;
@@ -215,6 +233,13 @@ ul { list-style: none; margin: 0; padding: 0; }
   color: inherit;
   cursor: pointer;
   flex-shrink: 0;
+}
+
+/* Grows the tap target to 44px square without enlarging the icon itself. */
+.nav__menu-toggle::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
 }
 
 .nav__menu-toggle svg circle { fill: currentColor; }
@@ -1551,6 +1576,10 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 }
 
 .footer__links { display: flex; align-items: center; gap: 18px; }
+/* Padding + matching negative margin grows the tap target without
+   shifting the visible row — the links stay tight together on screen
+   but each gets a taller invisible hit area. */
+.footer__note { padding: 10px 0; margin: -10px 0; }
 .footer__note:hover { color: var(--ink); }
 
 /* ---------- Floating "now playing" glass player ---------- */
