@@ -1800,6 +1800,14 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   transition: background 0.2s ease, color 0.2s ease;
 }
 
+/* Grows the tap target to 48px square without enlarging the visible
+   circle — this is the primary way to dismiss any modal on mobile. */
+.modal__close::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
 .modal__close:hover { background: var(--ink); color: var(--paper); }
 
 .modal__title {
