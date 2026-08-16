@@ -472,7 +472,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 /* Scroll-driven shrink lives on the wrapper; the pulse keyframes stay on
    the img itself so the two transforms don't fight each other. */
 .hero__mark-wrap {
-  width: min(760px, 82vw);
+  width: min(760px, 82vw, 52vh);
   margin: 0 auto 26px;
   will-change: transform;
 }
@@ -511,7 +511,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 }
 
 .hero__content .hero__cta {
-  margin-top: clamp(90px, 16vh, 170px);
+  margin-top: clamp(60px, 11vh, 170px);
 }
 
 /* Short viewports (small phones, landscape) squeeze the whole content
@@ -519,7 +519,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
    the block instead of just letting it spill into the photo. */
 @media (max-height: 700px) {
   .hero__eyebrow { margin-bottom: 12px; }
-  .hero__mark-wrap { width: min(480px, 62vw); margin-bottom: 14px; }
+  .hero__mark-wrap { width: min(480px, 62vw, 40vh); margin-bottom: 14px; }
   .hero__line { margin-bottom: 2px; }
   .hero__slogan { margin-bottom: 22px; }
   .hero__content .hero__cta { margin-top: clamp(56px, 12vh, 110px); }
