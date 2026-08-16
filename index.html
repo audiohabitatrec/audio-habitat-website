@@ -595,7 +595,7 @@
       <p class="eyebrow">Discography</p>
       <h2 class="section-title"><span data-lang="de">Alle Releases</span><span data-lang="en">All Releases</span></h2>
     </div>
-    <div class="rail" id="rail"></div>
+    <div class="rail" id="rail" tabindex="0" role="region" aria-label="Discography"></div>
   </section>
 
   <section class="contact" id="contact">
@@ -759,14 +759,14 @@
 
 <div class="modal" id="supportModal" hidden>
   <div class="modal__backdrop" id="supportBackdrop"></div>
-  <div class="modal__panel" role="dialog" aria-modal="true">
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="supportTitleSelect">
     <button class="modal__close" id="supportClose" type="button" aria-label="Schließen">
       <svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
     </button>
 
     <div class="support-step" id="supportStepSelect">
       <p class="eyebrow"><span data-lang="de">Unterstützung</span><span data-lang="en">Support</span></p>
-      <h3 class="modal__title">
+      <h3 class="modal__title" id="supportTitleSelect">
         <span data-lang="de">Zahl, was du willst</span>
         <span data-lang="en">Pay what you want</span>
       </h3>
@@ -805,7 +805,7 @@
 
     <div class="support-step" id="supportStepDownload" hidden>
       <p class="eyebrow"><span data-lang="de">Danke</span><span data-lang="en">Thank you</span></p>
-      <h3 class="modal__title">
+      <h3 class="modal__title" id="supportTitleDownload">
         <span data-lang="de">Deine Downloads</span>
         <span data-lang="en">Your downloads</span>
       </h3>
@@ -824,7 +824,7 @@
 
 <div class="modal" id="inquiryModal" hidden>
   <div class="modal__backdrop" id="inquiryBackdrop"></div>
-  <div class="modal__panel" role="dialog" aria-modal="true">
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="inquiryTitle">
     <button class="modal__close" id="inquiryClose" type="button" aria-label="Schließen">
       <svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
     </button>
@@ -867,7 +867,7 @@
 
 <div class="modal" id="streamModal" hidden>
   <div class="modal__backdrop" id="streamBackdrop"></div>
-  <div class="modal__panel" role="dialog" aria-modal="true">
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="streamTitle">
     <button class="modal__close" id="streamClose" type="button" aria-label="Schließen">
       <svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
     </button>
@@ -901,7 +901,7 @@
 
 <div class="modal" id="rateModal" hidden>
   <div class="modal__backdrop" id="rateBackdrop"></div>
-  <div class="modal__panel" role="dialog" aria-modal="true">
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="rateTitle">
     <button class="modal__close" id="rateClose" type="button" aria-label="Schließen">
       <svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
     </button>
@@ -957,7 +957,7 @@
 
 <div class="modal" id="shareModal" hidden>
   <div class="modal__backdrop" id="shareBackdrop"></div>
-  <div class="modal__panel" role="dialog" aria-modal="true">
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
     <button class="modal__close" id="shareClose" type="button" aria-label="Schließen">
       <svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
     </button>
