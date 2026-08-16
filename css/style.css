@@ -927,6 +927,12 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 
 .rail-card__title.is-accent { color: var(--accent); }
 
+.rail-card__meta {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
 .rail-card__tag {
   display: inline-block;
   margin-left: 6px;
@@ -2146,7 +2152,13 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   .featured { padding: 110px 0 80px; }
   .rail { padding-left: 20px; padding-right: 20px; scroll-snap-type: x mandatory; gap: 16px; }
   .rail__spacer { display: none; }
-  .rail-card, .rail-card__art { width: 200px; height: 200px; }
+  /* Sized as a share of the viewport (not a fixed px) so exactly two cards
+     fill the screen edge-to-edge on any phone width — no sliver of a third
+     card peeking in at the edge, cover and title always fully visible.
+     Chromium's scroll-snap resting position skips past the rail's own
+     padding-left on load (snapping straight to the first card), so only
+     the two 16px gaps — not the 20px side padding — need accounting for. */
+  .rail-card, .rail-card__art { width: calc((100vw - 32px) / 2); height: calc((100vw - 32px) / 2); }
   .rail-card { scroll-snap-stop: always; }
   .player { left: 12px; right: 12px; transform: none; min-width: 0; }
   .contact-grid { grid-template-columns: 1fr; }

@@ -261,7 +261,8 @@
       '<div class="rail-card__title">' + release.title +
         (release.isNew ? ' <span class="rail-card__tag rail-card__tag--new">' + NEW_TAG_HTML + '</span>' : '') +
         (release.type === 'ep' ? ' <span class="rail-card__tag">EP</span>' : '') +
-      '</div>';
+      '</div>' +
+      '<div class="rail-card__meta">' + release.subgenre + (release.bpm ? ' · ' + release.bpm + ' BPM' : '') + '</div>';
     railEl.appendChild(card);
 
     entry.railEl = card;
