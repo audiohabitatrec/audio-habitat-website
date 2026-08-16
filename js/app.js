@@ -551,6 +551,7 @@
     shareCopyBtn.querySelectorAll('span[data-copy]').forEach(function (span) {
       span.textContent = span.getAttribute(copied ? 'data-copied' : 'data-copy');
     });
+    shareCopyBtn.classList.toggle('is-copied', copied);
   }
 
   function openShareModal(title, text, url) {

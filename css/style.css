@@ -152,6 +152,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .nav__links { display: flex; gap: 30px; }
 
 .nav__links a {
+  position: relative;
   font-size: 13px;
   font-weight: 500;
   color: inherit;
@@ -160,6 +161,21 @@ ul { list-style: none; margin: 0; padding: 0; }
 }
 
 .nav__links a:hover { opacity: 1; }
+
+/* Underline sweeps in from the left on hover rather than just snapping
+   into place — a small sign of life on the most-used control on the site. */
+.nav__links a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: -4px;
+  height: 1px;
+  background: currentColor;
+  transition: right 0.3s var(--ease);
+}
+
+.nav__links a:hover::after { right: 0; }
 
 .nav__now { display: inline-flex; align-items: center; gap: 6px; }
 
@@ -621,6 +637,12 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   transform: translateY(-2px);
 }
 
+/* Tactile press feedback on every variant — placed after all three
+   :hover rules above so it wins the cascade tie when a click naturally
+   triggers :hover and :active together (same specificity, source order
+   decides), turning the hover-lift into a quick, deliberate press. */
+.btn:active { transform: scale(0.96); transition-duration: 0.1s; }
+
 /* ---------- Featured ---------- */
 .featured { padding: 150px 0 120px; }
 
@@ -743,7 +765,10 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   padding: 14px 0;
   border-top: 1px solid var(--line);
   cursor: pointer;
+  transition: background 0.15s ease;
 }
+
+.featured__tracks li:active { background: var(--paper-dim); }
 
 .featured__tracks li:first-child { border-top: none; }
 
@@ -941,6 +966,11 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   .rail-card:hover .rail-card__art img { transform: scale(1.05); }
   .rail-card:hover .rail-card__play { opacity: 1; background: rgba(23,20,15,0.32); }
 }
+
+/* Placed after the :hover rule above so it wins the cascade tie — a tap
+   naturally fires :hover and :active together on touch, and this should
+   read as a press, not the lift holding still. */
+.rail-card:active .rail-card__art { transform: scale(0.97); transition-duration: 0.1s; }
 
 .rail-card__art img {
   width: 100%;
@@ -1799,6 +1829,26 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* The modal itself already animates in on open (above) — this covers the
+   in-place step change once you're inside it (form -> confirmation), which
+   previously just snapped with no transition at all. */
+#inquiryStepDone:not([hidden]),
+#supportStepDownload:not([hidden]),
+#rateStepDone:not([hidden]) {
+  animation: stepIn 0.4s var(--ease);
+}
+
+@keyframes stepIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #inquiryStepDone:not([hidden]),
+  #supportStepDownload:not([hidden]),
+  #rateStepDone:not([hidden]) { animation: none; }
+}
+
 .modal__close {
   position: absolute;
   top: 20px;
@@ -1879,6 +1929,20 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 }
 
 .share-copy { margin-top: 14px; }
+
+/* Brief pulse the moment the link actually lands on the clipboard —
+   the text swap alone ("Link kopiert ✓") is easy to miss on a fast click. */
+.share-copy.is-copied { animation: copyPulse 0.4s var(--ease); }
+
+@keyframes copyPulse {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .share-copy.is-copied { animation: none; }
+}
 
 .stream-band .distro-marquee { margin-bottom: 8px; }
 .stream-band .distro-marquee__row { animation-duration: 18s; }
