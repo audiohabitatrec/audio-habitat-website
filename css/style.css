@@ -2152,7 +2152,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   .featured { padding: 110px 0 80px; }
   .rail { padding-left: 20px; padding-right: 20px; scroll-snap-type: x mandatory; gap: 16px; }
   .rail__spacer { display: none; }
-  .rail-card, .rail-card__art { width: 200px; height: 200px; }
+  .rail-card, .rail-card__art { width: 150px; height: 150px; }
   .rail-card { scroll-snap-stop: always; }
   .player { left: 12px; right: 12px; transform: none; min-width: 0; }
   .contact-grid { grid-template-columns: 1fr; }
