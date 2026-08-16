@@ -945,64 +945,33 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   color: #fff;
 }
 
-/* ---------- Archive ---------- */
-.archive { padding: 0 0 130px; }
-
-.archive__panel + .archive__card { margin-top: 24px; }
-
-.archive__card {
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  padding: 40px 44px;
-  border-radius: var(--radius-lg);
-  background: var(--glass-bg-dark);
-  color: var(--paper);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-}
-
-.archive__icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.archive__icon svg { fill: #fff; }
-
-.archive__text { flex: 1; }
-.archive__text h3 { margin: 0 0 6px; font-size: 19px; font-weight: 650; }
-.archive__text p { margin: 0; font-size: 14px; color: rgba(250,247,242,0.68); }
-
-.archive__text p.archive__note { margin-top: 6px; font-size: 11.5px; color: rgba(250,247,242,0.42); }
+/* ---------- Archive toggle (compact, embedded in the About page's "Frühe
+   Jahre" block rather than a standalone homepage section) ---------- */
+.archive__note { margin: 10px 0 0; font-size: 12.5px; color: var(--ink-faint); }
 .archive__note a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 
-.archive__link {
+.archive__toggle {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 13px 22px;
-  border: none;
+  margin-top: 14px;
+  padding: 11px 20px;
+  border: 1px solid var(--line);
   border-radius: 999px;
-  background: var(--paper);
+  background: transparent;
   color: var(--ink);
   font-size: 13px;
   font-weight: 650;
   font-family: inherit;
   white-space: nowrap;
   cursor: pointer;
-  transition: transform 0.3s var(--ease);
+  transition: border-color 0.3s var(--ease), color 0.3s var(--ease);
 }
 
-.archive__link:hover { transform: translateY(-2px); }
+.archive__toggle:hover { border-color: var(--accent); color: var(--accent); }
 
 .archive__chev { transition: transform 0.4s var(--ease); }
-.archive__link[aria-expanded="true"] .archive__chev { transform: rotate(180deg); }
+.archive__toggle[aria-expanded="true"] .archive__chev { transform: rotate(180deg); }
 
 /* Smooth expand/collapse via max-height — the grid-rows 0fr/1fr trick this
    replaced doesn't reliably animate (or even expand) in Safari, which left
@@ -2169,8 +2138,6 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 
   .featured__card { grid-template-columns: 1fr; }
   .featured__body { padding: 32px 28px 40px; }
-  .archive__card { flex-wrap: wrap; }
-  .archive__link { width: 100%; justify-content: center; }
   .contact-grid { grid-template-columns: 1fr 1fr; }
 }
 
@@ -2201,6 +2168,4 @@ html[lang="en"] [data-lang="en"] { display: inline; }
     --glass-bg: rgba(30,27,22,0.6);
     --glass-border: rgba(255,255,255,0.08);
   }
-  .archive__card { background: rgba(255,255,255,0.06); }
-  .archive__link { background: var(--ink); color: var(--paper); }
 }
