@@ -1029,24 +1029,6 @@
     if (e.key === 'Escape' && !inquiryModal.hidden) closeInquiry();
   });
 
-  // ---------- Hero easter egg: small glass manifesto card ----------
-  var heroHintBtn = document.getElementById('heroHintBtn');
-  var manifestoModal = document.getElementById('manifestoModal');
-  var manifestoBackdrop = document.getElementById('manifestoBackdrop');
-  var manifestoClose = document.getElementById('manifestoClose');
-
-  function openManifesto() { manifestoModal.hidden = false; }
-  function closeManifesto() { manifestoModal.hidden = true; }
-
-  if (heroHintBtn && manifestoModal) {
-    heroHintBtn.addEventListener('click', openManifesto);
-    manifestoClose.addEventListener('click', closeManifesto);
-    manifestoBackdrop.addEventListener('click', closeManifesto);
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !manifestoModal.hidden) closeManifesto();
-    });
-  }
-
   inquiryForm.addEventListener('submit', function (e) {
     e.preventDefault();
     var config = INQUIRY_FORMS[currentInquiryKey];
