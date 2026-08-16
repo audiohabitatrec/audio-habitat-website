@@ -796,6 +796,50 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   }
 }
 
+/* ---------- Credibility strip: since-2008 + BBC Radio 1Xtra ---------- */
+.credibility {
+  padding: 70px 0;
+  text-align: center;
+}
+
+.credibility .wrap { max-width: 620px; }
+
+.credibility__stat {
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+}
+
+.credibility__badges {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 22px;
+}
+
+.credibility__dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ink-faint);
+  flex-shrink: 0;
+}
+
+.credibility__text {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 46ch;
+  margin: 0 auto 28px;
+}
+
 /* ---------- Discography rail ---------- */
 .discography { padding: 40px 0 130px; }
 
