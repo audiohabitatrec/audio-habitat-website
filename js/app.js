@@ -255,7 +255,7 @@
     card.className = 'rail-card';
     card.innerHTML =
       '<div class="rail-card__art">' +
-        '<img src="' + assetPath(release.cover) + '" alt="' + release.title + '">' +
+        '<img src="' + assetPath(release.cover) + '" alt="' + release.title + '" loading="lazy">' +
         '<div class="rail-card__play">' + ICONS.play + ICONS.pause + '</div>' +
       '</div>' +
       '<div class="rail-card__title">' + release.title +
