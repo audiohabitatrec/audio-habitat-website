@@ -978,11 +978,11 @@
   var heroBgWrap = document.getElementById('heroBgWrap');
   var heroMarkWrap = document.getElementById('heroMarkWrap');
   var heroEl = document.querySelector('.hero');
-  // Scoped to heroEl on purpose: .hero__cta is reused as a generic button
-  // style all over the page (contact cards, PayPal, inquiry forms), so an
+  // Scoped to heroEl on purpose: .btn is reused as a generic button style
+  // all over the page (contact cards, PayPal, inquiry forms), so an
   // unscoped document-wide query here was fading out and disabling every
   // button on the site once scrolled past ~60% of the hero's height.
-  var heroTextEls = heroEl ? heroEl.querySelectorAll('.hero__eyebrow, .hero__line, .hero__slogan, .hero__cta') : [];
+  var heroTextEls = heroEl ? heroEl.querySelectorAll('.hero__eyebrow, .hero__line, .hero__slogan, .btn--glass') : [];
   var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function onScroll() {
@@ -1060,7 +1060,7 @@
   // may also be swiping the row horizontally read as "cards moving around"
   // rather than a static grid, especially on mobile.
   document.querySelectorAll(
-    '.featured__card, .contact .eyebrow, .contact .section-title, .contact__text, .contact__actions'
+    '.featured__card, .contact .eyebrow, .contact .section-title, .contact__text'
   ).forEach(function (el) { el.classList.add('reveal'); });
 
   var io = new IntersectionObserver(function (entries) {
