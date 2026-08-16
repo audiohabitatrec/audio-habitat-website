@@ -169,7 +169,11 @@
     var release = releases[currentFeaturedIndex];
     var t = I18N[currentLang()];
     var newTag = release.isNew ? '<span class="featured__new-tag">' + NEW_TAG_HTML + '</span>' : '';
-    featuredKicker.innerHTML = newTag + (release.type === 'ep' ? 'EP' : 'Single') + ' · 2026';
+    var typeLabel = release.type === 'ep' ? 'EP' : 'Single';
+    var meta = release.subgenre
+      ? release.subgenre + (release.bpm ? ' · ' + release.bpm + ' BPM' : ' · ' + typeLabel)
+      : typeLabel;
+    featuredKicker.innerHTML = newTag + meta;
     featuredDescEl.textContent = release.type === 'ep' ? t.epDesc : t.singleDesc;
     if (release.page) {
       featuredMoreLink.href = release.page;
