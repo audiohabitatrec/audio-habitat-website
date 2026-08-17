@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design System — Audio Habitat</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/ids-music-hub-logo-web.jpg">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* Internal reference page only — not linked from any live page, not
+     indexed. Deliberately reuses the site's own classes/tokens rather
+     than re-describing them, so this can't quietly drift out of sync
+     the way a hand-written copy of "the rules" always eventually does. */
+  body { padding-top: 0; }
+  .ds-header { padding: 56px 0 32px; border-bottom: 1px solid var(--line); }
+  .ds-header h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 650; letter-spacing: -0.02em; margin: 0 0 8px; }
+  .ds-header p { color: var(--ink-soft); font-size: 15px; max-width: 60ch; margin: 0; }
+  .ds-section { padding: 48px 0; border-bottom: 1px solid var(--line); }
+  .ds-section h2 { font-size: 22px; font-weight: 650; letter-spacing: -0.01em; margin: 0 0 6px; }
+  .ds-section > .wrap > p.ds-note { color: var(--ink-soft); font-size: 14px; max-width: 68ch; margin: 0 0 28px; }
+
+  .ds-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+  .ds-swatch { border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+  .ds-swatch__fill { height: 64px; }
+  .ds-swatch__meta { padding: 10px 12px; }
+  .ds-swatch__name { display: block; font-size: 13px; font-weight: 650; font-family: monospace; }
+  .ds-swatch__value { display: block; font-size: 11.5px; color: var(--ink-soft); font-family: monospace; margin-top: 2px; word-break: break-all; }
+
+  .ds-row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin: 0 0 16px; }
+  .ds-row:last-child { margin-bottom: 0; }
+  .ds-label { font-size: 12px; font-family: monospace; color: var(--ink-faint); width: 100%; margin-bottom: 4px; }
+
+  .ds-type-sample { margin: 0 0 22px; }
+  .ds-type-sample .ds-label { margin-bottom: 8px; }
+
+  .ds-card-demo { padding: 24px; background: var(--paper-dim); border-radius: var(--radius-sm); }
+
+  table.ds-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.ds-table th, table.ds-table td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+  table.ds-table th { color: var(--ink-soft); font-weight: 650; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+  table.ds-table td { font-family: monospace; font-size: 13px; }
+
+  .ds-dark-note { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-soft); margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<header class="ds-header">
+  <div class="wrap">
+    <h1>Design System</h1>
+    <p>Interne Referenz für Farben, Typografie, Buttons und Komponenten von Audio Habitat / iDs Music Hub. Nicht verlinkt, nicht indexiert — jedes Beispiel hier zieht sich direkt aus den echten Klassen und CSS-Variablen in <code>css/style.css</code>, damit diese Seite nicht veraltet, sobald sich das Design weiterentwickelt.</p>
+  </div>
+</header>
+
+<main>
+
+  <section class="ds-section">
+    <div class="wrap">
+      <h2>Farben</h2>
+      <p class="ds-note">Alle Werte sind CSS-Variablen in <code>:root</code>. Zeig diese Seite mal im Dark Mode deines Systems — die Werte tauschen automatisch über die <code>@media (prefers-color-scheme: dark)</code>-Regel.</p>
+
+      <div class="ds-swatches">
+        <div class="ds-swatch">
+          <div class="ds-swatch__fill" style="background: var(--ink);"></div>
+          <div class="ds-swatch__meta"><span class="ds-swatch__name">--ink</span><span class="ds-swatch__value">Haupttext, dunkle Flächen</span></div>
+        </div>
+        <div class="ds-swatch">
+          <div class="ds-swatch__fill" style="background: var(--ink-soft);"></div>
+          <div class="ds-swatch__meta"><span class="ds-swatch__name">--ink-soft</span><span class="ds-swatch__value">Fließtext, sekundäre Beschriftung</span></div>
+        </div>
+        <div class="ds-swatch">
+          <div class="ds-swatch__fill" style="background: var(--ink-faint);"></div>
+          <div class="ds-swatch__meta"><span class="ds-swatch__name">--ink-faint</span><span class="ds-swatch__value">Tracknummern, Hints, Footer</span></div>
+        </div>
+        <div class="ds-swatch">
+          <div class="ds-swatch__fill" style="background: var(--paper); border-bottom: 1px solid var(--line);"></div>
+          <div class="ds-swatch__meta"><span class="ds-swatch__name">--paper</span><span class="ds-swatch__value">Seitenhintergrund</span></div>
+        </div>
+        <div class="ds-swatch">
+          <div class="ds-swatch__fill" style="background: var(--paper-dim);"></div>
+          <div class="ds-swatch__meta"><span class="ds-swatch__name">--paper-dim</span><span class="ds-swatch__value">Karten, Chips, Eingabefelder</span></div>
+        </div>
+        <div class="ds-swatch">
+          <div class="ds-swatch__fill" style="background: var(--accent);"></div>
+          <div class="ds-swatch__meta"><span class="ds-swatch__name">--accent</span><span class="ds-swatch__value">Marken-Orange — Hintergründe, Rahmen, Checkbox-Farbe</span></div>
+        </div>
+        <div class="ds-swatch">
+          <div class="ds-swatch__fill" style="background: var(--accent-text);"></div>
+          <div class="ds-swatch__meta"><span class="ds-swatch__name">--accent-text</span><span class="ds-swatch__value">Dasselbe Orange, abgedunkelt — nur für Text auf hellem Grund (4,5:1)</span></div>
+        </div>
+        <div class="ds-swatch">
+          <div class="ds-swatch__fill" style="background: var(--on-accent); border: 1px solid var(--line);"></div>
+          <div class="ds-swatch__meta"><span class="ds-swatch__name">--on-accent</span><span class="ds-swatch__value">Fixe dunkle Textfarbe auf --accent-Flächen (Badges)</span></div>
+        </div>
+        <div class="ds-swatch">
+          <div class="ds-swatch__fill" style="background: var(--line);"></div>
+          <div class="ds-swatch__meta"><span class="ds-swatch__name">--line</span><span class="ds-swatch__value">Trennlinien, Rahmen</span></div>
+        </div>
+      </div>
+      <p class="ds-dark-note">💡 Systemeinstellung auf Dark Mode stellen, um die getauschten Werte zu sehen — <code>--ink</code>/<code>--paper</code> tauschen komplett, <code>--accent</code> bleibt bewusst gleich.</p>
+    </div>
+  </section>
+
+  <section class="ds-section">
+    <div class="wrap">
+      <h2>Typografie</h2>
+      <p class="ds-note">Systemschrift-Stack (<code>--font</code>), kein Web-Font-Ladevorgang nötig. Zwei feste Textbausteine kommen auf praktisch jeder Seite vor:</p>
+
+      <div class="ds-type-sample">
+        <span class="ds-label">.eyebrow</span>
+        <p class="eyebrow" style="margin:0;">Discography</p>
+      </div>
+      <div class="ds-type-sample">
+        <span class="ds-label">.section-title</span>
+        <h3 class="section-title" style="margin:0;">Alle Releases</h3>
+      </div>
+
+      <table class="ds-table">
+        <thead><tr><th>Element</th><th>Größe</th><th>Gewicht</th><th>Verwendung</th></tr></thead>
+        <tbody>
+          <tr><td>.eyebrow</td><td>12px</td><td>600</td><td>Kicker über jedem Section-Titel</td></tr>
+          <tr><td>.section-title</td><td>clamp(28–40px)</td><td>650</td><td>H2/H3 pro Section</td></tr>
+          <tr><td>hero__mark / H1</td><td>Logo-Bild, kein Text</td><td>—</td><td>Nur auf der Startseite</td></tr>
+          <tr><td>Fließtext</td><td>14–16px</td><td>400–500</td><td>Beschreibungen, Absätze</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="ds-section">
+    <div class="wrap">
+      <h2>Buttons</h2>
+      <p class="ds-note"><code>.btn</code> ist die Basis (Form/Abstand), <code>.btn--primary</code> / <code>.btn--ghost</code> / <code>.btn--glass</code> sind die einzigen drei Erscheinungsbilder — dieselben drei überall auf der Seite, von der Startseite bis zu Impressum/Datenschutz. <code>.btn--sm</code> und <code>.btn--block</code> sind Modifikatoren, keine eigenen Varianten.</p>
+
+      <div class="ds-row">
+        <span class="ds-label">Primary — Haupt-CTA (Anfrage senden, Zahl was du willst)</span>
+        <a class="btn btn--primary" href="#" onclick="return false;">Anfrage senden</a>
+      </div>
+      <div class="ds-row">
+        <span class="ds-label">Ghost — sekundäre Aktion (Archiv öffnen, Zur Musik)</span>
+        <a class="btn btn--ghost" href="#" onclick="return false;">Archiv öffnen</a>
+      </div>
+      <div class="ds-row" style="background: var(--ink); padding: 20px; border-radius: var(--radius-sm);">
+        <span class="ds-label" style="color: rgba(255,255,255,0.6);">Glass — nur im Hero, auf dem Foto</span>
+        <a class="btn btn--glass" href="#" onclick="return false;">Jetzt hören</a>
+      </div>
+      <div class="ds-row">
+        <span class="ds-label">Small — kompakte Stellen (Topbar-Rücklink)</span>
+        <a class="btn btn--ghost btn--sm" href="#" onclick="return false;">← Zur Musik</a>
+      </div>
+      <div class="ds-row">
+        <span class="ds-label">Block — volle Breite (Modal-Submit-Buttons)</span>
+        <a class="btn btn--primary btn--block" href="#" onclick="return false;">Kostenlos herunterladen</a>
+      </div>
+      <p class="ds-note" style="margin-top:8px;">Klicken/antippen zum Ausprobieren des Press-Feedbacks (leichtes Einschrumpfen). Hover für Primary/Glass: Lift + Verdunkeln; Ghost: Rahmen- und Textfarbe wechseln zu <code>--accent-text</code>.</p>
+    </div>
+  </section>
+
+  <section class="ds-section">
+    <div class="wrap">
+      <h2>Badges &amp; Tags</h2>
+      <div class="ds-row">
+        <span class="ds-label">Neu-Tag (Rail-Karte / Featured-Kicker)</span>
+        <span class="rail-card__tag rail-card__tag--new" style="display:inline-block; padding:3px 9px; border-radius:999px; font-size:10px; font-weight:700;">NEU</span>
+      </div>
+      <div class="ds-row">
+        <span class="ds-label">EP-Tag</span>
+        <span class="rail-card__tag" style="display:inline-block; padding:3px 9px; border-radius:999px; font-size:10px; font-weight:700; background: var(--paper-dim); color: var(--ink-soft);">EP</span>
+      </div>
+      <div class="ds-row">
+        <span class="ds-label">DE/EN-Umschalter (aktiver Zustand)</span>
+        <div class="lang-toggle" style="display:inline-flex;">
+          <button type="button" class="is-active" style="pointer-events:none;">DE</button>
+          <button type="button" style="pointer-events:none;">EN</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ds-section">
+    <div class="wrap">
+      <h2>Radien &amp; Abstände</h2>
+      <table class="ds-table">
+        <thead><tr><th>Token</th><th>Wert</th><th>Verwendung</th></tr></thead>
+        <tbody>
+          <tr><td>--radius-lg</td><td>28px</td><td>Glass-Karten, große Panels</td></tr>
+          <tr><td>--radius-md</td><td>18px</td><td>Cover-Art, Rail-Karten</td></tr>
+          <tr><td>--radius-sm</td><td>12px</td><td>Kleine Karten, Eingabefelder</td></tr>
+          <tr><td>999px</td><td>Pill</td><td>Alle Buttons, Badges, Tags</td></tr>
+          <tr><td>--maxw</td><td>1180px</td><td>Maximale Inhaltsbreite (.wrap)</td></tr>
+          <tr><td>--ease</td><td>cubic-bezier(0.22, 1, 0.36, 1)</td><td>Standard-Timing-Funktion für Übergänge</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="ds-section" style="border-bottom: none;">
+    <div class="wrap">
+      <h2>Karten</h2>
+      <div class="ds-card-demo">
+        <div class="contact-card" style="max-width: 320px;">
+          <div class="contact-card__top">
+            <div class="contact-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+            </div>
+            <span class="contact-card__index">01</span>
+          </div>
+          <h3>Kartentitel</h3>
+          <p>Kurzer Beschreibungstext für den Anwendungsfall dieser Karte.</p>
+          <span class="contact-card__rule"></span>
+          <a class="btn btn--primary" href="#" onclick="return false;">Aktion</a>
+        </div>
+      </div>
+      <p class="ds-note" style="margin-top:16px;">Glas-Optik über <code>--glass-bg</code> / <code>--glass-border</code> mit <code>backdrop-filter: blur()</code> — dieselbe Machart wie Label-Karten auf der About-Seite und die Buchungs-/Label-Karten im Kontaktbereich.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <span>iDs Music Hub · Audio Habitat © 2026 — Interne Referenz, nicht öffentlich verlinkt</span>
+    <div class="footer__links">
+      <a href="index.html" class="footer__note">Zur Startseite</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
