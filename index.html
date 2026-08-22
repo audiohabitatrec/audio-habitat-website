@@ -597,10 +597,25 @@
 
   <section class="discography" id="discography">
     <div class="wrap">
-      <p class="eyebrow">Discography</p>
-      <h2 class="section-title"><span data-lang="de">Alle Releases</span><span data-lang="en">All Releases</span></h2>
+      <div class="discography__head">
+        <div>
+          <p class="eyebrow">Discography</p>
+          <h2 class="section-title"><span data-lang="de">Alle Releases</span><span data-lang="en">All Releases</span></h2>
+        </div>
+        <div class="discog-filter" id="discogFilter" role="group" aria-label="Filter">
+          <button type="button" class="discog-filter__btn is-active" data-filter="all" aria-pressed="true">
+            <span data-lang="de">Alle</span><span data-lang="en">All</span>
+          </button>
+          <button type="button" class="discog-filter__btn" data-filter="ep" aria-pressed="false">
+            <span data-lang="de">EPs</span><span data-lang="en">EPs</span>
+          </button>
+          <button type="button" class="discog-filter__btn" data-filter="single" aria-pressed="false">
+            <span data-lang="de">Singles</span><span data-lang="en">Singles</span>
+          </button>
+        </div>
+      </div>
+      <div class="discog-grid-main" id="discogGrid"></div>
     </div>
-    <div class="rail" id="rail" tabindex="0" role="region" aria-label="Discography"></div>
   </section>
 
   <section class="contact" id="contact">

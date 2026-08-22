@@ -44,7 +44,8 @@
   var featuredMore = document.getElementById('featuredMore');
   var featuredMoreLink = document.getElementById('featuredMoreLink');
   var featuredPlayBtn = document.getElementById('featuredPlay');
-  var railEl = document.getElementById('rail');
+  var discogGridEl = document.getElementById('discogGrid');
+  var discogFilterEl = document.getElementById('discogFilter');
 
   var playerEl = document.getElementById('player');
   var playerToggle = document.getElementById('playerToggle');
@@ -122,7 +123,7 @@
         displayTitle: release.type === 'ep' ? (release.title + ' — ' + track.title) : release.title,
         cover: assetPath(release.cover),
         releaseIndex: ri,
-        railEl: null,
+        cardEl: null,
         featuredLi: null
       };
     }
@@ -133,7 +134,7 @@
     Object.keys(registry).forEach(function (key) {
       var entry = registry[key];
       var on = key === activeKey && !audio.paused;
-      if (entry.railEl) entry.railEl.classList.toggle('is-active', on);
+      if (entry.cardEl) entry.cardEl.classList.toggle('is-active', on);
       if (entry.featuredLi) entry.featuredLi.classList.toggle('is-active', on);
     });
     featuredPlayBtn.classList.toggle(
@@ -242,40 +243,76 @@
     }
   }
 
-  // ---------- Build the rail: one card per release (EP + singles) ----------
+  // ---------- Register every release's tracks up front ----------
+  // Needed regardless of the discography filter below: play(), continuous
+  // playback and the support/download list all look tracks up by key, and
+  // a release filtered out of the grid must still be reachable (e.g. via
+  // "play next").
   releases.forEach(function (release, ri) {
-    var track0 = release.tracks[0];
-    var entry = ensureEntry(ri, 0, release, track0);
-
+    ensureEntry(ri, 0, release, release.tracks[0]);
     if (release.type === 'ep') {
       release.tracks.forEach(function (track, ti) { ensureEntry(ri, ti, release, track); });
     }
-
-    var card = document.createElement('div');
-    card.className = 'rail-card';
-    card.innerHTML =
-      '<div class="rail-card__art">' +
-        '<img src="' + assetPath(release.cover) + '" alt="' + release.title + '" loading="lazy">' +
-        '<div class="rail-card__play">' + ICONS.play + ICONS.pause + '</div>' +
-      '</div>' +
-      '<div class="rail-card__title">' + release.title +
-        (release.isNew ? ' <span class="rail-card__tag rail-card__tag--new">' + NEW_TAG_HTML + '</span>' : '') +
-        (release.type === 'ep' ? ' <span class="rail-card__tag">EP</span>' : '') +
-      '</div>' +
-      '<div class="rail-card__meta">' + release.subgenre + (release.bpm ? ' · ' + release.bpm + ' BPM' : '') + '</div>';
-    railEl.appendChild(card);
-
-    entry.railEl = card;
-    card.querySelector('.rail-card__art').addEventListener('click', function () { play(entry.key); });
-    card.querySelector('.rail-card__title').addEventListener('click', function () { play(entry.key); });
   });
 
-  // trailing spacers so the first/last rail card can align/center nicely
-  var spacerStart = document.createElement('div');
-  spacerStart.className = 'rail__spacer';
-  var spacerEnd = spacerStart.cloneNode();
-  railEl.insertBefore(spacerStart, railEl.firstChild);
-  railEl.appendChild(spacerEnd);
+  // ---------- Discography grid: one card per release, with a format filter ----------
+  var currentDiscogFilter = 'all';
+
+  function releaseMatchesFilter(release, filter) {
+    if (filter === 'ep') return release.type === 'ep';
+    if (filter === 'single') return release.type !== 'ep';
+    return true;
+  }
+
+  function buildDiscogCard(release, ri) {
+    var entry = registry[makeKey(ri, 0)];
+    var tag = release.isNew
+      ? '<span class="discog-card__tag discog-card__tag--new">' + NEW_TAG_HTML + '</span>'
+      : '<span class="discog-card__tag">' + (release.type === 'ep' ? 'EP' : (release.date || '').slice(-4)) + '</span>';
+    var format = release.type === 'ep'
+      ? '<span data-lang="de">EP</span><span data-lang="en">EP</span>'
+      : '<span data-lang="de">Single</span><span data-lang="en">Single</span>';
+
+    var card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'discog-card';
+    card.innerHTML =
+      '<div class="discog-card__art">' +
+        '<img src="' + assetPath(release.cover) + '" alt="' + release.title + '" loading="lazy">' +
+        '<div class="discog-card__play" aria-hidden="true">' + ICONS.play + ICONS.pause + '</div>' +
+      '</div>' +
+      '<div class="discog-card__title">' + release.title + ' ' + tag + '</div>' +
+      '<div class="discog-card__meta">' + format + ' · ' + (release.subgenre || '') + ' · ' + (release.date || '') + '</div>';
+
+    entry.cardEl = card;
+    card.addEventListener('click', function () { play(entry.key); });
+    return card;
+  }
+
+  function renderDiscogGrid() {
+    discogGridEl.innerHTML = '';
+    releases.forEach(function (release, ri) {
+      if (!releaseMatchesFilter(release, currentDiscogFilter)) return;
+      discogGridEl.appendChild(buildDiscogCard(release, ri));
+    });
+    setActiveVisuals();
+  }
+
+  if (discogFilterEl) {
+    discogFilterEl.querySelectorAll('.discog-filter__btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        currentDiscogFilter = btn.getAttribute('data-filter');
+        discogFilterEl.querySelectorAll('.discog-filter__btn').forEach(function (b) {
+          var active = b === btn;
+          b.classList.toggle('is-active', active);
+          b.setAttribute('aria-pressed', String(active));
+        });
+        renderDiscogGrid();
+      });
+    });
+  }
+
+  renderDiscogGrid();
 
   // ---------- Initial featured render (EP, not playing) ----------
   renderFeatured(0);
@@ -1064,9 +1101,9 @@
   }
 
   // ---------- Reveal-on-scroll ----------
-  // Rail cards are excluded on purpose: sliding them in while the visitor
-  // may also be swiping the row horizontally read as "cards moving around"
-  // rather than a static grid, especially on mobile.
+  // Discography grid cards are excluded on purpose: individually revealing
+  // a whole grid, plus re-triggering it every time the format filter
+  // re-renders, reads as busy rather than a static catalogue.
   document.querySelectorAll(
     '.featured__card, .contact .eyebrow, .contact .section-title, .contact__text'
   ).forEach(function (el) { el.classList.add('reveal'); });

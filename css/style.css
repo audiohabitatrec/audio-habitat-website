@@ -1033,6 +1033,141 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   color: var(--on-accent);
 }
 
+/* ---------- Discography grid (replaces the rail on the homepage; rail
+   rules above stay for reuse elsewhere) ---------- */
+.discography__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 34px;
+}
+
+.discog-filter { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.discog-filter__btn {
+  padding: 9px 16px;
+  border: none;
+  border-radius: 999px;
+  background: var(--paper-dim);
+  color: var(--ink-soft);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease, transform 0.3s var(--ease);
+}
+
+.discog-filter__btn.is-active { background: var(--ink); color: var(--paper); }
+.discog-filter__btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.discog-filter__btn:active { transform: scale(0.96); transition-duration: 0.1s; }
+
+.discog-grid-main {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  gap: 26px 22px;
+}
+
+.discog-card {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.discog-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.discog-card__art {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--paper-dim);
+  transition: transform 0.45s var(--ease), box-shadow 0.45s var(--ease);
+}
+
+.discog-card__art::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(135deg, rgba(224,112,63,0.06) 0 2px, transparent 2px 11px);
+  pointer-events: none;
+}
+
+.discog-card__art img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s var(--ease); }
+
+@media (hover: hover) and (pointer: fine) {
+  .discog-card:hover .discog-card__art {
+    transform: translateY(-6px);
+    box-shadow: 0 24px 50px -20px rgba(23,20,15,0.35);
+  }
+  .discog-card:hover .discog-card__art img { transform: scale(1.05); }
+  .discog-card:hover .discog-card__play { opacity: 1; background: rgba(23,20,15,0.32); }
+}
+
+/* Placed after the :hover rule above so it wins the cascade tie — a tap
+   naturally fires :hover and :active together on touch, and this should
+   read as a press, not the lift holding still. */
+.discog-card:active .discog-card__art { transform: scale(0.97); transition-duration: 0.1s; }
+
+.discog-card__play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(23,20,15,0);
+  opacity: 0;
+  transition: opacity 0.3s ease, background 0.3s ease;
+}
+
+.discog-card.is-active .discog-card__play {
+  opacity: 1;
+  background: rgba(23,20,15,0.32);
+}
+
+.discog-card__play svg { width: 44px; height: 44px; fill: #fff; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4)); }
+.discog-card__play .icon-pause { display: none; }
+.discog-card.is-active .icon-play { display: none; }
+.discog-card.is-active .icon-pause { display: block; }
+
+.discog-card__title {
+  margin-top: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+
+.discog-card.is-active .discog-card__title { color: var(--accent-text); }
+
+.discog-card__tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--paper-dim);
+  color: var(--ink-soft);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  vertical-align: middle;
+}
+
+.discog-card__tag--new { background: var(--accent); color: var(--on-accent); }
+
+.discog-card__meta {
+  margin-top: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-faint);
+}
+
 /* ---------- Archive toggle (compact, embedded in the About page's "Frühe
    Jahre" block rather than a standalone homepage section) ---------- */
 .archive__note { margin: 10px 0 0; font-size: 12.5px; color: var(--ink-faint); }
