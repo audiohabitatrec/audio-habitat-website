@@ -476,6 +476,10 @@
 </script>
 
 <link rel="icon" href="assets/ids-music-hub-logo-web.jpg">
+<!-- Handwritten-style label on the "Jetzt läuft" record — only weight loaded. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -548,8 +552,18 @@
     <div class="wrap">
       <p class="eyebrow"><span data-lang="de">Jetzt läuft</span><span data-lang="en">Now Playing</span></p>
       <div class="featured__card">
-        <div class="featured__art">
-          <img id="featuredArt" src="assets/covers/4reasons.webp" alt="4 Reasons">
+        <div class="featured__art" id="featuredArtWrap">
+          <div class="featured__art-flip">
+            <div class="featured__art-face featured__art-face--front">
+              <img id="featuredArt" src="assets/covers/4reasons.webp" alt="4 Reasons">
+            </div>
+            <div class="featured__art-face featured__art-face--back">
+              <div class="featured__disc">
+                <span class="featured__disc-label" id="featuredDiscLabel">4 Reasons</span>
+                <span class="featured__disc-hole" aria-hidden="true"></span>
+              </div>
+            </div>
+          </div>
           <button class="featured__play" id="featuredPlay" aria-label="Play/Pause" type="button">
             <svg class="icon-play" viewBox="0 0 24 24" width="22" height="22"><path d="M8 5v14l11-7z"/></svg>
             <svg class="icon-pause" viewBox="0 0 24 24" width="22" height="22" hidden><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>

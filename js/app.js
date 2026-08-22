@@ -38,6 +38,8 @@
   var audio = document.getElementById('audio');
   var featuredTracksEl = document.getElementById('featuredTracks');
   var featuredArt = document.getElementById('featuredArt');
+  var featuredArtWrap = document.getElementById('featuredArtWrap');
+  var featuredDiscLabel = document.getElementById('featuredDiscLabel');
   var featuredKicker = document.getElementById('featuredKicker');
   var featuredTitleEl = document.getElementById('featuredTitle');
   var featuredDescEl = document.getElementById('featuredDesc');
@@ -137,10 +139,10 @@
       if (entry.cardEl) entry.cardEl.classList.toggle('is-active', on);
       if (entry.featuredLi) entry.featuredLi.classList.toggle('is-active', on);
     });
-    featuredPlayBtn.classList.toggle(
-      'is-playing',
-      !!(activeKey && registry[activeKey] && registry[activeKey].releaseIndex === currentFeaturedIndex && !audio.paused)
-    );
+    var featuredPlaying = !!(activeKey && registry[activeKey] && registry[activeKey].releaseIndex === currentFeaturedIndex && !audio.paused);
+    featuredPlayBtn.classList.toggle('is-playing', featuredPlaying);
+    featuredArtWrap.classList.toggle('is-playing', featuredPlaying);
+    if (featuredPlaying) featuredDiscLabel.textContent = registry[activeKey].title;
   }
 
   function setPlayerProgress(ratio) {

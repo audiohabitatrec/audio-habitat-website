@@ -173,6 +173,10 @@
 </script>
 
 <link rel="icon" href="../../assets/ids-music-hub-logo-web.webp">
+<!-- Handwritten-style label on the record label — only weight loaded. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/style.css">
 <style>
   /* This page has no hero above the fold, so the section needs its own
@@ -236,8 +240,18 @@
       </p>
 
       <div class="featured__card">
-        <div class="featured__art">
-          <img src="../../assets/covers/4reasons.webp" alt="4 Reasons — Audio Habitat">
+        <div class="featured__art" id="featuredArtWrap">
+          <div class="featured__art-flip">
+            <div class="featured__art-face featured__art-face--front">
+              <img src="../../assets/covers/4reasons.webp" alt="4 Reasons — Audio Habitat">
+            </div>
+            <div class="featured__art-face featured__art-face--back">
+              <div class="featured__disc">
+                <span class="featured__disc-label" id="featuredDiscLabel">4 Reasons</span>
+                <span class="featured__disc-hole" aria-hidden="true"></span>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="featured__body">
           <p class="featured__kicker">EP · Audio Habitat</p>
@@ -437,6 +451,9 @@
     var coverSrc = coverImg ? coverImg.src : '';
     var titleEl = document.querySelector('.section-title');
     var releaseTitle = titleEl ? titleEl.textContent : '';
+    var featuredArtWrap = document.getElementById('featuredArtWrap');
+    var featuredDiscLabel = document.getElementById('featuredDiscLabel');
+    var currentTrackTitle = releaseTitle;
 
     function formatTime(sec) {
       if (!isFinite(sec) || isNaN(sec)) return '0:00';
@@ -488,6 +505,7 @@
           } else {
             if (audio.getAttribute('src') !== file) audio.src = file;
             playerTitle.textContent = title;
+            currentTrackTitle = title;
             audio.play();
             activeLi = li;
           }
@@ -507,6 +525,13 @@
     audio.addEventListener('play', updatePlayerBar);
     audio.addEventListener('pause', updatePlayerBar);
     audio.addEventListener('ended', updatePlayerBar);
+
+    audio.addEventListener('play', function () {
+      if (featuredArtWrap) featuredArtWrap.classList.add('is-playing');
+      if (featuredDiscLabel) featuredDiscLabel.textContent = currentTrackTitle;
+    });
+    audio.addEventListener('pause', function () { if (featuredArtWrap) featuredArtWrap.classList.remove('is-playing'); });
+    audio.addEventListener('ended', function () { if (featuredArtWrap) featuredArtWrap.classList.remove('is-playing'); });
 
     playerToggle.addEventListener('click', function () {
       if (audio.paused) audio.play(); else audio.pause();

@@ -62,6 +62,10 @@
 </script>
 
 <link rel="icon" href="../../assets/ids-music-hub-logo-web.webp">
+<!-- Handwritten-style label on the record label — only weight loaded. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../css/style.css">
 <style>
   /* This page has no hero above the fold, so the section needs its own
@@ -125,8 +129,18 @@
       </p>
 
       <div class="featured__card">
-        <div class="featured__art">
-          <img src="../../assets/covers/reece-drop.webp" alt="Reece Drop — Audio Habitat">
+        <div class="featured__art" id="featuredArtWrap">
+          <div class="featured__art-flip">
+            <div class="featured__art-face featured__art-face--front">
+              <img src="../../assets/covers/reece-drop.webp" alt="Reece Drop — Audio Habitat">
+            </div>
+            <div class="featured__art-face featured__art-face--back">
+              <div class="featured__disc">
+                <span class="featured__disc-label" id="featuredDiscLabel">Reece Drop</span>
+                <span class="featured__disc-hole" aria-hidden="true"></span>
+              </div>
+            </div>
+          </div>
           <button class="featured__play" id="releasePlay" type="button" aria-label="Play/Pause">
             <svg class="icon-play" viewBox="0 0 24 24" width="22" height="22"><path d="M8 5v14l11-7z"/></svg>
             <svg class="icon-pause" viewBox="0 0 24 24" width="22" height="22" hidden><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
@@ -276,6 +290,8 @@
     var coverSrc = coverImg ? coverImg.src : '';
     var titleEl = document.querySelector('.section-title');
     var releaseTitle = titleEl ? titleEl.textContent : '';
+    var featuredArtWrap = document.getElementById('featuredArtWrap');
+    var featuredDiscLabel = document.getElementById('featuredDiscLabel');
 
     function formatTime(sec) {
       if (!isFinite(sec) || isNaN(sec)) return '0:00';
@@ -309,9 +325,19 @@
           audio.pause();
         }
       });
-      audio.addEventListener('play', function () { singlePlay.classList.add('is-playing'); });
-      audio.addEventListener('pause', function () { singlePlay.classList.remove('is-playing'); });
-      audio.addEventListener('ended', function () { singlePlay.classList.remove('is-playing'); });
+      audio.addEventListener('play', function () {
+        singlePlay.classList.add('is-playing');
+        if (featuredArtWrap) featuredArtWrap.classList.add('is-playing');
+        if (featuredDiscLabel) featuredDiscLabel.textContent = releaseTitle;
+      });
+      audio.addEventListener('pause', function () {
+        singlePlay.classList.remove('is-playing');
+        if (featuredArtWrap) featuredArtWrap.classList.remove('is-playing');
+      });
+      audio.addEventListener('ended', function () {
+        singlePlay.classList.remove('is-playing');
+        if (featuredArtWrap) featuredArtWrap.classList.remove('is-playing');
+      });
     }
 
     var trackButtons = document.querySelectorAll('.track-play');
