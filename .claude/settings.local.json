@@ -54,7 +54,8 @@
       "Bash(curl -sI http://audiohabitatrec.com/)",
       "Bash(curl -sI --max-time 8 https://audiohabitatrec.com/)",
       "Bash(curl -sI --max-time 10 https://audiohabitatrec.com/)",
-      "Bash(curl -sI --max-time 8 http://audiohabitatrec.com/)"
+      "Bash(curl -sI --max-time 8 http://audiohabitatrec.com/)",
+      "mcp__Claude_Code_Remote__read_documentation"
     ]
   }
 }
