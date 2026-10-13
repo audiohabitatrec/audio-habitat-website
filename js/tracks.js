@@ -23,7 +23,13 @@ var DEFAULT_COVER = "assets/covers/cover-singles.webp";
 // NOT reliably derivable from the file name (e.g. "4 Reasons" -> "4-reasons-2",
 // not "4reasons"), so these have to be pasted in by hand, one at a time.
 var RELEASES = [
-  { type: "single", title: "Beast Mode", cover: "assets/covers/beast-mode.webp", isNew: true,
+  { type: "single", title: "not done yet", cover: "assets/covers/not-done-yet.webp", isNew: true,
+    hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/not-done-yet?ref=release",
+    subgenre: "Liquid Funk", bpm: 174, page: "music/not-done-yet/", date: "04.10.2026",
+    tracks: [{ title: "not done yet", file: "assets/tracks/not-done-yet.m4a", wav: "assets/tracks/not-done-yet.wav",
+      spotify: "https://open.spotify.com/track/22vGLlZ0MWlb9PHxVzw8kw",
+      apple: "https://music.apple.com/us/album/not-done-yet-single/6818989763" }] },
+  { type: "single", title: "Beast Mode", cover: "assets/covers/beast-mode.webp",
     hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/beast-mode?ref=release",
     subgenre: "Neurofunk", bpm: 174, page: "music/beast-mode/", date: "06.08.2026",
     tracks: [{ title: "Beast Mode", file: "assets/tracks/beast-mode.m4a", wav: "assets/tracks/beast-mode.wav",
