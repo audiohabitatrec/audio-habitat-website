@@ -1124,4 +1124,64 @@
   }, { threshold: 0.15 });
 
   document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+
+  // ---------- Modal accessibility ----------
+  // Every modal (stream, support, inquiry, rate, share) is opened/closed by
+  // toggling its `hidden` attribute, so one observer covers all of them:
+  // focus moves into the dialog on open and back to the trigger on close,
+  // Tab stays inside while it's open, and the page behind stops scrolling.
+  (function () {
+    var modals = Array.prototype.slice.call(document.querySelectorAll('.modal'));
+    var FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    var lastFocus = null;
+
+    function openModal() {
+      return modals.filter(function (m) { return !m.hidden; })[0] || null;
+    }
+
+    function focusables(panel) {
+      return Array.prototype.filter.call(panel.querySelectorAll(FOCUSABLE), function (el) {
+        return el.offsetParent !== null;
+      });
+    }
+
+    modals.forEach(function (m) {
+      new MutationObserver(function () {
+        var panel = m.querySelector('.modal__panel');
+        if (!m.hidden) {
+          lastFocus = document.activeElement;
+          var sbw = window.innerWidth - document.documentElement.clientWidth;
+          document.body.style.paddingRight = sbw > 0 ? sbw + 'px' : '';
+          document.body.classList.add('has-modal');
+          if (panel) {
+            panel.setAttribute('tabindex', '-1');
+            panel.focus({ preventScroll: true });
+          }
+        } else if (!openModal()) {
+          document.body.classList.remove('has-modal');
+          document.body.style.paddingRight = '';
+          if (lastFocus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
+          lastFocus = null;
+        }
+      }).observe(m, { attributes: true, attributeFilter: ['hidden'] });
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Tab') return;
+      var m = openModal();
+      if (!m) return;
+      var panel = m.querySelector('.modal__panel');
+      var items = panel ? focusables(panel) : [];
+      if (!items.length) return;
+      var first = items[0], last = items[items.length - 1];
+      var active = document.activeElement;
+      if (!panel.contains(active)) {
+        e.preventDefault(); first.focus();
+      } else if (e.shiftKey && (active === first || active === panel)) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault(); first.focus();
+      }
+    });
+  })();
 })();

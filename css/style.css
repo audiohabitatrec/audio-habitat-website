@@ -100,6 +100,11 @@ ul { list-style: none; margin: 0; padding: 0; }
   margin: 0 0 8px;
 }
 
+/* Page behind an open modal doesn't scroll; the panel itself takes focus
+   programmatically, so it doesn't need a visible ring. */
+body.has-modal { overflow: hidden; }
+.modal__panel:focus { outline: none; }
+
 /* ---------- Reveal-on-scroll ---------- */
 .reveal {
   opacity: 0;
@@ -534,7 +539,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 .hero__eyebrow-sub {
   display: block;
   margin-top: 4px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -578,7 +583,10 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   font-size: clamp(12px, 1.4vw, 15px);
   font-weight: 650;
   letter-spacing: 0.03em;
-  color: var(--accent-text);
+  /* Lighter orange + shadow: --accent-text is tuned for text on paper and
+     nearly disappears on the dark hero photo. */
+  color: #ffa479;
+  text-shadow: 0 1px 10px rgba(0,0,0,0.55), 0 0 2px rgba(0,0,0,0.4);
   margin: 0 0 40px;
 }
 
@@ -841,6 +849,9 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 }
 
 .featured__more a {
+  display: inline-block;
+  padding: 10px 0;
+  margin: -10px 0;
   font-size: 13px;
   font-weight: 600;
   color: var(--ink-soft);
@@ -881,6 +892,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 .featured__tracks li.is-active .track-title { color: var(--accent-text); }
 
 .track-play {
+  position: relative;
   width: 30px;
   height: 30px;
   border-radius: 50%;
@@ -896,6 +908,8 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 
 .featured__tracks li:hover .track-play { background: var(--ink); color: var(--paper); }
 .track-play svg { fill: currentColor; width: 12px; height: 12px; }
+/* Grows the tap target to ~46px without enlarging the visible 30px button. */
+.track-play::before { content: ''; position: absolute; inset: -8px; }
 .track-play .icon-pause { display: none; }
 .featured__tracks li.is-active .icon-play { display: none; }
 .featured__tracks li.is-active .icon-pause { display: block; }
@@ -932,6 +946,12 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 .track-action:hover { background: var(--ink); color: var(--paper); transform: translateY(-1px); }
 .track-action--buy svg { fill: currentColor; stroke: none; }
 
+/* "Streaming" is the main way to hear the full release elsewhere — give it
+   the filled look so it reads as the primary action next to Kaufen /
+   Bewerten / Teilen instead of four equal-weight pills. */
+.track-action--stream { background: var(--ink); color: var(--paper); }
+.track-action--stream:hover { background: var(--accent); color: var(--on-accent); }
+
 /* A row of three inline labeled pills reliably overflows narrow phones     */
 /* (German "Bewerten" alone is wider than the space three equal pills       */
 /* leave). Below 640px each action stacks icon-over-label instead — narrow  */
@@ -939,13 +959,15 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 /* carry the meaning.                                                      */
 @media (max-width: 640px) {
   .featured__tracks li { flex-wrap: wrap; }
-  .featured__tracks .track-actions { order: 3; width: auto; margin-top: 12px; padding-left: 34px; gap: 8px; }
+  /* Full-width row, four equal buttons — they used to keep their natural
+     width and run past the card's right padding. */
+  .featured__tracks .track-actions { order: 3; flex: 1 1 100%; width: 100%; margin-top: 12px; padding-left: 0; gap: 6px; }
   .track-action {
-    flex: 0 0 auto;
+    flex: 1 1 0;
     flex-direction: column;
     width: auto;
-    min-width: 60px;
-    padding: 8px 6px 7px;
+    min-width: 0;
+    padding: 8px 4px 7px;
     gap: 4px;
     border-radius: 14px;
   }
@@ -957,7 +979,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   html[lang="de"] .track-action span[data-lang="de"],
   html[lang="en"] .track-action span[data-lang="en"] {
     display: block;
-    font-size: 9.5px;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.01em;
     white-space: nowrap;
@@ -1148,8 +1170,12 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   font-weight: 650;
   letter-spacing: 0.02em;
   cursor: pointer;
+  position: relative;
   transition: background 0.25s ease, color 0.25s ease, transform 0.3s var(--ease);
 }
+
+/* Taller invisible hit area (visible pill stays 33px). */
+.discog-filter__btn::before { content: ''; position: absolute; inset: -6px -2px; }
 
 .discog-filter__btn.is-active { background: var(--ink); color: var(--paper); }
 .discog-filter__btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -1244,7 +1270,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   border-radius: 999px;
   background: var(--paper-dim);
   color: var(--ink-soft);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
   vertical-align: middle;
@@ -1853,6 +1879,25 @@ html[lang="en"] [data-lang="en"] { display: inline; }
    but each gets a taller invisible hit area. */
 .footer__note { padding: 10px 0; margin: -10px 0; }
 .footer__note:hover { color: var(--ink); }
+
+/* Artist profile links — gives visitors a way to follow/stream the artist
+   itself, not just individual tracks. */
+.footer .footer__follow {
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px 22px;
+  margin-bottom: 18px;
+  font-size: 13px;
+}
+.footer__follow-label { font-weight: 650; color: var(--ink); }
+.footer__follow a {
+  padding: 10px 0;
+  color: var(--ink-soft);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.footer__follow a:hover { color: var(--accent-text); }
 
 /* ---------- Floating "now playing" glass player ---------- */
 .player {
@@ -2478,8 +2523,20 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   .contact-grid { grid-template-columns: 1fr 1fr; }
 }
 
+/* Very narrow phones (≈320 px): the four action pills get ~50 px each, so
+   shave the label size and padding a little to keep "Streaming" inside. */
+@media (max-width: 360px) {
+  .featured__tracks .track-actions { gap: 4px; }
+  .track-action { padding: 8px 2px 7px; }
+  html[lang="de"] .track-action span[data-lang="de"],
+  html[lang="en"] .track-action span[data-lang="en"] { font-size: 10px; }
+}
+
 @media (max-width: 560px) {
   .wrap { padding: 0 20px; }
+  .discog-grid-main { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 14px; }
+  .discog-card__title { font-size: 13px; }
+  .discog-card__meta { font-size: 11.5px; line-height: 1.35; }
   .featured { padding: 110px 0 80px; }
   .rail { padding-left: 20px; padding-right: 20px; scroll-snap-type: x mandatory; gap: 16px; }
   .rail__spacer { display: none; }
@@ -2513,3 +2570,20 @@ html[lang="en"] [data-lang="en"] { display: inline; }
     --glass-border: rgba(255,255,255,0.08);
   }
 }
+
+/* ---------- Skip link (keyboard users jump past the nav) ---------- */
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 200;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 13px;
+  font-weight: 650;
+  transform: translateY(-160%);
+  transition: transform 0.2s var(--ease);
+}
+.skip-link:focus { transform: translateY(0); }

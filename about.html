@@ -43,6 +43,7 @@
 </script>
 
 <link rel="icon" href="assets/ids-music-hub-logo-web.jpg">
+<script src="js/lang.js"></script>
 <link rel="stylesheet" href="css/style.css">
 <style>
   /* This page has no hero above the fold, so the section needs its own
@@ -80,6 +81,7 @@
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main"><span data-lang="de">Zum Inhalt springen</span><span data-lang="en">Skip to content</span></a>
 
 <nav class="nav is-solid" id="nav">
   <div class="nav__inner">
@@ -99,13 +101,13 @@
         <button type="button" data-set-lang="en">EN</button>
       </div>
       <button class="nav__menu-toggle" id="navMenuToggle" type="button" aria-label="Menü" aria-expanded="false" aria-controls="navLinks">
-        <svg viewBox="0 0 24 24" width="20" height="20"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
     </div>
   </div>
 </nav>
 
-<main>
+<main id="main">
 
   <section class="history" id="history">
     <div class="wrap">
@@ -442,6 +444,14 @@
 </main>
 
 <footer class="footer">
+  <div class="wrap footer__follow">
+    <span class="footer__follow-label"><span data-lang="de">Folgen</span><span data-lang="en">Follow</span></span>
+    <a href="https://open.spotify.com/artist/2eo8TqrCseukiJaOIK2rhc" target="_blank" rel="noopener">Spotify</a>
+    <a href="https://music.apple.com/us/artist/audio-habitat/4291320" target="_blank" rel="noopener">Apple Music</a>
+    <a href="https://soundcloud.com/audiohabitatrec" target="_blank" rel="noopener">SoundCloud</a>
+    <a href="https://www.instagram.com/audiohabitatrec/" target="_blank" rel="noopener">Instagram</a>
+    <a href="https://www.beatport.com/de/artist/audio-habitat/82070" target="_blank" rel="noopener">Beatport</a>
+  </div>
   <div class="wrap">
     <span>iDs Music Hub · Audio Habitat © 2026</span>
     <div class="footer__links">
