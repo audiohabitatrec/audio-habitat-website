@@ -35,6 +35,10 @@
   // tracks.js paths are already written relative to the site root.
   function assetPath(p) { return p; }
 
+  // Covers are stored at 2000 px (og:image, downloads); the page itself only
+  // ever shows them at ≤ ~400 CSS px, so it loads the 800 px sibling instead.
+  function coverPath(p) { return p.replace(/\.webp$/, '-800.webp'); }
+
   var audio = document.getElementById('audio');
   var featuredTracksEl = document.getElementById('featuredTracks');
   var featuredArt = document.getElementById('featuredArt');
@@ -123,7 +127,7 @@
         title: track.title,
         releaseTitle: release.title,
         displayTitle: release.type === 'ep' ? (release.title + ' — ' + track.title) : release.title,
-        cover: assetPath(release.cover),
+        cover: coverPath(release.cover),
         releaseIndex: ri,
         cardEl: null,
         featuredLi: null
@@ -194,7 +198,7 @@
     currentFeaturedIndex = ri;
 
     var release = releases[ri];
-    featuredArt.src = assetPath(release.cover);
+    featuredArt.src = coverPath(release.cover);
     featuredArt.alt = release.title;
     featuredTitleEl.textContent = release.title;
     applyFeaturedText();
@@ -280,7 +284,7 @@
     card.className = 'discog-card';
     card.innerHTML =
       '<div class="discog-card__art">' +
-        '<img src="' + assetPath(release.cover) + '" alt="' + release.title + '" loading="lazy">' +
+        '<img src="' + coverPath(release.cover) + '" alt="' + release.title + '" loading="lazy">' +
         '<div class="discog-card__play" aria-hidden="true">' + ICONS.play + ICONS.pause + '</div>' +
       '</div>' +
       '<div class="discog-card__title">' + release.title + ' ' + tag + '</div>' +
@@ -422,7 +426,7 @@
         key: makeKey(ri, ti),
         title: release.type === 'ep' ? (release.title + ' — ' + track.title) : release.title,
         trackTitle: track.title,
-        cover: assetPath(release.cover),
+        cover: coverPath(release.cover),
         file: assetPath(track.file),
         wav: track.wav ? assetPath(track.wav) : assetPath(track.file)
       });
