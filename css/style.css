@@ -690,7 +690,6 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   position: relative;
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  perspective: 1400px;
 }
 
 .featured__art img {
@@ -699,75 +698,56 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   object-fit: cover;
 }
 
-/* Cover "tips over" into a spinning dubplate on play — a 3D flip card,
-   front = cover photo, back = the record. */
-.featured__art-flip {
+/* ---------- Turntable deck (js/deck.js) ----------
+   The cover <img> stays in the DOM (mini-player art, glow colour) but isn't
+   shown; the round play button is replaced by the deck's own start/stop pad. */
+.deck-host { background: var(--paper-dim); }
+.deck-host > img { display: none; }
+.deck-host .featured__play { display: none; }
+
+.deck { position: absolute; inset: 0; }
+
+/* Soft glow in the cover's colour behind the deck while a track plays */
+.deck__glow {
   position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-  transition: transform 0.8s var(--ease);
+  inset: -6%;
+  /* farthest-corner: the colour is still strong at the card's edge, which is
+     the only part of the glow visible around the deck */
+  background: radial-gradient(farthest-corner, var(--deck-glow, rgba(224,112,63,0.6)) 52%, rgba(0,0,0,0) 100%);
+  opacity: 0;
+  transition: opacity 0.9s ease;
+  pointer-events: none;
 }
+.deck-host.is-playing .deck__glow { opacity: 0.85; animation: deck-breathe 4.2s ease-in-out infinite; }
+@keyframes deck-breathe { 50% { opacity: 0.6; transform: scale(1.05); } }
 
-.featured__art.is-playing .featured__art-flip { transform: rotateY(180deg); }
+.deck__stage { position: absolute; inset: 5%; }
+.deck__layer { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; pointer-events: none; }
 
-.featured__art-face {
-  position: absolute;
-  inset: 0;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  display: grid;
-  place-items: center;
+/* Record + arm move with GPU transforms, not SVG repaints */
+.deck__layer--spin { transform-origin: 44.667% 50.667%; will-change: transform; }
+.deck__layer--arm {
+  transform-origin: 88.333% 17.333%;
+  transition: transform 1.15s cubic-bezier(0.45, 0.05, 0.2, 1), filter 0.6s ease;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.28));
+  will-change: transform;
 }
+.deck.is-lifting .deck__layer--arm { filter: drop-shadow(0 9px 7px rgba(0,0,0,0.3)); }
+.deck.is-tracking .deck__layer--arm { transition: transform 0.35s linear, filter 0.6s ease; }
 
-.featured__art-face--back {
-  background: var(--paper-dim);
-  transform: rotateY(180deg);
-}
+.deck__spot, .deck__led-glow, .deck__led-on { opacity: 0; transition: opacity 0.5s ease; }
+.deck-host.is-playing .deck__spot,
+.deck-host.is-playing .deck__led-glow,
+.deck-host.is-playing .deck__led-on { opacity: 1; }
 
-.featured__disc {
-  position: relative;
-  width: 76%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(circle, #16130f 0 30%, #1a1713 31%, #131009 47%, #1b1814 62%, #131009 78%, #1d1a15 95%, #0e0c07 98%, #211d18 100%);
-  box-shadow: 0 20px 40px -18px rgba(23,20,15,0.7);
-}
+.deck__pad-hit { pointer-events: auto; cursor: pointer; }
+.deck__pad { transition: transform 0.15s ease; transform-box: fill-box; transform-origin: center; }
+.deck-host.is-playing .deck__pad { transform: scale(0.96); }
+.deck__pad-hit:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
-.featured__art.is-playing .featured__disc {
-  animation: featured-disc-spin 3.6s linear infinite;
-}
-
-@keyframes featured-disc-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.featured__disc-label {
-  position: absolute;
-  inset: 31%;
-  border-radius: 50%;
-  background: #efe9dd;
-  display: grid;
-  place-items: center;
-  padding: 6px;
-  text-align: center;
-  font-family: "Caveat", cursive;
-  font-size: 15px;
-  line-height: 1.15;
-  color: rgba(23,20,15,0.8);
-  transform: rotate(-5deg);
-  overflow: hidden;
-}
-
-.featured__disc-hole {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 6px;
-  height: 6px;
-  margin: -3px 0 0 -3px;
-  border-radius: 50%;
-  background: #f2ede4;
+@media (prefers-reduced-motion: reduce) {
+  .deck__layer--arm, .deck.is-tracking .deck__layer--arm { transition: none; }
+  .deck-host.is-playing .deck__glow { animation: none; }
 }
 
 .featured__play {
@@ -952,6 +932,14 @@ html[lang="en"] [data-lang="en"] { display: inline; }
    Bewerten / Teilen instead of four equal-weight pills. */
 .track-action--stream { background: var(--ink); color: var(--paper); }
 .track-action--stream:hover { background: var(--accent); color: var(--on-accent); }
+
+/* Between phone and wide desktop the title + four pills + play button don't
+   fit on one line either — give the pills their own row under the title. */
+@media (min-width: 641px) and (max-width: 1279px) {
+  .featured__tracks li { flex-wrap: wrap; }
+  .featured__tracks .track-title { flex: 1 1 0; min-width: 8ch; }
+  .featured__tracks .track-actions { order: 3; flex: 1 1 100%; width: 100%; margin-top: 12px; padding-left: 34px; }
+}
 
 /* A row of three inline labeled pills reliably overflows narrow phones     */
 /* (German "Bewerten" alone is wider than the space three equal pills       */

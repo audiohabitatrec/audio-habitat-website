@@ -43,7 +43,6 @@
   var featuredTracksEl = document.getElementById('featuredTracks');
   var featuredArt = document.getElementById('featuredArt');
   var featuredArtWrap = document.getElementById('featuredArtWrap');
-  var featuredDiscLabel = document.getElementById('featuredDiscLabel');
   var featuredKicker = document.getElementById('featuredKicker');
   var featuredTitleEl = document.getElementById('featuredTitle');
   var featuredDescEl = document.getElementById('featuredDesc');
@@ -52,6 +51,10 @@
   var featuredPlayBtn = document.getElementById('featuredPlay');
   var discogGridEl = document.getElementById('discogGrid');
   var discogFilterEl = document.getElementById('discogFilter');
+
+  // Painted turntable (js/deck.js). Its start/stop pad drives the real play button.
+  var deck = window.AHDeck ? AHDeck.mount(featuredArtWrap, { onToggle: function () { featuredPlayBtn.click(); } }) : null;
+  var featuredIsPlaying = false;
 
   var playerEl = document.getElementById('player');
   var playerToggle = document.getElementById('playerToggle');
@@ -145,8 +148,11 @@
     });
     var featuredPlaying = !!(activeKey && registry[activeKey] && registry[activeKey].releaseIndex === currentFeaturedIndex && !audio.paused);
     featuredPlayBtn.classList.toggle('is-playing', featuredPlaying);
-    featuredArtWrap.classList.toggle('is-playing', featuredPlaying);
-    if (featuredPlaying) featuredDiscLabel.textContent = registry[activeKey].title;
+    featuredIsPlaying = featuredPlaying;
+    if (deck) {
+      deck.setPlaying(featuredPlaying);
+      if (featuredPlaying) deck.setLabel(registry[activeKey].title);
+    }
   }
 
   function setPlayerProgress(ratio) {
@@ -198,8 +204,13 @@
     currentFeaturedIndex = ri;
 
     var release = releases[ri];
+    featuredArt.onload = function () {
+      var c = window.AHDeck && AHDeck.dominantColor(featuredArt);
+      if (c && deck) deck.setGlow(c);
+    };
     featuredArt.src = coverPath(release.cover);
     featuredArt.alt = release.title;
+    if (deck) { deck.setLabel(release.type === 'ep' ? release.title : release.tracks[0].title); deck.setProgress(0); }
     featuredTitleEl.textContent = release.title;
     applyFeaturedText();
 
@@ -391,6 +402,7 @@
   }
   audio.addEventListener('timeupdate', function () {
     if (!audio.duration) return;
+    if (deck && featuredIsPlaying) deck.setProgress(audio.currentTime / audio.duration);
     if (!seekDragging) setPlayerProgress(audio.currentTime / audio.duration);
     playerTime.textContent = formatTime(audio.currentTime) + ' / ' + formatTime(audio.duration);
   });

@@ -238,18 +238,8 @@
       </p>
 
       <div class="featured__card">
-        <div class="featured__art" id="featuredArtWrap">
-          <div class="featured__art-flip">
-            <div class="featured__art-face featured__art-face--front">
-              <img src="../../assets/covers/4reasons-800.webp" alt="4 Reasons — Audio Habitat">
-            </div>
-            <div class="featured__art-face featured__art-face--back">
-              <div class="featured__disc">
-                <span class="featured__disc-label" id="featuredDiscLabel">4 Reasons</span>
-                <span class="featured__disc-hole" aria-hidden="true"></span>
-              </div>
-            </div>
-          </div>
+        <div class="featured__art deck-host" id="featuredArtWrap">
+          <img src="../../assets/covers/4reasons-800.webp" alt="4 Reasons — Audio Habitat">
         </div>
         <div class="featured__body">
           <p class="featured__kicker">EP · Audio Habitat</p>
@@ -393,6 +383,7 @@
   </div>
 </div>
 
+<script src="../../js/deck.js"></script>
 <script>
   (function () {
     var langToggle = document.getElementById('langToggle');
@@ -450,8 +441,20 @@
     var titleEl = document.querySelector('.section-title');
     var releaseTitle = titleEl ? titleEl.textContent : '';
     var featuredArtWrap = document.getElementById('featuredArtWrap');
-    var featuredDiscLabel = document.getElementById('featuredDiscLabel');
     var currentTrackTitle = releaseTitle;
+    var deck = window.AHDeck && featuredArtWrap ? AHDeck.mount(featuredArtWrap, {
+      label: releaseTitle,
+      onToggle: function () {
+        if (!audio.paused) audio.pause();
+        else if (audio.getAttribute('src')) audio.play();
+        else { var first = document.querySelector('.track-play'); if (first) first.click(); }
+      }
+    }) : null;
+
+    if (deck && coverImg) {
+      var applyGlow = function () { var c = AHDeck.dominantColor(coverImg); if (c) deck.setGlow(c); };
+      if (coverImg.complete && coverImg.naturalWidth) applyGlow(); else coverImg.addEventListener('load', applyGlow);
+    }
 
     function formatTime(sec) {
       if (!isFinite(sec) || isNaN(sec)) return '0:00';
@@ -525,11 +528,10 @@
     audio.addEventListener('ended', updatePlayerBar);
 
     audio.addEventListener('play', function () {
-      if (featuredArtWrap) featuredArtWrap.classList.add('is-playing');
-      if (featuredDiscLabel) featuredDiscLabel.textContent = currentTrackTitle;
+      if (deck) { deck.setLabel(currentTrackTitle); deck.setPlaying(true); }
     });
-    audio.addEventListener('pause', function () { if (featuredArtWrap) featuredArtWrap.classList.remove('is-playing'); });
-    audio.addEventListener('ended', function () { if (featuredArtWrap) featuredArtWrap.classList.remove('is-playing'); });
+    audio.addEventListener('pause', function () { if (deck) deck.setPlaying(false); });
+    audio.addEventListener('ended', function () { if (deck) deck.setPlaying(false); });
 
     playerToggle.addEventListener('click', function () {
       if (audio.paused) audio.play(); else audio.pause();
@@ -570,6 +572,7 @@
     });
 
     audio.addEventListener('timeupdate', function () {
+      if (deck && audio.duration) deck.setProgress(audio.currentTime / audio.duration);
       if (!audio.duration) return;
       if (!seekDragging) setProgress(audio.currentTime / audio.duration);
       playerTime.textContent = formatTime(audio.currentTime) + ' / ' + formatTime(audio.duration);

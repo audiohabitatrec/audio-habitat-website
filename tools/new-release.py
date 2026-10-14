@@ -344,7 +344,6 @@ def edit_index(files, a):
             die("Statischer Featured-Block in index.html nicht erkannt: " + pattern)
     one(r'(<img id="featuredArt" src=")[^"]*(" alt=")[^"]*(")',
         lambda m: f'{m.group(1)}assets/covers/{a.slug}-800.webp{m.group(2)}{esc(a.title)}{m.group(3)}')
-    one(r'(id="featuredDiscLabel">)[^<]*(<)', lambda m: m.group(1) + esc(a.title) + m.group(2))
     one(r'(id="featuredKicker">)[^<]*(<)', lambda m: f"{m.group(1)}{esc(a.subgenre)} · {a.bpm} BPM{m.group(2)}")
     one(r'(id="featuredTitle">)[^<]*(<)', lambda m: m.group(1) + esc(a.title) + m.group(2))
     files.write("index.html", s)

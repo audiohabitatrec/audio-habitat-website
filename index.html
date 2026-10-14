@@ -574,18 +574,8 @@
     <div class="wrap">
       <p class="eyebrow"><span data-lang="de">Jetzt läuft</span><span data-lang="en">Now Playing</span></p>
       <div class="featured__card">
-        <div class="featured__art" id="featuredArtWrap">
-          <div class="featured__art-flip">
-            <div class="featured__art-face featured__art-face--front">
-              <img id="featuredArt" src="assets/covers/not-done-yet-800.webp" alt="not done yet" fetchpriority="high">
-            </div>
-            <div class="featured__art-face featured__art-face--back">
-              <div class="featured__disc">
-                <span class="featured__disc-label" id="featuredDiscLabel">not done yet</span>
-                <span class="featured__disc-hole" aria-hidden="true"></span>
-              </div>
-            </div>
-          </div>
+        <div class="featured__art deck-host" id="featuredArtWrap">
+          <img id="featuredArt" src="assets/covers/not-done-yet-800.webp" alt="not done yet" fetchpriority="high">
           <button class="featured__play" id="featuredPlay" aria-label="Play/Pause" type="button">
             <svg class="icon-play" viewBox="0 0 24 24" width="22" height="22"><path d="M8 5v14l11-7z"/></svg>
             <svg class="icon-pause" viewBox="0 0 24 24" width="22" height="22" hidden><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
@@ -1036,6 +1026,7 @@
 </div>
 
 <script src="js/tracks.js"></script>
+<script src="js/deck.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
