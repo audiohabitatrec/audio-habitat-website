@@ -701,7 +701,11 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 /* ---------- Turntable deck (js/deck.js) ----------
    The cover <img> stays in the DOM (mini-player art, glow colour) but isn't
    shown; the round play button is replaced by the deck's own start/stop pad. */
-.deck-host { background: var(--paper-dim); }
+.deck-host { background: var(--paper-dim); aspect-ratio: auto; }
+/* The art cell is at least a square (padding-top = own width) but grows with
+   the card when the text column is taller, so the deck's backdrop and glow
+   reach the card's bottom edge instead of stopping in a square. */
+.deck-host::before { content: ""; display: block; padding-top: 100%; }
 .deck-host > img { display: none; }
 .deck-host .featured__play { display: none; }
 
@@ -721,7 +725,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 .deck-host.is-playing .deck__glow { opacity: 0.85; animation: deck-breathe 4.2s ease-in-out infinite; }
 @keyframes deck-breathe { 50% { opacity: 0.6; transform: scale(1.05); } }
 
-.deck__stage { position: absolute; inset: 5%; }
+.deck__stage { position: absolute; left: 5%; width: 90%; aspect-ratio: 1 / 1; top: 50%; transform: translateY(-50%); }
 .deck__layer { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; pointer-events: none; }
 
 /* Record + arm move with GPU transforms, not SVG repaints */
@@ -933,9 +937,10 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 .track-action--stream { background: var(--ink); color: var(--paper); }
 .track-action--stream:hover { background: var(--accent); color: var(--on-accent); }
 
-/* Between phone and wide desktop the title + four pills + play button don't
-   fit on one line either — give the pills their own row under the title. */
-@media (min-width: 641px) and (max-width: 1279px) {
+/* Title + four pills + play button don't fit on one line at any desktop
+   width (the pills alone are ~445 px next to a ~575 px row) — give the pills
+   their own row under the title. */
+@media (min-width: 641px) {
   .featured__tracks li { flex-wrap: wrap; }
   .featured__tracks .track-title { flex: 1 1 0; min-width: 8ch; }
   .featured__tracks .track-actions { order: 3; flex: 1 1 100%; width: 100%; margin-top: 12px; padding-left: 34px; }
