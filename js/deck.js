@@ -15,6 +15,16 @@
 
   AHDeck.dominantColor(imgEl) -> "rgb(r,g,b)" | null  (for the glow, from the cover)
 
+  Playback helpers (use these instead of audio.play()/audio.pause() wherever a
+  deck is on the page):
+    AHDeck.play(audio)   sound starts when the tonearm has landed — play() runs
+                         inside the click, muted, and is unmuted after the swing
+    AHDeck.pause(audio)  the record winds down: speed and pitch fall over ~1 s,
+                         then it pauses (like stopping a real platter)
+    AHDeck.isBraking(audio)
+  The pitch fader (±8 %) changes playbackRate with pitch correction off, so
+  speed and pitch move together like on a real deck.
+
   Layers (each its own <svg>, same 600x600 viewBox) so the spinning record and
   the swinging arm are moved with CSS transforms on the GPU instead of
   repainting one big SVG every frame:
@@ -32,6 +42,58 @@
 
   var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var uid = 0;
+
+  var DROP_MS = 1100;     // tonearm swing: the sound starts when the needle has landed
+  var BRAKE_MS = 950;     // how long the record takes to wind down on stop
+  var PITCH_RANGE = 8;    // ± percent
+  var pitch = 0;          // current fader position in percent (+ = faster)
+
+  function rate() { return 1 + pitch / 100; }
+  function turntableSpeed(a) { a.preservesPitch = false; a.mozPreservesPitch = false; a.webkitPreservesPitch = false; }
+  function applyRate(a) {
+    if (!a || a.__ahBraking) return;
+    try { a.defaultPlaybackRate = rate(); a.playbackRate = rate(); } catch (e) {}
+    turntableSpeed(a);
+  }
+
+  function dropPlay(audio, instant) {
+    var resumed = false;
+    if (audio.__ahBraking) { audio.__ahBraking = false; resumed = true; }   // pressed play again while winding down: just carry on
+    applyRate(audio);
+    audio.__ahToken = (audio.__ahToken || 0) + 1;
+    var token = audio.__ahToken;
+    if (resumed) { audio.dispatchEvent(new Event('play')); }          // lets the page re-light its buttons and lower the arm again
+    if (reduceMotion || instant || !audio.paused) { audio.muted = false; return audio.play(); }   // instant: arm is already on the record (track change)
+    var t0 = audio.currentTime;
+    audio.muted = true;                    // starts inside the user's click (required), but silent until the arm has landed
+    var p = audio.play();
+    setTimeout(function () {
+      if (token !== audio.__ahToken) return;                // stopped again before the needle landed
+      if (Math.abs(audio.currentTime - t0) > 0.05) { try { audio.currentTime = t0; } catch (e) {} }
+      audio.muted = false;
+    }, DROP_MS);
+    if (p && p.catch) p.catch(function () { if (token === audio.__ahToken) audio.muted = false; });
+    return p;
+  }
+
+  function brakePause(audio) {
+    if (audio.paused || audio.__ahBraking) return;
+    audio.__ahToken = (audio.__ahToken || 0) + 1;           // cancels a pending needle-drop unmute
+    if (reduceMotion || audio.muted) { audio.muted = false; audio.pause(); return; }   // not audible yet: stop at once
+    audio.__ahBraking = true;
+    audio.dispatchEvent(new Event('ahbrake'));
+    turntableSpeed(audio);
+    var r0 = audio.playbackRate || 1, t0 = Date.now();
+    var timer = setInterval(function () {
+      if (!audio.__ahBraking) { clearInterval(timer); return; }   // play was pressed again
+      var k = Math.min(1, (Date.now() - t0) / BRAKE_MS);
+      if (k < 1) { try { audio.playbackRate = Math.max(0.08, r0 * Math.pow(1 - k, 1.15)); } catch (e) {} return; }
+      clearInterval(timer);
+      audio.pause();
+      audio.__ahBraking = false;
+      applyRate(audio);
+    }, 25);
+  }
 
   // circle(P, SLEN) ∩ circle(C, r) — the lower of the two solutions
   function intersect(r) {
@@ -85,7 +147,8 @@
     '<rect x="540" y="338" width="14" height="186" rx="7" fill="#20232a"/>' + (function () {
       var t = ''; for (var i = 0; i <= 10; i++) t += '<rect x="560" y="' + (342 + i * 17.6).toFixed(1) + '" width="' + (i % 5 === 0 ? 14 : 8) + '" height="1.4" fill="#5d626b"/>'; return t;
     })() +
-    '<rect x="531" y="414" width="32" height="46" rx="6" fill="url(#' + id + 'metal)" stroke="#fff" stroke-opacity=".6"/><rect x="531" y="434" width="32" height="6" fill="#e0703f"/>' +
+    '<text x="528" y="352" font-size="13" font-family="Helvetica,Arial,sans-serif" font-weight="700" fill="#5d626b" text-anchor="middle">+</text>' +
+    '<text x="528" y="523" font-size="13" font-family="Helvetica,Arial,sans-serif" font-weight="700" fill="#5d626b" text-anchor="middle">−</text>' +
     // arm rest post (placed where the parked arm lies)
     (function () {
       var a = armAngle(R_REST), rad = a * Math.PI / 180;
@@ -141,6 +204,17 @@
       '<circle cx="0" cy="0" r="22" fill="url(#' + id + 'metal3)" stroke="#fff" stroke-opacity=".5"/><circle cx="0" cy="0" r="9" fill="#4b4f57"/>' +
     '</g>';
 
+    // ---- pitch fader: its own layer *under* the tonearm, so the arm always passes over it ----
+    var fader = '<defs><linearGradient id="' + id + 'metal5" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9aa0a9"/><stop offset=".35" stop-color="#f4f5f7"/><stop offset=".7" stop-color="#b8bdc5"/><stop offset="1" stop-color="#808690"/></linearGradient></defs>' +
+    '<text class="deck__pitch-read" x="547" y="326" font-size="8.5" font-family="Helvetica,Arial,sans-serif" font-weight="700" fill="#3b4048" text-anchor="middle">0.0%</text>' +
+    '<g class="deck__fader" role="slider" tabindex="0" aria-label="Pitch" aria-orientation="vertical" aria-valuemin="-' + PITCH_RANGE + '" aria-valuemax="' + PITCH_RANGE + '" aria-valuenow="0" aria-valuetext="0 %">' +
+      '<rect x="514" y="332" width="68" height="204" fill="transparent"/>' +
+      '<g class="deck__cap">' +
+        '<rect x="531" y="408" width="32" height="46" rx="6" fill="url(#' + id + 'metal5)" stroke="#fff" stroke-opacity=".6"/>' +
+        '<rect x="531" y="428" width="32" height="6" fill="#e0703f"/>' +
+      '</g>' +
+    '</g>';
+
     // ---- top: start/stop pad (the control) + painterly grain ----
     var top = '<defs>' +
       '<linearGradient id="' + id + 'metal4" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9aa0a9"/><stop offset=".35" stop-color="#f4f5f7"/><stop offset=".7" stop-color="#b8bdc5"/><stop offset="1" stop-color="#808690"/></linearGradient>' +
@@ -155,7 +229,7 @@
       '<g class="deck__icon deck__icon--pause"><rect x="78" y="496" width="11" height="30" rx="3" fill="#e0703f"/><rect x="95" y="496" width="11" height="30" rx="3" fill="#e0703f"/></g>' +
     '</g>';
 
-    return { base: svg('base', base), spin: svg('spin', spin), glare: svg('glare', glare), arm: svg('arm', arm), top: svg('top', top) };
+    return { base: svg('base', base), spin: svg('spin', spin), glare: svg('glare', glare), fader: svg('fader', fader), arm: svg('arm', arm), top: svg('top', top) };
   }
 
   function mount(host, opts) {
@@ -166,13 +240,16 @@
 
     var root = document.createElement('div');
     root.className = 'deck';
-    root.innerHTML = '<div class="deck__glow"></div><div class="deck__stage">' + layers.base + layers.spin + layers.glare + layers.arm + layers.top + '</div>';
+    root.innerHTML = '<div class="deck__glow"></div><div class="deck__stage">' + layers.base + layers.spin + layers.glare + layers.fader + layers.arm + layers.top + '</div>';
     host.insertBefore(root, host.firstChild);
 
     var spinEl = root.querySelector('.deck__layer--spin');
     var armEl = root.querySelector('.deck__layer--arm');
     var pad = root.querySelector('.deck__pad-hit');
     var coverEl = root.querySelector('.deck__cover');
+    var fader = root.querySelector('.deck__fader'), cap = root.querySelector('.deck__cap');
+    var readout = root.querySelector('.deck__pitch-read'), topSvg = root.querySelector('.deck__layer--fader');
+    var audio = opts.audio || null;
     var st = { playing: false, omega: 0, angle: 0, progress: 0, last: 0, raf: 0, liftTimer: 0 };
 
     function radius() { return R_OUTER - (R_OUTER - R_INNER) * st.progress; }
@@ -180,7 +257,7 @@
 
     function frame(ts) {
       var dt = Math.min(0.05, (ts - st.last) / 1000 || 0); st.last = ts;
-      var target = st.playing ? 200 : 0, tau = st.playing ? 0.45 : 0.9;     // 33⅓ rpm; spin-up / coast-down
+      var target = st.playing ? 200 * rate() : 0, tau = st.playing ? 0.45 : 0.9;     // 33⅓ rpm; spin-up / coast-down
       st.omega += (target - st.omega) * (1 - Math.exp(-dt / tau));
       st.angle = (st.angle + st.omega * dt) % 360;
       spinEl.style.transform = 'rotate(' + st.angle.toFixed(2) + 'deg)';
@@ -235,13 +312,57 @@
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
     });
 
+    // ---- pitch fader: drag, wheel-free; double-click or 0 resets; arrows nudge ----
+    var CAP_CENTER = 431, CAP_TRAVEL = 70;          // viewBox units; top = +8 %, bottom = -8 %
+    function setPitch(p) {
+      p = Math.max(-PITCH_RANGE, Math.min(PITCH_RANGE, p));
+      if (Math.abs(p) < 0.25) p = 0;                // detent at zero
+      p = Math.round(p * 10) / 10;
+      pitch = p;
+      cap.setAttribute('transform', 'translate(0 ' + (-(p / PITCH_RANGE) * CAP_TRAVEL).toFixed(2) + ')');
+      var txt = (p > 0 ? '+' : p < 0 ? '−' : '') + Math.abs(p).toFixed(1) + '%';
+      readout.textContent = txt;
+      fader.setAttribute('aria-valuenow', p);
+      fader.setAttribute('aria-valuetext', txt.replace('−', 'minus '));
+      if (audio) applyRate(audio);
+      kick();
+    }
+    function pitchFromEvent(e) {
+      var r = topSvg.getBoundingClientRect();
+      var y = (e.clientY - r.top) / r.height * 600;
+      return (CAP_CENTER - y) / CAP_TRAVEL * PITCH_RANGE;
+    }
+    var dragging = false;
+    fader.addEventListener('pointerdown', function (e) {
+      e.preventDefault();
+      dragging = true;
+      try { fader.setPointerCapture(e.pointerId); } catch (err) {}
+      setPitch(pitchFromEvent(e));
+    });
+    fader.addEventListener('pointermove', function (e) { if (dragging) setPitch(pitchFromEvent(e)); });
+    function endDrag() { dragging = false; }
+    fader.addEventListener('pointerup', endDrag);
+    fader.addEventListener('pointercancel', endDrag);
+    fader.addEventListener('dblclick', function () { setPitch(0); });
+    fader.addEventListener('keydown', function (e) {
+      var d = { ArrowUp: 0.5, ArrowRight: 0.5, ArrowDown: -0.5, ArrowLeft: -0.5 }[e.key];
+      if (d !== undefined) { e.preventDefault(); setPitch(pitch + d); }
+      else if (e.key === 'Home') { e.preventDefault(); setPitch(-PITCH_RANGE); }
+      else if (e.key === 'End') { e.preventDefault(); setPitch(PITCH_RANGE); }
+      else if (e.key === '0') { e.preventDefault(); setPitch(0); }
+    });
+    setPitch(pitch);                                 // pick up a value set earlier on another deck/page load
+
+    // stopping starts the wind-down: arm and lights react right away, the sound follows the platter
+    if (audio) audio.addEventListener('ahbrake', function () { setPlaying(false); });
+
     var seedImg = host.querySelector('img');
     setCover(opts.cover || (seedImg && (seedImg.currentSrc || seedImg.src)));
     setLabel(opts.label || '');
     armTo(R_REST);
     if (opts.glow) setGlow(opts.glow);
 
-    return { setPlaying: setPlaying, setProgress: setProgress, setCover: setCover, setLabel: setLabel, setGlow: setGlow, isPlaying: function () { return st.playing; } };
+    return { setPlaying: setPlaying, setProgress: setProgress, setCover: setCover, setLabel: setLabel, setGlow: setGlow, setPitch: setPitch, getPitch: function () { return pitch; }, isPlaying: function () { return st.playing; } };
   }
 
   // Average cover colour, pushed toward a vivid mid-tone so it reads as a glow
@@ -270,5 +391,10 @@
     } catch (e) { return null; }
   }
 
-  window.AHDeck = { mount: mount, dominantColor: dominantColor };
+  window.AHDeck = {
+    mount: mount, dominantColor: dominantColor,
+    play: dropPlay, pause: brakePause,
+    isBraking: function (audio) { return !!(audio && audio.__ahBraking); },
+    on: function (audio) { return !audio.paused && !audio.__ahBraking; }
+  };
 })();

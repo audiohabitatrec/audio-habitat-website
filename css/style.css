@@ -745,6 +745,9 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 .deck-host.is-playing .deck__led-on { opacity: 1; }
 
 .deck__pad-hit { pointer-events: auto; cursor: pointer; outline: none; -webkit-tap-highlight-color: transparent; }
+.deck__fader { pointer-events: auto; cursor: ns-resize; outline: none; -webkit-tap-highlight-color: transparent; touch-action: none; }
+.deck__fader:focus-visible .deck__cap rect:first-child { stroke: var(--accent); stroke-opacity: 1; stroke-width: 3; }
+.deck__layer--fader { touch-action: none; }
 .deck__pad { transition: transform 0.15s ease; transform-box: fill-box; transform-origin: center; }
 .deck-host.is-playing .deck__pad { transform: scale(0.96); }
 .deck__icon { transition: opacity 0.2s ease; }

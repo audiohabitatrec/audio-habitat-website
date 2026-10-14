@@ -262,7 +262,9 @@
     var titleEl = document.querySelector('.section-title');
     var releaseTitle = titleEl ? titleEl.textContent : '';
     var featuredArtWrap = document.getElementById('featuredArtWrap');
+    var DK = window.AHDeck || { play: function (a) { return a.play(); }, pause: function (a) { a.pause(); }, on: function (a) { return !a.paused; } };
     var deck = window.AHDeck && featuredArtWrap ? AHDeck.mount(featuredArtWrap, {
+      audio: audio,
       label: releaseTitle,
       onToggle: function () { var b = document.getElementById('releasePlay'); if (b) b.click(); }
     }) : null;
@@ -291,17 +293,17 @@
       document.body.classList.add('has-player');
       playerArt.src = coverSrc;
       playerTime.textContent = formatTime(audio.currentTime) + ' / ' + formatTime(audio.duration);
-      playerEl.classList.toggle('is-playing', !audio.paused);
+      playerEl.classList.toggle('is-playing', DK.on(audio));
     }
 
     var singlePlay = document.getElementById('releasePlay');
     if (singlePlay) {
       singlePlay.addEventListener('click', function () {
-        if (audio.paused) {
+        if (!DK.on(audio)) {
           playerTitle.textContent = releaseTitle;
-          audio.play();
+          DK.play(audio);
         } else {
-          audio.pause();
+          DK.pause(audio);
         }
       });
       audio.addEventListener('play', function () {
@@ -326,12 +328,13 @@
         btn.addEventListener('click', function () {
           var li = btn.closest('li');
           var file = btn.getAttribute('data-file');
-          if (activeLi === li && !audio.paused) {
-            audio.pause();
+          if (activeLi === li && DK.on(audio)) {
+            DK.pause(audio);
           } else {
+            var wasOn = DK.on(audio);
             if (audio.getAttribute('src') !== file) audio.src = file;
             playerTitle.textContent = title;
-            audio.play();
+            DK.play(audio, wasOn);
             activeLi = li;
           }
         });
@@ -339,7 +342,7 @@
       function syncActive() {
         trackButtons.forEach(function (btn) {
           var li = btn.closest('li');
-          li.classList.toggle('is-active', li === activeLi && !audio.paused);
+          li.classList.toggle('is-active', li === activeLi && DK.on(audio));
         });
       }
       audio.addEventListener('play', syncActive);
@@ -352,7 +355,7 @@
     audio.addEventListener('ended', updatePlayerBar);
 
     playerToggle.addEventListener('click', function () {
-      if (audio.paused) audio.play(); else audio.pause();
+      if (!DK.on(audio)) DK.play(audio); else DK.pause(audio);
     });
 
     // Drag-to-scrub — pointer events cover mouse, touch and pen alike.

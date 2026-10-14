@@ -53,7 +53,7 @@
   var discogFilterEl = document.getElementById('discogFilter');
 
   // Painted turntable (js/deck.js). Its start/stop pad drives the real play button.
-  var deck = window.AHDeck ? AHDeck.mount(featuredArtWrap, { onToggle: function () { featuredPlayBtn.click(); } }) : null;
+  var deck = window.AHDeck ? AHDeck.mount(featuredArtWrap, { onToggle: function () { featuredPlayBtn.click(); }, audio: audio }) : null;
   var featuredIsPlaying = false;
 
   var playerEl = document.getElementById('player');
@@ -139,14 +139,20 @@
     return registry[key];
   }
 
+  // "playing" for the UI: not paused and not winding down after a stop
+  function isPlaying() { return !audio.paused && !(window.AHDeck && AHDeck.isBraking(audio)); }
+
+  function startAudio(instant) { return window.AHDeck ? AHDeck.play(audio, instant) : audio.play(); }
+  function stopAudio() { if (window.AHDeck) AHDeck.pause(audio); else audio.pause(); }
+
   function setActiveVisuals() {
     Object.keys(registry).forEach(function (key) {
       var entry = registry[key];
-      var on = key === activeKey && !audio.paused;
+      var on = key === activeKey && isPlaying();
       if (entry.cardEl) entry.cardEl.classList.toggle('is-active', on);
       if (entry.featuredLi) entry.featuredLi.classList.toggle('is-active', on);
     });
-    var featuredPlaying = !!(activeKey && registry[activeKey] && registry[activeKey].releaseIndex === currentFeaturedIndex && !audio.paused);
+    var featuredPlaying = !!(activeKey && registry[activeKey] && registry[activeKey].releaseIndex === currentFeaturedIndex && isPlaying());
     featuredPlayBtn.classList.toggle('is-playing', featuredPlaying);
     featuredIsPlaying = featuredPlaying;
     if (deck) {
@@ -169,7 +175,7 @@
     playerArt.src = entry.cover;
     playerTitle.textContent = entry.displayTitle;
     playerTime.textContent = formatTime(audio.currentTime) + ' / ' + formatTime(audio.duration);
-    playerEl.classList.toggle('is-playing', !audio.paused);
+    playerEl.classList.toggle('is-playing', isPlaying());
     playerActions.querySelectorAll('.player__action').forEach(function (btn) {
       btn.setAttribute('data-key', activeKey);
     });
@@ -240,11 +246,12 @@
     }
 
     if (activeKey === key && !autoAdvance) {
-      if (audio.paused) audio.play(); else audio.pause();
+      if (audio.paused || (window.AHDeck && AHDeck.isBraking(audio))) startAudio(); else stopAudio();
     } else {
+      var wasPlaying = isPlaying();
       activeKey = key;
       audio.src = entry.file;
-      audio.play();
+      startAudio(wasPlaying || !!autoAdvance);
     }
 
     // No scrolling here on purpose: visitors stay where they are while a
@@ -379,8 +386,10 @@
 
   var navLiveDot = document.getElementById('navLiveDot');
   function updateNavLiveDot() {
-    if (navLiveDot) navLiveDot.classList.toggle('is-live', !audio.paused);
+    if (navLiveDot) navLiveDot.classList.toggle('is-live', isPlaying());
   }
+
+  audio.addEventListener('ahbrake', function () { setActiveVisuals(); updatePlayerBar(); updateNavLiveDot(); });
 
   audio.addEventListener('play', function () {
     setActiveVisuals(); updatePlayerBar(); updateNavLiveDot();
