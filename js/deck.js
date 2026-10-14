@@ -351,7 +351,7 @@
       else if (e.key === 'End') { e.preventDefault(); setPitch(PITCH_RANGE); }
       else if (e.key === '0') { e.preventDefault(); setPitch(0); }
     });
-    setPitch(pitch);                                 // pick up a value set earlier on another deck/page load
+    setPitch(0);                                     // always starts at 0 — only the visitor moves it (nothing is stored)
 
     // stopping starts the wind-down: arm and lights react right away, the sound follows the platter
     if (audio) audio.addEventListener('ahbrake', function () { setPlaying(false); });
