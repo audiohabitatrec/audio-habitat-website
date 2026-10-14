@@ -228,6 +228,8 @@
     function setGlow(color) { if (color) root.style.setProperty('--deck-glow', color); }
 
     function toggle() { if (opts.onToggle) opts.onToggle(); else setPlaying(!st.playing); }
+    // Mouse/touch presses must not take focus (that is what drew the orange box); keyboard still can
+    pad.addEventListener('mousedown', function (e) { e.preventDefault(); });
     pad.addEventListener('click', toggle);
     pad.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
