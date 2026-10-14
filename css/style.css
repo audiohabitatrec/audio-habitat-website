@@ -747,6 +747,10 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 .deck__pad-hit { pointer-events: auto; cursor: pointer; }
 .deck__pad { transition: transform 0.15s ease; transform-box: fill-box; transform-origin: center; }
 .deck-host.is-playing .deck__pad { transform: scale(0.96); }
+.deck__icon { transition: opacity 0.2s ease; }
+.deck__icon--pause { opacity: 0; }
+.deck-host.is-playing .deck__icon--play { opacity: 0; }
+.deck-host.is-playing .deck__icon--pause { opacity: 1; }
 .deck__pad-hit:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
 @media (prefers-reduced-motion: reduce) {

@@ -8,7 +8,8 @@
                         platter spins up or coasts down, lights come on
     setProgress(0..1)   while playing, the tonearm creeps from the outer groove
                         toward the label like on a real record
-    setLabel(text)      track name on the record label (handwritten)
+    setCover(url)       cover image shown as the record's label
+    setLabel(text)      accessible name of the play/pause pad ("Play/Pause: <title>")
     setGlow(cssColor)   colour of the soft glow behind the deck
     isPlaying()
 
@@ -71,12 +72,15 @@
     '<ellipse cx="170" cy="80" rx="190" ry="46" fill="#fff" opacity=".35" filter="url(#' + id + 'soft)"/>' +
     '<circle cx="' + cx + '" cy="' + cy + '" r="238" fill="url(#' + id + 'rim)"/>' +
     '<circle cx="' + cx + '" cy="' + cy + '" r="231" fill="url(#' + id + 'platter)"/>' +
-    // LED + 33/45
-    '<circle class="deck__led-glow" cx="164" cy="496" r="20" fill="url(#' + id + 'glow)"/>' +
-    '<circle cx="164" cy="496" r="6" fill="#53433a"/><circle class="deck__led-on" cx="164" cy="496" r="6" fill="#ff7a3d"/>' +
-    '<rect x="152" y="518" width="26" height="14" rx="4" fill="#20232a"/><rect x="184" y="518" width="26" height="14" rx="4" fill="#cfd3d9" stroke="#8c919a" stroke-opacity=".6"/>' +
-    '<text x="165" y="529" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="700" fill="#d9dce1" text-anchor="middle">33</text>' +
-    '<text x="197" y="529" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="700" fill="#5d626b" text-anchor="middle">45</text>' +
+    // 33/45 + LED
+    // quartz LED sits above the 33 key, clear of the platter rim
+    '<circle class="deck__led-glow" cx="165" cy="526" r="17" fill="url(#' + id + 'glow)"/>' +
+    '<circle cx="165" cy="526" r="4.5" fill="#53433a"/><circle class="deck__led-on" cx="165" cy="526" r="4.5" fill="#ff7a3d"/>' +
+    // 33 / 45 rpm keys: below the platter rim (its edge is at y≈536 here), right of the start/stop pad
+    '<rect x="150" y="538" width="30" height="18" rx="5" fill="#20232a"/><rect x="150.5" y="538.5" width="29" height="17" rx="4.5" fill="none" stroke="#fff" stroke-opacity=".18"/>' +
+    '<text x="165" y="550.4" font-size="9.5" font-family="Helvetica,Arial,sans-serif" font-weight="700" fill="#eceff3" text-anchor="middle">33</text>' +
+    '<rect x="186" y="538" width="30" height="18" rx="5" fill="#d3d7dd" stroke="#8c919a" stroke-opacity=".75"/>' +
+    '<text x="201" y="550.4" font-size="9.5" font-family="Helvetica,Arial,sans-serif" font-weight="700" fill="#5a5f68" text-anchor="middle">45</text>' +
     // pitch fader
     '<rect x="540" y="338" width="14" height="186" rx="7" fill="#20232a"/>' + (function () {
       var t = ''; for (var i = 0; i <= 10; i++) t += '<rect x="560" y="' + (342 + i * 17.6).toFixed(1) + '" width="' + (i % 5 === 0 ? 14 : 8) + '" height="1.4" fill="#5d626b"/>'; return t;
@@ -101,14 +105,11 @@
     spin += '<circle cx="' + cx + '" cy="' + cy + '" r="198" fill="#0e0f12"/><g clip-path="url(#' + id + 'rec)">';
     for (var r = 76; r < 192; r += 4.5) spin += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="#fff" stroke-opacity="' + (r % 18 < 4.5 ? .11 : .045) + '" stroke-width=".9"/>';
     spin += '<circle cx="' + cx + '" cy="' + cy + '" r="168" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3"/></g>' +
-      // label
+      // label = the cover (cream circle underneath as a fallback while it loads)
       '<circle cx="' + cx + '" cy="' + cy + '" r="68" fill="#efe9dd"/>' +
-      '<circle cx="' + cx + '" cy="' + cy + '" r="63" fill="none" stroke="#17140f" stroke-opacity=".16" stroke-width="1"/>' +
-      '<g transform="rotate(-5 ' + cx + ' ' + cy + ')" fill="#17140f" fill-opacity=".82" text-anchor="middle">' +
-        '<text class="deck__title1" x="' + cx + '" y="' + (cy - 30) + '" font-family="Caveat,cursive" font-weight="600" font-size="20"></text>' +
-        '<text class="deck__title2" x="' + cx + '" y="' + (cy - 11) + '" font-family="Caveat,cursive" font-weight="600" font-size="20"></text>' +
-        '<text x="' + cx + '" y="' + (cy + 36) + '" font-family="Helvetica,Arial,sans-serif" font-weight="700" font-size="7.5" letter-spacing="1.6">AUDIO HABITAT · 33⅓</text>' +
-      '</g>';
+      '<clipPath id="' + id + 'lbl"><circle cx="' + cx + '" cy="' + cy + '" r="68"/></clipPath>' +
+      '<image class="deck__cover" x="' + (cx - 68) + '" y="' + (cy - 68) + '" width="136" height="136" preserveAspectRatio="xMidYMid slice" clip-path="url(#' + id + 'lbl)"/>' +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="68" fill="none" stroke="#050505" stroke-opacity=".55" stroke-width="2"/>';
 
     // ---- glare (fixed while the record turns) + spindle ----
     var glare = '<defs>' +
@@ -150,27 +151,11 @@
       '<rect x="30" y="466" width="120" height="94" fill="transparent"/>' +
       '<rect x="44" y="478" width="96" height="70" rx="12" fill="#8f949d" opacity=".5"/>' +
       '<rect class="deck__pad" x="48" y="480" width="88" height="62" rx="10" fill="url(#' + id + 'metal4)" stroke="#fff" stroke-opacity=".6"/>' +
-      '<rect x="62" y="496" width="60" height="30" rx="6" fill="#1b1d22" opacity=".12"/>' +
+      '<g class="deck__icon deck__icon--play"><path d="M83 495 L83 527 L109 511 Z" fill="#23262c" stroke="#23262c" stroke-width="5" stroke-linejoin="round"/></g>' +
+      '<g class="deck__icon deck__icon--pause"><rect x="78" y="496" width="11" height="30" rx="3" fill="#e0703f"/><rect x="95" y="496" width="11" height="30" rx="3" fill="#e0703f"/></g>' +
     '</g>';
 
     return { base: svg('base', base), spin: svg('spin', spin), glare: svg('glare', glare), arm: svg('arm', arm), top: svg('top', top) };
-  }
-
-  // two label lines around the spindle, font size from the longest line
-  function labelLines(text) {
-    text = String(text || '').trim();
-    var words = text.split(/\s+/), best = [text, ''];
-    if (words.length > 1) {
-      var bestDiff = Infinity;
-      for (var i = 1; i < words.length; i++) {
-        var a = words.slice(0, i).join(' '), b = words.slice(i).join(' ');
-        var diff = Math.abs(a.length - b.length);
-        if (diff < bestDiff) { bestDiff = diff; best = [a, b]; }
-      }
-    }
-    var longest = Math.max(best[0].length, best[1].length);
-    var size = longest <= 9 ? 22 : longest <= 12 ? 19 : longest <= 15 ? 16 : 13;
-    return { l1: best[0], l2: best[1], size: size };
   }
 
   function mount(host, opts) {
@@ -187,7 +172,7 @@
     var spinEl = root.querySelector('.deck__layer--spin');
     var armEl = root.querySelector('.deck__layer--arm');
     var pad = root.querySelector('.deck__pad-hit');
-    var t1 = root.querySelector('.deck__title1'), t2 = root.querySelector('.deck__title2');
+    var coverEl = root.querySelector('.deck__cover');
     var st = { playing: false, omega: 0, angle: 0, progress: 0, last: 0, raf: 0, liftTimer: 0 };
 
     function radius() { return R_OUTER - (R_OUTER - R_INNER) * st.progress; }
@@ -230,13 +215,14 @@
       if (st.playing) armTo(radius());
     }
 
+    function setCover(url) {
+      if (!url) return;
+      coverEl.setAttribute('href', url);
+      coverEl.setAttributeNS('http://www.w3.org/1999/xlink', 'href', url);
+    }
+
     function setLabel(text) {
-      var l = labelLines(text);
-      t1.textContent = l.l2 ? l.l1 : l.l1;
-      t2.textContent = l.l2;
-      t1.setAttribute('font-size', l.size); t2.setAttribute('font-size', l.size);
-      // single line sits between the two slots
-      t1.setAttribute('y', C.y - (l.l2 ? 30 : 22));
+      pad.setAttribute('aria-label', text ? 'Play/Pause: ' + text : 'Play/Pause');
     }
 
     function setGlow(color) { if (color) root.style.setProperty('--deck-glow', color); }
@@ -247,11 +233,13 @@
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
     });
 
+    var seedImg = host.querySelector('img');
+    setCover(opts.cover || (seedImg && (seedImg.currentSrc || seedImg.src)));
     setLabel(opts.label || '');
     armTo(R_REST);
     if (opts.glow) setGlow(opts.glow);
 
-    return { setPlaying: setPlaying, setProgress: setProgress, setLabel: setLabel, setGlow: setGlow, isPlaying: function () { return st.playing; } };
+    return { setPlaying: setPlaying, setProgress: setProgress, setCover: setCover, setLabel: setLabel, setGlow: setGlow, isPlaying: function () { return st.playing; } };
   }
 
   // Average cover colour, pushed toward a vivid mid-tone so it reads as a glow
