@@ -236,17 +236,10 @@
       audio.play();
     }
 
+    // No scrolling here on purpose: visitors stay where they are while a
+    // track starts (the mini player and the active card show what's playing).
     updatePlayerBar();
     setActiveVisuals();
-
-    // Skip the scroll-to-player jump when a track advances on its own —
-    // it's only meant to reveal what's playing right after a manual tap.
-    if (autoAdvance) return;
-    var featuredSection = document.getElementById('featured');
-    var rect = featuredSection.getBoundingClientRect();
-    if (rect.top < 0 || rect.top > 120) {
-      featuredSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
   }
 
   // ---------- Register every release's tracks up front ----------
