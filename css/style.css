@@ -731,7 +731,10 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 /* Record + arm move with GPU transforms, not SVG repaints */
 .deck__layer--spin { transform-origin: 44.667% 50.667%; will-change: transform; }
 .deck__layer--arm {
-  transform-origin: 88.333% 17.333%;
+  /* drawn in a 1200-unit box centred on the stage (-300…900) so the whole arm stays inside
+     its own bounds at every angle — Safari clips composited SVG overflow, which cut off the cartridge */
+  inset: auto; left: -50%; top: -50%; width: 200%; height: 200%;
+  transform-origin: 69.1667% 33.6667%;
   transition: transform 1.15s cubic-bezier(0.45, 0.05, 0.2, 1), filter 0.6s ease;
   filter: drop-shadow(0 2px 3px rgba(0,0,0,0.28));
   will-change: transform;

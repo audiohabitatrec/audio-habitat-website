@@ -112,8 +112,8 @@
 
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
-  function svg(cls, inner) {
-    return '<svg class="deck__layer deck__layer--' + cls + '" viewBox="0 0 600 600" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">' + inner + '</svg>';
+  function svg(cls, inner, vb) {
+    return '<svg class="deck__layer deck__layer--' + cls + '" viewBox="' + (vb || '0 0 600 600') + '" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">' + inner + '</svg>';
   }
 
   function buildLayers(id) {
@@ -147,8 +147,8 @@
     '<rect x="540" y="338" width="14" height="186" rx="7" fill="#20232a"/>' + (function () {
       var t = ''; for (var i = 0; i <= 10; i++) t += '<rect x="560" y="' + (342 + i * 17.6).toFixed(1) + '" width="' + (i % 5 === 0 ? 14 : 8) + '" height="1.4" fill="#5d626b"/>'; return t;
     })() +
-    '<text x="528" y="352" font-size="13" font-family="Helvetica,Arial,sans-serif" font-weight="700" fill="#5d626b" text-anchor="middle">+</text>' +
-    '<text x="528" y="523" font-size="13" font-family="Helvetica,Arial,sans-serif" font-weight="700" fill="#5d626b" text-anchor="middle">−</text>' +
+    '<text x="528" y="352" font-size="13" font-family="Helvetica,Arial,sans-serif" font-weight="700" fill="#5d626b" text-anchor="middle">−</text>' +
+    '<text x="528" y="523" font-size="13" font-family="Helvetica,Arial,sans-serif" font-weight="700" fill="#5d626b" text-anchor="middle">+</text>' +
     // arm rest post (placed where the parked arm lies)
     (function () {
       var a = armAngle(R_REST), rad = a * Math.PI / 180;
@@ -229,7 +229,7 @@
       '<g class="deck__icon deck__icon--pause"><rect x="78" y="496" width="11" height="30" rx="3" fill="#e0703f"/><rect x="95" y="496" width="11" height="30" rx="3" fill="#e0703f"/></g>' +
     '</g>';
 
-    return { base: svg('base', base), spin: svg('spin', spin), glare: svg('glare', glare), fader: svg('fader', fader), arm: svg('arm', arm), top: svg('top', top) };
+    return { base: svg('base', base), spin: svg('spin', spin), glare: svg('glare', glare), fader: svg('fader', fader), arm: svg('arm', arm, '-300 -300 1200 1200'), top: svg('top', top) };
   }
 
   function mount(host, opts) {
@@ -313,13 +313,13 @@
     });
 
     // ---- pitch fader: drag, wheel-free; double-click or 0 resets; arrows nudge ----
-    var CAP_CENTER = 431, CAP_TRAVEL = 70;          // viewBox units; top = +8 %, bottom = -8 %
+    var CAP_CENTER = 431, CAP_TRAVEL = 70;          // viewBox units; top = -8 % (slower), bottom = +8 % (faster)
     function setPitch(p) {
       p = Math.max(-PITCH_RANGE, Math.min(PITCH_RANGE, p));
       if (Math.abs(p) < 0.25) p = 0;                // detent at zero
       p = Math.round(p * 10) / 10;
       pitch = p;
-      cap.setAttribute('transform', 'translate(0 ' + (-(p / PITCH_RANGE) * CAP_TRAVEL).toFixed(2) + ')');
+      cap.setAttribute('transform', 'translate(0 ' + ((p / PITCH_RANGE) * CAP_TRAVEL).toFixed(2) + ')');
       var txt = (p > 0 ? '+' : p < 0 ? '−' : '') + Math.abs(p).toFixed(1) + '%';
       readout.textContent = txt;
       fader.setAttribute('aria-valuenow', p);
@@ -330,7 +330,7 @@
     function pitchFromEvent(e) {
       var r = topSvg.getBoundingClientRect();
       var y = (e.clientY - r.top) / r.height * 600;
-      return (CAP_CENTER - y) / CAP_TRAVEL * PITCH_RANGE;
+      return (y - CAP_CENTER) / CAP_TRAVEL * PITCH_RANGE;
     }
     var dragging = false;
     fader.addEventListener('pointerdown', function (e) {
@@ -345,7 +345,7 @@
     fader.addEventListener('pointercancel', endDrag);
     fader.addEventListener('dblclick', function () { setPitch(0); });
     fader.addEventListener('keydown', function (e) {
-      var d = { ArrowUp: 0.5, ArrowRight: 0.5, ArrowDown: -0.5, ArrowLeft: -0.5 }[e.key];
+      var d = { ArrowUp: -0.5, ArrowLeft: -0.5, ArrowDown: 0.5, ArrowRight: 0.5 }[e.key];   // follows the cap: up = slower
       if (d !== undefined) { e.preventDefault(); setPitch(pitch + d); }
       else if (e.key === 'Home') { e.preventDefault(); setPitch(-PITCH_RANGE); }
       else if (e.key === 'End') { e.preventDefault(); setPitch(PITCH_RANGE); }
