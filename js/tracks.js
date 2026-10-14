@@ -12,6 +12,9 @@
      "TT.MM.JJJJ", fürs Discography-Raster; muss zum datePublished im
      JSON-LD in index.html passen)
 
+  Einfacher: `python3 tools/new-release.py --help` — legt eine neue Single
+  samt Release-Seite, Schema.org, Sitemap und Cover-Größen in einem Rutsch an.
+
   Wird "spotify" / "apple" / "soundcloud" bei einem Track weggelassen,
   verlinkt das Icon automatisch auf das allgemeine Artist-Profil.
 */

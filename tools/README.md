@@ -1,0 +1,38 @@
+# Werkzeuge
+
+## `new-release.py` — neue Single anlegen
+
+Erledigt alles, was für einen neuen Release nötig ist, in einem Aufruf: AAC-Export, Cover-Größen,
+Eintrag in `js/tracks.js`, eigene Seite unter `music/<slug>/`, Schema.org-Eintrag und Featured-Block
+auf der Startseite, Sitemap und den Zählsatz im About-Text. Das "Neu"-Tag wandert automatisch auf den
+neuen Release.
+
+```bash
+python3 tools/new-release.py \
+  --title "Titel" --subgenre "Liquid Funk" --bpm 174 --date 2026-10-04 \
+  --wav "assets/tracks/Titel.wav" --cover "assets/covers/Titel.jpg" \
+  --spotify "https://open.spotify.com/track/…" \
+  --apple "https://music.apple.com/us/album/…" \
+  --hyperfollow "https://distrokid.com/hyperfollow/audiohabitat/…?ref=release" \
+  --desc-de "Text auf Deutsch." --desc-en "Text in English."
+```
+
+Pflicht sind nur `--title`, `--subgenre`, `--bpm` und `--date` (plus `--wav` und `--cover`, sofern die Dateien
+nicht schon unter `assets/…/<slug>.*` liegen — dann `--no-assets`). Spotify-/Apple-Link und Texte sind optional;
+ohne sie nutzt die Seite den Hyperfollow-Link und einen sachlichen Standardtext.
+
+Weitere Optionen:
+
+- `--dry-run` — zeigt nur, was geändert würde, schreibt nichts.
+- `--slug` — eigener URL-Name (Standard: aus dem Titel).
+- `--similar slug1,slug2,slug3` — "Ähnliche Tracks" (Standard: gleiches Subgenre, dann die neuesten).
+
+Danach: Seite lokal ansehen (`python3 -m http.server`), `git add` / `git commit` / `git push` (die genauen
+Befehle gibt das Skript am Ende aus).
+
+Grenzen: nur Singles (EPs bitte von Hand); WAVs über 100 MB lehnt GitHub ab — das Skript lässt sie dann weg
+und der Download fällt auf die m4a zurück. Braucht Python 3 und Pillow (`pip3 install Pillow`), für den
+AAC-Export `afconvert` (macOS) oder `ffmpeg`.
+
+`release-page.template.html` ist die Vorlage für die Release-Seite. Ändert man das Design der Release-Seiten,
+sollte man sie dort mitziehen, damit neue Releases dasselbe bekommen.

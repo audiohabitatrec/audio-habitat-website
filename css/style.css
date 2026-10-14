@@ -713,6 +713,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 .featured__art-face {
   position: absolute;
   inset: 0;
+  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   display: grid;
   place-items: center;
