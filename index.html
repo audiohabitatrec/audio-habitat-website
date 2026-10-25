@@ -555,13 +555,14 @@
 <header class="hero">
   <!-- Light monolith in a dark room; lights up when the music starts and moves with it (js/hero.js) -->
   <div class="hero__scene" id="heroBgWrap" aria-hidden="true">
-    <div class="hero__room"></div>
-    <div class="hero__shaft"></div>
-    <div class="hero__mono"><div class="hero__mono-halo"></div><div class="hero__mono-body"></div><div class="hero__mono-core"></div></div>
-    <div class="hero__mono-reflect"></div>
+    <div class="hero__photo">
+      <img src="assets/hero/monolith.webp" srcset="assets/hero/monolith-1344.webp 1344w, assets/hero/monolith.webp 2688w" sizes="(max-width: 700px) 900px, 110vh" width="2688" height="1520" alt="" fetchpriority="high">
+      <!-- light effects sit on the photo's own monolith (positions measured in the image) -->
+      <div class="hero__mono-halo"></div>
+      <div class="hero__mono-cover"></div>
+      <div class="hero__mono-core"></div>
+    </div>
     <canvas class="hero__fx" id="heroFx"></canvas>
-    <div class="hero__figure-shadow"></div>
-    <svg class="hero__figure" viewBox="0 0 20 62"><circle cx="10" cy="5.2" r="4.2"/><path d="M4.6 12.5 Q10 9.6 15.4 12.5 L16.6 32 L14.2 32.6 L13.6 61.5 L10.9 61.5 L10 36 L9.1 61.5 L6.4 61.5 L5.8 32.6 L3.4 32 Z"/></svg>
     <div class="hero__fog"></div>
   </div>
   <div class="hero__scrim"></div>

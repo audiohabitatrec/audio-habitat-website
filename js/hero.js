@@ -1,11 +1,12 @@
 /*
   Hero: the light monolith (index.html, css "Light monolith scene").
 
-  Before anything plays the monolith stands dark. When the music actually starts — the
-  deck's needle has landed and the sound is unmuted — its core ignites bottom → top, and the
-  music moves the scene from then on: CSS vars on .hero (--e bass energy, --ign ignition)
-  drive core, halo, fog and logo glow; the canvas draws the floor grid, the track's signal on
-  the horizon, a light ring across the floor on every kick, and dust in the light.
+  Before anything plays the room is dim and the monolith's light line is covered. When the
+  music actually starts — the deck's needle has landed and the sound is unmuted — the line
+  ignites bottom → top, and the music moves the scene from then on: CSS vars on .hero (--e
+  bass energy, --ign lit, --rev how far the line is revealed) drive the photo's brightness,
+  the line's glow, halo, fog and logo glow; the canvas draws the track's signal on the
+  horizon (denser with the bass), a light ring across the wet floor on every kick, and dust.
 
   Sound analysis: the shared <audio id="audio"> is routed through a Web Audio analyser,
   created on the visitor's first tap/click (browsers only allow audio contexts to start then).
@@ -92,7 +93,7 @@
   var dust = [];
   for (var i = 0; i < (reduce ? 0 : 60); i++) dust.push({ x: Math.random(), y: Math.random(), s: .4 + Math.random() * 1.3, v: .004 + Math.random() * .012, tw: Math.random() * 6.28 });
   var ripples = [];
-  var e = 0, hi = 0, slow = 0, ign = 0, ever = false, lit = false, lastKick = 0, raf = 0, t0 = performance.now();
+  var e = 0, hi = 0, slow = 0, ign = 0, rev = 0, dense = 0, ever = false, lit = false, lastKick = 0, raf = 0, t0 = performance.now();
 
   function frame(ts) {
     raf = 0;
@@ -123,21 +124,11 @@
     ign += (target - ign) * (ign < target ? .035 : .03);
     hero.style.setProperty('--e', e.toFixed(3));
     hero.style.setProperty('--ign', ign.toFixed(3));
+    rev = Math.max(rev, ign);                                                  // once lit, the line stays revealed
+    hero.style.setProperty('--rev', Math.min(1, rev * 1.05).toFixed(3));
 
     g.clearRect(0, 0, W, H);
-    var cx = W / 2, k, y;
-
-    // floor: lines to the vanishing point + receding cross lines
-    g.lineWidth = 1;
-    g.strokeStyle = 'rgba(206,222,255,' + (.035 + .03 * ign).toFixed(3) + ')';
-    g.beginPath();
-    for (k = -14; k <= 14; k++) { g.moveTo(cx, horizonY); g.lineTo(cx + k * W * .16, H); }
-    g.stroke();
-    for (k = 1; k < 14; k++) {
-      y = horizonY + Math.pow(k / 13, 2.2) * (H - horizonY);
-      g.strokeStyle = 'rgba(206,222,255,' + ((.02 + .03 * ign) * (k / 13)).toFixed(3) + ')';
-      g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke();
-    }
+    var cx = W / 2;
 
     // kick ripples on the floor around the monolith's base
     g.lineWidth = 1.5;
@@ -148,17 +139,24 @@
       g.beginPath(); g.ellipse(cx, horizonY + 2, rp.r * 1.6, rp.r * .22, 0, 0, Math.PI * 2); g.stroke();
     }
 
-    // the track's signal on the horizon (calm sine while silent), with its reflection
-    var amp = H * (.012 + .07 * e) * ign, N = 160, pts = [];
+    // the track's signal on the horizon (calm sine while silent), with its reflection.
+    // It gets denser with the bass: more points and extra strands (the same signal, slightly
+    // shifted in time), so a drop turns the thin line into a glowing bundle.
+    dense += (e - dense) * (e > dense ? .3 : .04);
+    var amp = H * (.012 + .07 * e) * ign, N = Math.round(140 + 380 * dense), strands = 1 + Math.floor(dense * 5.5);
     if (audible && an) an.getByteTimeDomainData(wave);
-    for (var p = 0; p <= N; p++) {
-      var v = audible && an ? (wave[Math.floor(p / N * (wave.length - 1))] - 128) / 128
-            : audible ? Math.sin(p * .9 + t * 9) * (.1 + e * .5) * Math.sin(p * .13 + t * 2)
-            : Math.sin(p * .35 + t * 1.6) * .08;
-      var edge = Math.sin(Math.PI * p / N);
-      pts.push(horizonY - v * amp * edge * edge * 6);
+    function signal(shift, scale) {
+      var pts = [];
+      for (var p = 0; p <= N; p++) {
+        var v = audible && an ? (wave[(Math.floor(p / N * (wave.length - 1 - 6 * shift)) + 6 * shift) % wave.length] - 128) / 128
+              : audible ? Math.sin(p * 900 / N + t * 9 + shift) * (.1 + e * .5) * Math.sin(p * .13 * 160 / N + t * 2)
+              : Math.sin(p * 56 / N + t * 1.6) * .08;
+        var edge = Math.sin(Math.PI * p / N);
+        pts.push(horizonY - v * amp * edge * edge * 6 * scale);
+      }
+      return pts;
     }
-    function line(alpha, width, blur, mirror) {
+    function line(pts, alpha, width, blur, mirror) {
       g.save();
       g.lineWidth = width; g.shadowBlur = blur; g.shadowColor = 'rgba(224,112,63,.9)';
       g.strokeStyle = 'rgba(240,130,80,' + alpha.toFixed(3) + ')';
@@ -169,8 +167,10 @@
       }
       g.stroke(); g.restore();
     }
-    line(.12 + .6 * ign, 1.4, 12, false);
-    line(.04 + .18 * ign, 1, 8, true);
+    for (var sI = strands - 1; sI >= 1; sI--) line(signal(sI * 7, 1 - sI * .13), (.08 + .3 * ign) * (1 - sI / (strands + 1)), .8, 6, false);
+    var main = signal(0, 1);
+    line(main, .12 + .6 * ign, 1.4 + dense * .6, 12, false);
+    line(main, .04 + .18 * ign, 1, 8, true);
 
     // dust in the light: rises slowly, sparkles with the highs
     for (var d = 0; d < dust.length; d++) {

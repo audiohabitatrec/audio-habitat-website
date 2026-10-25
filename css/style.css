@@ -313,82 +313,71 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 }
 
 /* ---- Light monolith scene (js/hero.js) ----
-   A dark room with a glass monolith on the horizon. Before anything plays only its edges
-   catch some light; when the music starts (the deck's needle lands) its core ignites bottom
-   → top, and from then on the music moves the scene: --e (bass energy 0..1) and --ign
-   (ignition 0..1) are set on .hero every frame. The canvas draws the floor grid, the
-   track's signal on the horizon, kick ripples and dust. The wrapper keeps the id heroBgWrap,
-   so app.js's scroll parallax moves the whole scene. */
+   A photo of a glass monolith in a dark hall (assets/hero/monolith.webp). Before anything
+   plays the room is dimmed and the monolith's light line is covered; when the music starts
+   (the deck's needle lands) the line ignites bottom → top and the room comes up, and from
+   then on the music moves it: --e (bass energy 0..1), --ign (lit 0..1) and --rev (how far
+   the line has been revealed) are set on .hero every frame. The photo is sized by height and
+   placed so its horizon (79.2 % down the image) sits on --horizon; the overlays use positions
+   measured in the image. The canvas draws the track's signal on the horizon, kick ripples on
+   the wet floor and dust. The wrapper keeps the id heroBgWrap for app.js's scroll parallax. */
 .hero {
   --horizon: 46%;
-  --mono-h: 36vh;
-  --mono-w: clamp(44px, 6.4vh, 84px);
+  --photo-h: 58vh;
   --cold: 206, 222, 255;
   --e: 0;
   --ign: 0;
+  --rev: 0;
   align-items: flex-start;
-  background: #040506;
+  background: #030609;
 }
 .hero__scene { position: absolute; inset: 0; will-change: transform; isolation: isolate; }
 .hero__scene > * { position: absolute; pointer-events: none; }
-.hero__room {
-  inset: 0;
-  background:
-    radial-gradient(ellipse 70% 55% at 50% var(--horizon), rgba(var(--cold), calc(.03 + .1 * var(--ign) + .1 * var(--e) * var(--ign))) 0%, rgba(0,0,0,0) 70%),
-    linear-gradient(#030405 0%, #07090c var(--horizon), #050607 calc(var(--horizon) + .5%), #020203 100%);
+.hero__photo {
+  left: 50%;
+  top: calc(var(--horizon) - var(--photo-h) * .792);
+  height: var(--photo-h);
+  aspect-ratio: 2688 / 1520;
+  transform: translateX(-50%);
+  /* edges melt into the page's black on all sides */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent), linear-gradient(transparent, #000 10%, #000 84%, transparent);
+  -webkit-mask-composite: source-in;
+          mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent), linear-gradient(transparent, #000 10%, #000 84%, transparent);
+          mask-composite: intersect;
 }
-.hero__shaft {
-  left: 50%; bottom: calc(100% - var(--horizon) + var(--mono-h) - 2vh); width: 26vh; height: 46vh; transform: translateX(-50%);
-  background: radial-gradient(ellipse 50% 100% at 50% 100%, rgba(var(--cold), calc(.1 + .16 * var(--e))), rgba(var(--cold), 0) 75%);
-  filter: blur(24px); opacity: var(--ign);
+.hero__photo > * { position: absolute; }
+.hero__photo img {
+  inset: 0; width: 100%; height: 100%; display: block;
+  filter: brightness(calc(.4 + .6 * var(--ign) + .14 * var(--e) * var(--ign)));
 }
-.hero__mono { left: 50%; bottom: calc(100% - var(--horizon)); width: var(--mono-w); height: var(--mono-h); transform: translateX(-50%); }
-.hero__mono > * { position: absolute; }
+/* soft cold glow around the monolith, breathing with the bass */
 .hero__mono-halo {
-  left: 50%; top: 50%; width: 900%; height: 150%; transform: translate(-50%, -50%) scale(calc(1 + .18 * var(--e)));
-  background: radial-gradient(ellipse at center, rgba(var(--cold), calc(.04 + .16 * var(--ign) + .32 * var(--e) * var(--ign))) 0%, rgba(var(--cold), 0) 62%);
-  filter: blur(10px);
+  left: 49.9%; top: 46%; width: 34%; height: 90%; transform: translate(-50%, -50%) scale(calc(1 + .12 * var(--e)));
+  background: radial-gradient(ellipse at center, rgba(var(--cold), calc(.1 * var(--ign) + .26 * var(--e) * var(--ign))) 0%, rgba(var(--cold), 0) 60%);
+  mix-blend-mode: screen;
 }
-.hero__mono-body {
-  inset: 0;
-  background: linear-gradient(90deg, #07080b 0%, #161a22 38%, #1d222c 50%, #121620 62%, #06070a 100%);
-  border: 1px solid rgba(var(--cold), calc(.1 + .45 * var(--ign)));
-  box-shadow: 0 0 calc(10px + 40px * var(--e) * var(--ign)) rgba(var(--cold), calc(.08 + .4 * var(--ign) * (.4 + var(--e)))), inset 0 0 30px rgba(0,0,0,.8);
+/* hides the photo's light line until it ignites: shrinks from the bottom up */
+.hero__mono-cover {
+  left: 49.9%; top: 11.6%; bottom: 0; width: 1.5%; transform: translateX(-50%);
+  background: linear-gradient(90deg, rgba(17,26,33,0), rgb(17,26,33) 30%, rgb(17,26,33) 70%, rgba(17,26,33,0));
+  clip-path: inset(0 0 calc(var(--rev) * 100%) 0);
 }
-/* glass seams, like the Cold Static tower */
-.hero__mono-body::before {
-  content: ""; position: absolute; inset: 0;
-  background: repeating-linear-gradient(to top, rgba(var(--cold), .06) 0 1px, transparent 1px 7.5%),
-              linear-gradient(90deg, transparent 49.5%, rgba(var(--cold), .07) 50%, transparent 50.5%);
-}
+/* extra light on the line: flares with every bass hit */
 .hero__mono-core {
-  left: 50%; top: 3%; bottom: 0; width: 18%; transform: translateX(-50%);
-  clip-path: inset(calc((1 - var(--ign)) * 100%) 0 0 0);
-  background: linear-gradient(to top, rgba(255,255,255,.95), rgba(var(--cold), .85) 55%, rgba(var(--cold), .15));
-  box-shadow: 0 0 22px 6px rgba(var(--cold), calc(.35 + .5 * var(--e))), 0 0 70px 18px rgba(var(--cold), calc(.12 + .35 * var(--e)));
-  opacity: calc(.55 + .45 * var(--e));
-}
-.hero__mono-core::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 30%; transform: translateX(-50%); background: #fff; }
-.hero__mono-reflect {
-  left: 50%; top: var(--horizon); width: var(--mono-w); height: 24vh; transform: translateX(-50%);
-  background: linear-gradient(to bottom, rgba(var(--cold), calc(.05 + .35 * var(--ign) * (.5 + var(--e)))), rgba(var(--cold), 0) 85%);
-  filter: blur(6px); opacity: .8;
-  -webkit-mask: linear-gradient(90deg, transparent, #000 35%, #000 65%, transparent);
-          mask: linear-gradient(90deg, transparent, #000 35%, #000 65%, transparent);
+  left: 49.9%; top: 12.4%; height: 66.8%; width: .32%; transform: translateX(-50%);
+  background: linear-gradient(to top, #fff, rgba(var(--cold), .9) 70%, rgba(var(--cold), .3));
+  box-shadow: 0 0 calc(6px + 16px * var(--e)) calc(1px + 3px * var(--e)) rgba(var(--cold), calc(.25 + .55 * var(--e))), 0 0 calc(30px + 50px * var(--e)) rgba(var(--cold), calc(.1 + .3 * var(--e)));
+  clip-path: inset(calc((1 - var(--rev)) * 100%) 0 0 0);
+  opacity: calc(var(--ign) * (.35 + .65 * var(--e)));
+  mix-blend-mode: screen;
 }
 .hero__fx { inset: 0; width: 100%; height: 100%; }
-/* lone figure in front of the monolith */
-.hero__figure { left: 50%; top: calc(var(--horizon) - 4.6vh); height: 5.2vh; width: auto; transform: translateX(-50%); fill: #020203; }
-.hero__figure-shadow {
-  left: 50%; top: calc(var(--horizon) + .6vh); width: 1.4vh; height: 14vh; transform: translateX(-50%);
-  background: linear-gradient(rgba(0,0,0,.85), rgba(0,0,0,0)); filter: blur(2px);
-}
 /* fog drifting over the floor, thicker with the bass */
 .hero__fog {
   left: -20%; right: -20%; top: calc(var(--horizon) - 9%); height: 22%;
   background: radial-gradient(ellipse 50% 60% at 30% 55%, rgba(170,185,210,.1), transparent 70%),
               radial-gradient(ellipse 45% 50% at 72% 45%, rgba(170,185,210,.08), transparent 70%);
-  filter: blur(14px); opacity: calc(.6 + .9 * var(--e) * var(--ign));
+  filter: blur(14px); opacity: calc(.35 + .7 * var(--e) * var(--ign));
   animation: heroFogDrift 38s ease-in-out infinite alternate;
 }
 @keyframes heroFogDrift { to { transform: translateX(7%); } }
@@ -441,7 +430,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 
 @media (max-width: 640px) {
   .hero__scroll-hint { display: flex; }
-  .hero { --horizon: 42%; --mono-h: 27vh; }
+  .hero { --horizon: 42%; --photo-h: 52vh; }
 }
 
 .hero__content {
@@ -525,7 +514,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
    block toward the bottom of the hero photo, crowding the DJ. Shrink
    the block instead of just letting it spill into the photo. */
 @media (max-height: 700px) {
-  .hero { --horizon: 44%; --mono-h: 32vh; }
+  .hero { --horizon: 44%; --photo-h: 60vh; }
   .hero__content { top: calc(var(--horizon) + 2.5vh); }
   .hero__eyebrow { margin-bottom: 8px; }
   .hero__mark-wrap { width: min(200px, 50vw, 20vh); margin-bottom: 8px; }
