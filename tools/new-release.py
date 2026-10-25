@@ -258,7 +258,7 @@ def build_page(files, a, releases, wav_ok):
     if a.apple:
         names.append("Apple Music")
     plat_de = join_list(names + ["allen Plattformen"], "und")
-    plat_en = join_list(names + ["everywhere"], "and")
+    plat_en = join_list(names + ["everywhere"], "and") if names else "all platforms"   # never "Out now on everywhere"
 
     same = [u for u in (a.spotify, a.apple, a.hyperfollow) if u]
     sameas = ",\n".join(f'    "{jesc(u)}"' for u in same)

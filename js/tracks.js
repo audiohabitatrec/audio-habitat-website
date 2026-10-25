@@ -26,7 +26,10 @@ var DEFAULT_COVER = "assets/covers/cover-singles.webp";
 // NOT reliably derivable from the file name (e.g. "4 Reasons" -> "4-reasons-2",
 // not "4reasons"), so these have to be pasted in by hand, one at a time.
 var RELEASES = [
-  { type: "single", title: "not done yet", cover: "assets/covers/not-done-yet.webp", isNew: true,
+  { type: "single", title: "Placeholder", cover: "assets/covers/placeholder.webp", isNew: true,
+    subgenre: "Neurofunk", bpm: 174, page: "music/placeholder/", date: "26.10.2026",
+    tracks: [{ title: "Placeholder", file: "assets/tracks/placeholder.m4a", wav: "assets/tracks/placeholder.wav" }] },
+  { type: "single", title: "not done yet", cover: "assets/covers/not-done-yet.webp",
     hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/not-done-yet?ref=release",
     subgenre: "Liquid Funk", bpm: 174, page: "music/not-done-yet/", date: "04.10.2026",
     tracks: [{ title: "not done yet", file: "assets/tracks/not-done-yet.m4a", wav: "assets/tracks/not-done-yet.wav",
