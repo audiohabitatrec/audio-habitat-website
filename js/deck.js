@@ -9,6 +9,8 @@
     setProgress(0..1)   while playing, the tonearm creeps from the outer groove
                         toward the label like on a real record
     setCover(url)       cover image shown as the record's label
+    setWave(trackUrl)   waveform under the deck for that track (found automatically from the
+                        <audio> src; the home page passes it before anything has played)
     setLabel(text)      accessible name of the play/pause pad ("Play/Pause: <title>")
     setGlow(cssColor)   colour of the soft glow behind the deck
     isPlaying()
@@ -340,7 +342,7 @@
 
     var root = document.createElement('div');
     root.className = 'deck';
-    root.innerHTML = '<div class="deck__glow"></div><div class="deck__stage">' + layers.base + layers.spin + layers.glare + layers.fader + layers.arm + layers.top + '</div>';
+    root.innerHTML = '<div class="deck__glow"></div><div class="deck__stage">' + layers.base + layers.spin + layers.glare + layers.fader + layers.arm + layers.top + '<canvas class="deck__wave" aria-hidden="true"></canvas></div>';
     host.insertBefore(root, host.firstChild);
 
     var spinEl = root.querySelector('.deck__layer--spin');
@@ -413,6 +415,49 @@
       f = Math.min(1, Math.max(0, +f || 0));
       st.progress = f;
       if (st.playing) armTo(radius());
+      drawWave(f);
+    }
+
+    // ---- waveform under the deck: the whole track's loudness, the played part tinted ----
+    // Data: assets/waves/<slug>.json next to assets/tracks/<slug>.m4a (tools/make-waveforms.py)
+    var waveEl = root.querySelector('.deck__wave'), wave = { url: '', data: null, drawn: '' };
+    function waveUrlFor(src) {
+      try { var m = /^(.*)\/tracks\/([^\/?#]+)\.m4a(?:[?#].*)?$/.exec(new URL(src, location.href).href); } catch (e) { return ''; }
+      return m ? m[1] + '/waves/' + m[2] + '.json' : '';
+    }
+    function setWave(src) {
+      var u = src ? waveUrlFor(src) : '';
+      if (u === wave.url) return;
+      wave.url = u; wave.data = null; wave.drawn = '';
+      waveEl.classList.remove('is-ready');
+      if (!u) return;
+      fetch(u).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+        if (wave.url !== u || !d || !d.length) return;
+        wave.data = d; drawWave(st.progress);
+        waveEl.classList.add('is-ready');
+      }).catch(function () {});
+    }
+    function drawWave(f) {
+      var d = wave.data; if (!d) return;
+      var dpr = window.devicePixelRatio || 1, W = Math.round(waveEl.clientWidth * dpr), H = Math.round(waveEl.clientHeight * dpr);
+      if (!W || !H) return;
+      var n = d.length, played = f * n, key = W + 'x' + H + ':' + Math.round(played * 3);
+      if (key === wave.drawn) return;                // only repaint when something visible changes
+      wave.drawn = key;
+      if (waveEl.width !== W || waveEl.height !== H) { waveEl.width = W; waveEl.height = H; }
+      var g = waveEl.getContext('2d'), cs = getComputedStyle(waveEl);
+      g.clearRect(0, 0, W, H);
+      var step = W / n, bw = Math.max(1, step * 0.55), mid = H / 2;
+      for (var i = 0; i < n; i++) {
+        var h = Math.max(dpr * 1.5, d[i] / 100 * H);
+        g.fillStyle = i < played ? cs.getPropertyValue('--wave-played') : cs.getPropertyValue('--wave-rest');
+        g.fillRect(i * step + (step - bw) / 2, mid - h / 2, bw, h);
+      }
+    }
+    if (window.ResizeObserver) new ResizeObserver(function () { wave.drawn = ''; drawWave(st.progress); }).observe(waveEl);
+    if (audio) {
+      audio.addEventListener('loadstart', function () { setWave(audio.currentSrc || audio.src); });
+      setWave(audio.currentSrc || audio.getAttribute('src'));
     }
 
     function setCover(url) {
@@ -461,7 +506,10 @@
       grab.last = a; grab.moved += d;
       st.angle = (st.angle + d + 360) % 360;
       spinEl.style.transform = 'rotate(' + st.angle.toFixed(2) + 'deg)';
-      if (grab.live) SCR.target = Math.max(0, Math.min(audio.duration || 1e9, SCR.target + d / 200));
+      if (grab.live) {
+        SCR.target = Math.max(0, Math.min(audio.duration || 1e9, SCR.target + d / 200));
+        if (audio.duration) drawWave(SCR.target / audio.duration);   // the wave follows the hand too
+      }
     });
     function release() {
       if (!grab) return;
@@ -531,7 +579,7 @@
     needle(false);
     if (opts.glow) setGlow(opts.glow);
 
-    return { setPlaying: setPlaying, setProgress: setProgress, setCover: setCover, setLabel: setLabel, setGlow: setGlow, setPitch: setPitch, getPitch: function () { return pitch; }, isPlaying: function () { return st.playing; } };
+    return { setPlaying: setPlaying, setProgress: setProgress, setCover: setCover, setLabel: setLabel, setGlow: setGlow, setPitch: setPitch, setWave: setWave, getPitch: function () { return pitch; }, isPlaying: function () { return st.playing; } };
   }
 
   // Average cover colour, pushed toward a vivid mid-tone so it reads as a glow

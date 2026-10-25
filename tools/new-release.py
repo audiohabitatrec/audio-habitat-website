@@ -432,6 +432,8 @@ def main():
     else:
         wav_ok = make_audio(a.wav, a.slug, a.no_assets)
         make_covers(a.cover, a.slug, a.no_assets)
+        # waveform for the subtle display under the turntable (tools/make-waveforms.py)
+        subprocess.run([sys.executable, str(ROOT / "tools/make-waveforms.py"), "--force", a.slug], check=True)
 
     tracks_js = edit_tracks_js(files, a, wav_ok)
     build_page(files, a, existing, wav_ok)
@@ -447,7 +449,7 @@ def main():
     if not a.dry_run:
         print("\nNächste Schritte: Seite lokal ansehen (python3 -m http.server), dann\n"
               f"  git add js/tracks.js index.html about.html sitemap.xml music/{a.slug} "
-              f"assets/covers/{a.slug}* assets/tracks/{a.slug}.*\n"
+              f"assets/covers/{a.slug}* assets/tracks/{a.slug}.* assets/waves/{a.slug}.json\n"
               f'  git commit -m "Add new single \\"{a.title}\\""  &&  git push origin main')
         if not (a.spotify and a.apple):
             print("\nHinweis: Spotify/Apple-Link fehlt — der Track fällt auf Hyperfollow/Artist-Profil zurück. "

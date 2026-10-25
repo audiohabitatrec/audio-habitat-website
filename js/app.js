@@ -216,7 +216,7 @@
     };
     featuredArt.src = coverPath(release.cover);
     featuredArt.alt = release.title;
-    if (deck) { deck.setCover(coverPath(release.cover)); deck.setLabel(release.type === 'ep' ? release.title : release.tracks[0].title); deck.setProgress(0); }
+    if (deck) { deck.setCover(coverPath(release.cover)); deck.setLabel(release.type === 'ep' ? release.title : release.tracks[0].title); deck.setWave(release.tracks[0].file); deck.setProgress(0); }
     featuredTitleEl.textContent = release.title;
     applyFeaturedText();
 

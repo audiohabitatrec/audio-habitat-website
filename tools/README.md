@@ -34,5 +34,12 @@ Grenzen: nur Singles (EPs bitte von Hand); WAVs über 100 MB lehnt GitHub ab —
 und der Download fällt auf die m4a zurück. Braucht Python 3 und Pillow (`pip3 install Pillow`), für den
 AAC-Export `afconvert` (macOS) oder `ffmpeg`.
 
+## `make-waveforms.py` — Welle unter dem Plattenspieler
+
+Erzeugt für jede `assets/tracks/<slug>.m4a` eine kleine `assets/waves/<slug>.json` (Lautheitskurve, ~0,5 KB),
+aus der der Plattenspieler die dezente Welle zeichnet. `new-release.py` macht das für neue Singles automatisch;
+von Hand nur für EPs oder ausgetauschte Tracks nötig: `python3 tools/make-waveforms.py` (fehlende) oder
+`python3 tools/make-waveforms.py --force <slug>`.
+
 `release-page.template.html` ist die Vorlage für die Release-Seite. Ändert man das Design der Release-Seiten,
 sollte man sie dort mitziehen, damit neue Releases dasselbe bekommen.

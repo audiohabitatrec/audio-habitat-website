@@ -747,6 +747,16 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 .deck-host.is-playing .deck__led-glow,
 .deck-host.is-playing .deck__led-on { opacity: 1; }
 
+/* Subtle waveform just under the deck's plinth: whole track, played part in the accent colour */
+.deck__wave {
+  position: absolute; left: 4%; width: 92%; top: 98.5%; height: 4.6%;
+  --wave-rest: rgba(23, 20, 15, 0.16); --wave-played: rgba(224, 112, 63, 0.7);
+  opacity: 0; transition: opacity 0.6s ease; pointer-events: none;
+}
+.deck__wave.is-ready { opacity: 1; }
+@media (prefers-color-scheme: dark) {
+  .deck__wave { --wave-rest: rgba(243, 239, 231, 0.14); }
+}
 /* Scratching: the record can be grabbed only while the needle is on it (so the deck never blocks page scrolling otherwise) */
 .deck.is-needle-down .deck__record-hit { pointer-events: auto; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent; }
 .deck.is-needle-down .deck__layer--top { touch-action: none; }
