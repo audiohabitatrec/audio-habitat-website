@@ -75,17 +75,52 @@
     var d = fb.data, t = audio.currentTime || 0, dur = audio.duration || 0;
     var level = d && dur ? d[Math.min(d.length - 1, Math.floor(t / dur * d.length))] / 100 : 0.7;
     var phase = (t * fb.bpm / 60) % 1;
-    return level * Math.pow(1 - phase, 3);
+    return level * (.25 + .75 * Math.pow(1 - phase, 3));
   }
 
   // ---- canvas ----
   var W = 0, H = 0, horizonY = 0;
-  // The man in the photo stands in front of the monolith, so the signal, rings and dust pass
-  // behind him: his silhouette (cut from the photo, soft edge) is erased from the canvas.
+  // ---- the dancer ----
+  // The man in front of the monolith is real footage: a short loop generated from this very
+  // photo (camera locked, only he moves), cropped to him (assets/hero/dancer.mp4). Each frame is
+  // keyed by brightness — he is a dark silhouette against the light — and drawn on top of
+  // everything, so the light line, the signal and the rings pass behind him. He dances while
+  // the music plays and stands still (first frame = the photo's pose) when it stops. The photo
+  // itself has him removed, so nothing doubles up.
   var photo = hero.querySelector('.hero__photo'), PHOTO_HORIZON = .792;
-  var MAN = [.484375, .73289, .022693, .113158];                           // x, y, w, h as fractions of the photo
-  var man = null, manMask = new Image();
-  manMask.src = 'data:image/png;base64,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';
+  var DANCER_BOX = [.46648, .71237, .05834, .1175];                       // crop's place in the photo: x, y, w, h (fractions)
+  var DANCER_FEET = .89;                                                   // where his feet are in the crop (for the reflection)
+  var KEY_LO = 14, KEY_HI = 30;                                            // luminance: ≤ LO fully him, ≥ HI fully background
+  var man = null;
+  var dv = document.createElement('video');
+  dv.muted = true; dv.loop = true; dv.playsInline = true; dv.setAttribute('playsinline', ''); dv.preload = 'auto';
+  dv.src = 'assets/hero/dancer.mp4';
+  var keyC = document.createElement('canvas'), kg = keyC.getContext('2d', { willReadFrequently: true });
+  var still = new Image(); still.src = 'assets/hero/dancer-still.png';      // keyed first frame, until the video can show
+  function place(ctx, src) {
+    ctx.drawImage(src, man.x, man.y, man.w, man.h);
+    // his reflection in the wet floor
+    var fy = man.y + man.h * DANCER_FEET;
+    ctx.save(); ctx.globalAlpha = .3; ctx.translate(0, fy * 2); ctx.scale(1, -1);
+    var sw = src.naturalWidth || src.width, sh = src.naturalHeight || src.height;
+    ctx.drawImage(src, 0, 0, sw, sh * DANCER_FEET, man.x, man.y, man.w, man.h * DANCER_FEET);
+    ctx.restore();
+  }
+  function drawMan(ctx) {
+    if (!man) return;
+    if (dv.readyState < 2) { if (still.complete && still.naturalWidth) place(ctx, still); return; }
+    var w = dv.videoWidth, h = dv.videoHeight;
+    if (keyC.width !== w || keyC.height !== h) { keyC.width = w; keyC.height = h; }
+    kg.drawImage(dv, 0, 0, w, h);
+    var img = kg.getImageData(0, 0, w, h), d = img.data, span = KEY_HI - KEY_LO;
+    for (var i = 0; i < d.length; i += 4) {
+      var lum = .2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2];
+      var al = Math.max(0, Math.min(1, (KEY_HI - lum) / span));
+      d[i + 3] = al * al * (3 - 2 * al) * 255;                              // smoothstep edge
+    }
+    kg.putImageData(img, 0, 0);
+    place(ctx, keyC);
+  }
   // ---- far-off party behind the monolith (canvas inside the photo box, see .hero__party) ----
   // Strobes flash on the kicks (at most ~3 per second, soft and dim — and none at all with
   // reduced motion), a few coloured beams sweep up through the haze and swell with the bass,
@@ -94,6 +129,16 @@
   var BEAMS = [{ x: .16, c: '255,40,90', ph: 0 }, { x: .3, c: '130,80,255', ph: 2.1 }, { x: .38, c: '255,70,150', ph: 4.2 },
                { x: .62, c: '80,140,255', ph: 1.3 }, { x: .7, c: '255,40,90', ph: 3.4 }, { x: .84, c: '130,80,255', ph: 5.1 }];
   var flashes = [], lastFlash = 0, partyClear = true;
+  // a few hundred people in rows towards the horizon (further back = smaller and a bit higher)
+  var CROWD = [];
+  for (var cr = 0; cr < 3; cr++) {
+    for (var ci = 0; ci < 150; ci++) {
+      var cx0 = .02 + Math.random() * .96;
+      if (cx0 > .455 && cx0 < .545) continue;                                  // right behind the monolith: hidden anyway
+      CROWD.push({ x: cx0, d: .002 + cr * .006 + Math.random() * .003, h: (.03 - cr * .007) * (.85 + Math.random() * .3), ph: Math.random() * 6.28, arms: Math.random() < .28 });
+    }
+  }
+  CROWD.sort(function (a, b) { return b.d - a.d; });
   function flash(strength) {
     var side = Math.random() < .5 ? .08 + Math.random() * .34 : .58 + Math.random() * .34;   // never right behind the monolith
     flashes.push({ x: side, a: .45 + .55 * Math.min(1, strength) });
@@ -104,6 +149,7 @@
     partyClear = false;
     pg.clearRect(0, 0, PW, PH);
     pg.globalCompositeOperation = 'lighter';
+    pg.filter = 'blur(' + Math.max(2, PH * .008).toFixed(1) + 'px)';           // the lights sit deep in the haze
     var hy = PH * PHOTO_HORIZON;
     // crowd glow on the horizon
     var k = (.03 + .14 * e) * ign, cg = pg.createLinearGradient(0, hy - PH * .16, 0, hy + PH * .02);
@@ -128,6 +174,33 @@
       pg.fillStyle = sg; pg.fillRect(fx - fr, fy - fr, fr * 2, fr * 2);
       fl.a *= .8; if (fl.a < .02) flashes.splice(f, 1);
     }
+    pg.filter = 'none';
+
+    // the crowd: tiny silhouettes cut out of the light, so they only show where it's lit behind
+    // them — bobbing to the beat, some with their arms up, jumping higher with the bass
+    pg.globalCompositeOperation = 'destination-out';
+    pg.fillStyle = '#000'; pg.strokeStyle = '#000'; pg.lineCap = 'round';
+    var beat = t * Math.PI * 2 * fb.bpm / 120;                                   // half-time bounce
+    pg.beginPath();
+    var arms = [];
+    for (var c = 0; c < CROWD.length; c++) {
+      var pp = CROWD[c], ph2 = PH * pp.h, x = pp.x * PW;
+      var jump = reduce ? 0 : Math.abs(Math.sin(beat + pp.ph)) * ph2 * (.04 + .22 * e);
+      var foot = hy - PH * pp.d - jump, head = ph2 * .16;
+      var sh = ph2 * .3;                                                         // shoulder width
+      pg.moveTo(x - sh / 2, foot); pg.lineTo(x - sh / 2, foot - ph2 * .62); pg.quadraticCurveTo(x, foot - ph2 * .78, x + sh / 2, foot - ph2 * .62); pg.lineTo(x + sh / 2, foot); pg.closePath();
+      pg.moveTo(x + head, foot - ph2 * .84); pg.arc(x, foot - ph2 * .84, head, 0, Math.PI * 2);
+      if (pp.arms) arms.push([x, foot - ph2 * .66, sh, ph2, pp.ph]);
+    }
+    pg.fill();
+    pg.beginPath();
+    for (var am = 0; am < arms.length; am++) {
+      var A = arms[am], sway = reduce ? 0 : Math.sin(beat * .5 + A[4]) * .25 + e * .2;
+      pg.lineWidth = Math.max(1, A[3] * .09);
+      pg.moveTo(A[0] - A[2] * .4, A[1]); pg.lineTo(A[0] - A[2] * .7 - Math.sin(sway) * A[3] * .2, A[1] - A[3] * .48);
+      pg.moveTo(A[0] + A[2] * .4, A[1]); pg.lineTo(A[0] + A[2] * .7 + Math.sin(sway) * A[3] * .2, A[1] - A[3] * .48);
+    }
+    pg.stroke();
     pg.globalCompositeOperation = 'source-over';
   }
 
@@ -146,7 +219,7 @@
     // where the man stands in the photo, in canvas coordinates (the photo's horizon sits on ours)
     if (photo) {
       var pw = photo.offsetWidth, ph = photo.offsetHeight, pl = W / 2 - pw / 2, pt = horizonY - ph * PHOTO_HORIZON;
-      man = { x: pl + pw * MAN[0], y: pt + ph * MAN[1], w: pw * MAN[2], h: ph * MAN[3] };
+      man = { x: pl + pw * DANCER_BOX[0], y: pt + ph * DANCER_BOX[1], w: pw * DANCER_BOX[2], h: ph * DANCER_BOX[3] };
     }
   }
   window.addEventListener('resize', size);
@@ -249,11 +322,10 @@
 
     drawParty(t);
 
-    if (man && manMask.complete) {
-      g.globalCompositeOperation = 'destination-out';
-      g.drawImage(manMask, man.x, man.y, man.w, man.h);
-      g.globalCompositeOperation = 'source-over';
-    }
+    // the dancer: moves while the music plays, back to the standing pose when it stops
+    if (audible && dv.paused && !reduce) { var pr = dv.play(); if (pr && pr.catch) pr.catch(function () {}); }
+    else if (!audible && !dv.paused) { dv.pause(); try { dv.currentTime = 0; } catch (err) {} }
+    drawMan(g);
     run();
   }
 
