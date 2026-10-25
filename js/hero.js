@@ -49,7 +49,9 @@
       ctx = new AC();
       var src = ctx.createMediaElementSource(audio);
       an = ctx.createAnalyser(); an.fftSize = 2048; an.smoothingTimeConstant = 0.6;
-      src.connect(an); an.connect(ctx.destination);
+      // the deck mutes through this gate (needle drop, scratching): `muted` doesn't reach a Web Audio route
+      var gate = ctx.createGain(); gate.gain.value = audio.muted ? 0 : 1; audio.__ahGate = gate;
+      src.connect(gate); gate.connect(an); an.connect(ctx.destination);
       freq = new Uint8Array(an.frequencyBinCount); wave = new Uint8Array(an.fftSize);
     } catch (err) { an = null; }
     if (ctx && ctx.state === 'suspended') ctx.resume();
@@ -59,6 +61,10 @@
     document.addEventListener(t, function first() { setupAnalyser(); document.removeEventListener(t, first, true); }, true);
   });
   audio.addEventListener('play', function () { if (ctx && ctx.state !== 'running') ctx.resume(); });
+  // iOS only counts a finished tap as permission to start audio: resume there too
+  ['touchend', 'click'].forEach(function (t) {
+    document.addEventListener(t, function () { if (ctx && ctx.state !== 'running') ctx.resume(); }, true);
+  });
 
   // fallback energy: the track's loudness curve (assets/waves/<slug>.json) × a kick at its tempo
   var fb = { url: '', data: null, bpm: 174 };

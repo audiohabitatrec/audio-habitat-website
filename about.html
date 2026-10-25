@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#faf7f2">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14120f">
 <title>Audio Habitat | Über uns</title>
 <meta name="description" content="Von Imagination D zu Audio Habitat: SoundCloud-Katalog seit 2008, Labels wie T3K Recordings und Dispatch Recordings, BBC-Radio-Airplay, der Neustart 2026 — und das Team dahinter: Gründer Daniel da Silva und seine KI-Crew.">
 <link rel="canonical" href="https://audiohabitatrec.com/about.html">
@@ -71,6 +74,8 @@
   .label-card h3 { font-size: 15px; font-weight: 650; margin: 0 0 10px; }
   .label-card ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
   .label-card a { font-size: 13px; color: var(--ink-soft); transition: color 0.2s ease; }
+  /* releases without a link (not available online any more) read the same, just quieter */
+  .label-card li.is-plain { font-size: 13px; color: var(--ink-faint); }
   .label-card a:hover { color: var(--accent-text); }
 
   .history__cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
@@ -487,7 +492,7 @@
         var ul = document.createElement('ul');
         group.releases.forEach(function (release) {
           var li = document.createElement('li');
-          if (!release.url) { li.textContent = release.title; ul.appendChild(li); return; }   // not available online: just the title
+          if (!release.url) { li.className = 'is-plain'; li.textContent = release.title; ul.appendChild(li); return; }   // not available online: just the title
           var a = document.createElement('a');
           a.href = release.url;
           a.target = '_blank';

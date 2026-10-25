@@ -61,6 +61,16 @@
     turntableSpeed(a);
   }
 
+  // Silence the track without pausing it. `muted` alone isn't enough: once a page routes the
+  // <audio> through Web Audio (the home page's hero analyser), Android Chrome and iOS Safari
+  // ignore `muted` for that route — the music kept playing under a scratch. Such a page hangs a
+  // GainNode on audio.__ahGate, and that is switched too.
+  function mute(audio, m) {
+    audio.muted = m;
+    var gt = audio.__ahGate;
+    if (gt) { try { var now = gt.context.currentTime; gt.gain.cancelScheduledValues(now); gt.gain.setTargetAtTime(m ? 0 : 1, now, .008); } catch (e) { gt.gain.value = m ? 0 : 1; } }
+  }
+
   function dropPlay(audio, instant) {
     var resumed = false;
     if (audio.__ahBraking) { audio.__ahBraking = false; resumed = true; }   // pressed play again while winding down: just carry on
@@ -69,23 +79,23 @@
     var token = audio.__ahToken;
     if (resumed) { audio.dispatchEvent(new Event('play')); }          // lets the page re-light its buttons and lower the arm again
     // instant: the needle is already in the groove (track change, or play pressed again before the arm went back)
-    if (reduceMotion || instant || audio.__ahNeedleDown || !audio.paused) { audio.muted = false; return audio.play(); }
+    if (reduceMotion || instant || audio.__ahNeedleDown || !audio.paused) { mute(audio, false); return audio.play(); }
     var t0 = audio.currentTime;
-    audio.muted = true;                    // starts inside the user's click (required), but silent until the arm has landed
+    mute(audio, true);                     // starts inside the user's click (required), but silent until the arm has landed
     var p = audio.play();
     setTimeout(function () {
       if (token !== audio.__ahToken) return;                // stopped again before the needle landed
       if (Math.abs(audio.currentTime - t0) > 0.05) { try { audio.currentTime = t0; } catch (e) {} }
-      audio.muted = false;
+      mute(audio, false);
     }, DROP_MS);
-    if (p && p.catch) p.catch(function () { if (token === audio.__ahToken) audio.muted = false; });
+    if (p && p.catch) p.catch(function () { if (token === audio.__ahToken) mute(audio, false); });
     return p;
   }
 
   function brakePause(audio) {
     if (audio.paused || audio.__ahBraking) return;
     audio.__ahToken = (audio.__ahToken || 0) + 1;           // cancels a pending needle-drop unmute
-    if (reduceMotion || audio.muted) { audio.muted = false; audio.pause(); return; }   // not audible yet: stop at once
+    if (reduceMotion || audio.muted) { mute(audio, false); audio.pause(); return; }   // not audible yet: stop at once
     audio.__ahBraking = true;
     audio.dispatchEvent(new Event('ahbrake'));
     turntableSpeed(audio);
@@ -508,7 +518,7 @@
       var live = SCR.src === src && scratchStart(audio.currentTime);   // not decoded yet: the record still stops under the hand, silently
       grab = { last: handAngle(e), moved: 0, live: live };
       st.held = true;
-      audio.muted = true;
+      mute(audio, true);
       root.classList.add('is-scratching');
       kick();
     });
@@ -531,7 +541,7 @@
       root.classList.remove('is-scratching');
       var pos = g.live ? scratchStop() : audio.currentTime;
       if (g.live) { try { audio.currentTime = Math.max(0, Math.min((audio.duration || pos) - 0.05, pos)); } catch (err) {} }
-      if (st.armOn && !audio.__ahBraking) audio.muted = false;
+      if (st.armOn && !audio.__ahBraking) mute(audio, false);
       st.omega = st.playing ? 200 * rate() : 0;                   // let go: the motor has it again at once
       kick();
     }
