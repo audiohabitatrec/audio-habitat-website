@@ -553,15 +553,17 @@
 </nav>
 
 <header class="hero">
-  <div class="hero__bg-wrap" id="heroBgWrap">
-    <img class="hero__bg" src="assets/beach-hero-bg-branded.webp" alt="">
+  <!-- Light monolith in a dark room; lights up when the music starts and moves with it (js/hero.js) -->
+  <div class="hero__scene" id="heroBgWrap" aria-hidden="true">
+    <div class="hero__room"></div>
+    <div class="hero__shaft"></div>
+    <div class="hero__mono"><div class="hero__mono-halo"></div><div class="hero__mono-body"></div><div class="hero__mono-core"></div></div>
+    <div class="hero__mono-reflect"></div>
+    <canvas class="hero__fx" id="heroFx"></canvas>
+    <div class="hero__figure-shadow"></div>
+    <svg class="hero__figure" viewBox="0 0 20 62"><circle cx="10" cy="5.2" r="4.2"/><path d="M4.6 12.5 Q10 9.6 15.4 12.5 L16.6 32 L14.2 32.6 L13.6 61.5 L10.9 61.5 L10 36 L9.1 61.5 L6.4 61.5 L5.8 32.6 L3.4 32 Z"/></svg>
+    <div class="hero__fog"></div>
   </div>
-  <div class="hero__sky-tint" aria-hidden="true"></div>
-  <div class="hero__fog" aria-hidden="true"></div>
-  <div class="hero__dust" id="heroDust" aria-hidden="true"></div>
-  <div class="hero__sun" id="heroSun" aria-hidden="true"></div>
-  <div class="hero__flare hero__flare--1" aria-hidden="true"></div>
-  <div class="hero__flare hero__flare--2" aria-hidden="true"></div>
   <div class="hero__scrim"></div>
   <div class="hero__fade"></div>
   <div class="hero__content">
@@ -577,10 +579,12 @@
       <span data-lang="en">Drum &amp; Bass from Germany.</span>
     </p>
     <p class="hero__slogan">One Beat. One Community.</p>
-    <a class="btn btn--glass" href="#featured">
-      <span data-lang="de">Jetzt hören</span>
-      <span data-lang="en">Listen now</span>
-      <svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 4v14M6 12l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <!-- Starts the featured track on the deck (js/hero.js); without JS it just scrolls to the player -->
+    <a class="btn btn--glass hero__listen" id="heroListen" href="#featured">
+      <svg class="hero__listen-play" viewBox="0 0 14 14" width="13" height="13"><path d="M3 1.5 L12 7 L3 12.5 Z" fill="currentColor"/></svg>
+      <svg class="hero__listen-pause" viewBox="0 0 14 14" width="13" height="13"><rect x="2.5" y="1.5" width="3.2" height="11" rx="1" fill="currentColor"/><rect x="8.3" y="1.5" width="3.2" height="11" rx="1" fill="currentColor"/></svg>
+      <span class="hero__listen-label" data-lang="de">Jetzt hören</span>
+      <span class="hero__listen-label" data-lang="en">Listen now</span>
     </a>
   </div>
   <div class="hero__scroll-hint" id="scrollHint" aria-hidden="true">
@@ -1050,5 +1054,6 @@
 <script src="js/tracks.js"></script>
 <script src="js/deck.js"></script>
 <script src="js/app.js"></script>
+<script src="js/hero.js"></script>
 </body>
 </html>

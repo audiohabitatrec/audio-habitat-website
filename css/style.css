@@ -312,172 +312,101 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   overflow: hidden;
 }
 
-/* Separate layer from .hero__bg on purpose: this one carries the scroll
-   parallax (JS-driven translateY), the inner img carries the Ken Burns
-   drift — keeping them apart avoids the two transforms fighting. */
-.hero__bg-wrap {
-  position: absolute;
+/* ---- Light monolith scene (js/hero.js) ----
+   A dark room with a glass monolith on the horizon. Before anything plays only its edges
+   catch some light; when the music starts (the deck's needle lands) its core ignites bottom
+   → top, and from then on the music moves the scene: --e (bass energy 0..1) and --ign
+   (ignition 0..1) are set on .hero every frame. The canvas draws the floor grid, the
+   track's signal on the horizon, kick ripples and dust. The wrapper keeps the id heroBgWrap,
+   so app.js's scroll parallax moves the whole scene. */
+.hero {
+  --horizon: 46%;
+  --mono-h: 36vh;
+  --mono-w: clamp(44px, 6.4vh, 84px);
+  --cold: 206, 222, 255;
+  --e: 0;
+  --ign: 0;
+  align-items: flex-start;
+  background: #040506;
+}
+.hero__scene { position: absolute; inset: 0; will-change: transform; isolation: isolate; }
+.hero__scene > * { position: absolute; pointer-events: none; }
+.hero__room {
   inset: 0;
-  will-change: transform;
-}
-
-.hero__bg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 72%;
-  filter: grayscale(0.55) contrast(1.05) brightness(0.72);
-  transform: scale(1.06);
-  transform-origin: 55% 45%;
-  animation: heroBgDrift 46s ease-in-out infinite alternate;
-}
-
-/* Slow scale/pan + a hint of rotation — reads as an unsteady handheld
-   camera rather than a mechanical zoom. Kept tiny on purpose. */
-@keyframes heroBgDrift {
-  0% { transform: scale(1.06) translate(0, 0) rotate(0deg); }
-  50% { transform: scale(1.085) translate(-0.7%, -0.5%) rotate(0.25deg); }
-  100% { transform: scale(1.115) translate(-1.4%, -0.8%) rotate(-0.2deg); }
-}
-
-/* Soft glow standing in for the sun in the photo — drifts slightly on */
-/* scroll so the whole scene feels alive rather than a static cutout. */
-/* Recolors just the upper sky toward blue without touching the crowd —
-   mix-blend-mode: color keeps the photo's existing brightness/contrast,
-   it only swaps in this layer's hue/saturation. Fades out before the sun
-   glow so it doesn't fight the warm sunset tone there. */
-.hero__sky-tint {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom,
-    rgba(70,130,200,0.24) 0%,
-    rgba(70,130,200,0.15) 14%,
-    rgba(70,130,200,0.05) 24%,
-    rgba(70,130,200,0) 34%);
-  mix-blend-mode: color;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.hero__sun {
-  position: absolute;
-  top: 44%;
-  left: 73%;
-  width: 26vw;
-  height: 26vw;
-  max-width: 320px;
-  max-height: 320px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,222,176,0.5) 0%, rgba(255,205,150,0.16) 45%, rgba(255,205,150,0) 72%);
-  mix-blend-mode: screen;
-  pointer-events: none;
-  z-index: 1;
-  will-change: transform;
-}
-
-/* Two faint secondary glints along the sun's axis — a classic lens-flare
-   chain, kept just barely visible. */
-.hero__flare {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 1;
-  mix-blend-mode: screen;
-}
-
-.hero__flare--1 {
-  top: 58%;
-  left: 54%;
-  width: 7vw;
-  height: 7vw;
-  max-width: 80px;
-  max-height: 80px;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(255,228,190,0.14) 0%, transparent 72%);
-}
-
-.hero__flare--2 {
-  top: 67%;
-  left: 40%;
-  width: 3.4vw;
-  height: 3.4vw;
-  max-width: 40px;
-  max-height: 40px;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(255,215,175,0.12) 0%, transparent 72%);
-}
-
-/* Two soft drifting patches standing in for low fog over the crowd. */
-.hero__fog {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 14%;
-  height: 42%;
   background:
-    radial-gradient(ellipse 55% 100% at 22% 60%, rgba(255,255,255,0.09), transparent 70%),
-    radial-gradient(ellipse 45% 100% at 76% 55%, rgba(255,255,255,0.07), transparent 70%);
-  mix-blend-mode: screen;
-  pointer-events: none;
-  z-index: 1;
-  animation: heroFogDrift 55s ease-in-out infinite alternate;
+    radial-gradient(ellipse 70% 55% at 50% var(--horizon), rgba(var(--cold), calc(.03 + .1 * var(--ign) + .1 * var(--e) * var(--ign))) 0%, rgba(0,0,0,0) 70%),
+    linear-gradient(#030405 0%, #07090c var(--horizon), #050607 calc(var(--horizon) + .5%), #020203 100%);
 }
-
-@keyframes heroFogDrift {
-  0% { transform: translateX(-2.5%); }
-  100% { transform: translateX(2.5%); }
+.hero__shaft {
+  left: 50%; bottom: calc(100% - var(--horizon) + var(--mono-h) - 2vh); width: 26vh; height: 46vh; transform: translateX(-50%);
+  background: radial-gradient(ellipse 50% 100% at 50% 100%, rgba(var(--cold), calc(.1 + .16 * var(--e))), rgba(var(--cold), 0) 75%);
+  filter: blur(24px); opacity: var(--ign);
 }
-
-/* A handful of small motes drifting upward through the photo. */
-.hero__dust {
-  position: absolute;
+.hero__mono { left: 50%; bottom: calc(100% - var(--horizon)); width: var(--mono-w); height: var(--mono-h); transform: translateX(-50%); }
+.hero__mono > * { position: absolute; }
+.hero__mono-halo {
+  left: 50%; top: 50%; width: 900%; height: 150%; transform: translate(-50%, -50%) scale(calc(1 + .18 * var(--e)));
+  background: radial-gradient(ellipse at center, rgba(var(--cold), calc(.04 + .16 * var(--ign) + .32 * var(--e) * var(--ign))) 0%, rgba(var(--cold), 0) 62%);
+  filter: blur(10px);
+}
+.hero__mono-body {
   inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 1;
+  background: linear-gradient(90deg, #07080b 0%, #161a22 38%, #1d222c 50%, #121620 62%, #06070a 100%);
+  border: 1px solid rgba(var(--cold), calc(.1 + .45 * var(--ign)));
+  box-shadow: 0 0 calc(10px + 40px * var(--e) * var(--ign)) rgba(var(--cold), calc(.08 + .4 * var(--ign) * (.4 + var(--e)))), inset 0 0 30px rgba(0,0,0,.8);
 }
-
-.dust-mote {
-  position: absolute;
-  bottom: -4%;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.55);
-  filter: blur(0.5px);
-  opacity: 0;
-  animation-name: dustFloat;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
+/* glass seams, like the Cold Static tower */
+.hero__mono-body::before {
+  content: ""; position: absolute; inset: 0;
+  background: repeating-linear-gradient(to top, rgba(var(--cold), .06) 0 1px, transparent 1px 7.5%),
+              linear-gradient(90deg, transparent 49.5%, rgba(var(--cold), .07) 50%, transparent 50.5%);
 }
-
-@keyframes dustFloat {
-  0% { transform: translate(0, 0); opacity: 0; }
-  12% { opacity: 0.32; }
-  88% { opacity: 0.18; }
-  100% { transform: translate(18px, -108vh); opacity: 0; }
+.hero__mono-core {
+  left: 50%; top: 3%; bottom: 0; width: 18%; transform: translateX(-50%);
+  clip-path: inset(calc((1 - var(--ign)) * 100%) 0 0 0);
+  background: linear-gradient(to top, rgba(255,255,255,.95), rgba(var(--cold), .85) 55%, rgba(var(--cold), .15));
+  box-shadow: 0 0 22px 6px rgba(var(--cold), calc(.35 + .5 * var(--e))), 0 0 70px 18px rgba(var(--cold), calc(.12 + .35 * var(--e)));
+  opacity: calc(.55 + .45 * var(--e));
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .hero__bg,
-  .hero__fog { animation: none; }
-  .hero__dust { display: none; }
+.hero__mono-core::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 30%; transform: translateX(-50%); background: #fff; }
+.hero__mono-reflect {
+  left: 50%; top: var(--horizon); width: var(--mono-w); height: 24vh; transform: translateX(-50%);
+  background: linear-gradient(to bottom, rgba(var(--cold), calc(.05 + .35 * var(--ign) * (.5 + var(--e)))), rgba(var(--cold), 0) 85%);
+  filter: blur(6px); opacity: .8;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 35%, #000 65%, transparent);
+          mask: linear-gradient(90deg, transparent, #000 35%, #000 65%, transparent);
 }
+.hero__fx { inset: 0; width: 100%; height: 100%; }
+/* lone figure in front of the monolith */
+.hero__figure { left: 50%; top: calc(var(--horizon) - 4.6vh); height: 5.2vh; width: auto; transform: translateX(-50%); fill: #020203; }
+.hero__figure-shadow {
+  left: 50%; top: calc(var(--horizon) + .6vh); width: 1.4vh; height: 14vh; transform: translateX(-50%);
+  background: linear-gradient(rgba(0,0,0,.85), rgba(0,0,0,0)); filter: blur(2px);
+}
+/* fog drifting over the floor, thicker with the bass */
+.hero__fog {
+  left: -20%; right: -20%; top: calc(var(--horizon) - 9%); height: 22%;
+  background: radial-gradient(ellipse 50% 60% at 30% 55%, rgba(170,185,210,.1), transparent 70%),
+              radial-gradient(ellipse 45% 50% at 72% 45%, rgba(170,185,210,.08), transparent 70%);
+  filter: blur(14px); opacity: calc(.6 + .9 * var(--e) * var(--ign));
+  animation: heroFogDrift 38s ease-in-out infinite alternate;
+}
+@keyframes heroFogDrift { to { transform: translateX(7%); } }
+@media (prefers-reduced-motion: reduce) { .hero__fog { animation: none; } }
 
 .hero__scrim {
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(180deg, rgba(10,8,6,0.55) 0%, rgba(10,8,6,0.25) 40%, rgba(10,8,6,0.65) 100%);
+  pointer-events: none;
+  background: radial-gradient(ellipse 120% 90% at 50% 50%, transparent 55%, rgba(0,0,0,.65) 100%);
 }
 
 /* Flows the hero photo into the page background instead of cutting hard. */
 .hero__fade {
   position: absolute;
   left: 0; right: 0; bottom: 0;
-  height: 26vh;
-  min-height: 160px;
+  height: 12vh;
+  min-height: 80px;
   background: linear-gradient(180deg, rgba(0,0,0,0) 0%, var(--paper) 92%);
   pointer-events: none;
 }
@@ -512,10 +441,15 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 
 @media (max-width: 640px) {
   .hero__scroll-hint { display: flex; }
+  .hero { --horizon: 42%; --mono-h: 27vh; }
 }
 
 .hero__content {
-  position: relative;
+  position: absolute;
+  left: 0;
+  right: 0;
+  /* sits on the floor, just under the monolith's horizon */
+  top: calc(var(--horizon) + 4vh);
   z-index: 2;
   text-align: center;
   color: #fff;
@@ -523,7 +457,7 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 }
 
 .hero__eyebrow {
-  margin: 0 0 20px;
+  margin: 0 0 14px;
   color: rgba(255,255,255,0.7);
 }
 
@@ -549,8 +483,8 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 /* Scroll-driven shrink lives on the wrapper; the pulse keyframes stay on
    the img itself so the two transforms don't fight each other. */
 .hero__mark-wrap {
-  width: min(760px, 82vw, 52vh);
-  margin: 0 auto 26px;
+  width: min(250px, 56vw, 24vh);
+  margin: 0 auto 14px;
   will-change: transform;
 }
 
@@ -558,18 +492,8 @@ html[lang="en"] [data-lang="en"] { display: inline; }
   display: block;
   width: 100%;
   height: auto;
-  filter: drop-shadow(0 6px 24px rgba(0,0,0,0.35));
-  animation: heroMarkPulse 4.5s ease-in-out infinite;
-  transform-origin: center;
-}
-
-@keyframes heroMarkPulse {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 6px 24px rgba(0,0,0,0.35)); }
-  50% { transform: scale(1.025); filter: drop-shadow(0 8px 30px rgba(0,0,0,0.4)); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero__mark { animation: none; }
+  /* glows with the bass once the monolith is lit */
+  filter: drop-shadow(0 0 calc(4px + 16px * var(--e) * var(--ign)) rgba(var(--cold), calc(.15 + .5 * var(--e) * var(--ign))));
 }
 
 .hero__line {
@@ -587,22 +511,25 @@ html[lang="en"] [data-lang="en"] { display: inline; }
      nearly disappears on the dark hero photo. */
   color: #ffa479;
   text-shadow: 0 1px 10px rgba(0,0,0,0.55), 0 0 2px rgba(0,0,0,0.4);
-  margin: 0 0 40px;
+  margin: 0 0 22px;
 }
 
-.hero__content .btn {
-  margin-top: clamp(60px, 11vh, 170px);
-}
+.hero__content .btn { margin-top: 0; }
+/* "Jetzt hören" plays the featured track; shows pause while it runs */
+.hero__listen { gap: 10px; }
+.hero__listen-pause { display: none; }
+.hero.is-playing .hero__listen-play { display: none; }
+.hero.is-playing .hero__listen-pause { display: block; }
 
 /* Short viewports (small phones, landscape) squeeze the whole content
    block toward the bottom of the hero photo, crowding the DJ. Shrink
    the block instead of just letting it spill into the photo. */
 @media (max-height: 700px) {
-  .hero__eyebrow { margin-bottom: 12px; }
-  .hero__mark-wrap { width: min(480px, 62vw, 40vh); margin-bottom: 14px; }
-  .hero__line { margin-bottom: 2px; }
-  .hero__slogan { margin-bottom: 22px; }
-  .hero__content .btn { margin-top: clamp(56px, 12vh, 110px); }
+  .hero { --horizon: 44%; --mono-h: 32vh; }
+  .hero__content { top: calc(var(--horizon) + 2.5vh); }
+  .hero__eyebrow { margin-bottom: 8px; }
+  .hero__mark-wrap { width: min(200px, 50vw, 20vh); margin-bottom: 8px; }
+  .hero__slogan { margin-bottom: 14px; }
 }
 
 /* ---------- Button system: one shared family for every page-level CTA ----------
