@@ -747,6 +747,10 @@ html[lang="en"] [data-lang="en"] { display: inline; }
 .deck-host.is-playing .deck__led-glow,
 .deck-host.is-playing .deck__led-on { opacity: 1; }
 
+/* Scratching: the record can be grabbed only while the needle is on it (so the deck never blocks page scrolling otherwise) */
+.deck.is-needle-down .deck__record-hit { pointer-events: auto; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent; }
+.deck.is-needle-down .deck__layer--top { touch-action: none; }
+.deck.is-scratching .deck__record-hit { cursor: grabbing; }
 .deck__pad-hit { pointer-events: auto; cursor: pointer; outline: none; -webkit-tap-highlight-color: transparent; }
 .deck__fader { pointer-events: auto; cursor: ns-resize; outline: none; -webkit-tap-highlight-color: transparent; touch-action: none; }
 .deck__fader:focus-visible .deck__cap rect:first-child { stroke: var(--accent); stroke-opacity: 1; stroke-width: 3; }

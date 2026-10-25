@@ -22,6 +22,8 @@
     AHDeck.pause(audio)  the record winds down: speed and pitch fall over ~1 s,
                          then it pauses (like stopping a real platter)
     AHDeck.isBraking(audio)
+  Scratching: while the needle is on the record it can be grabbed (mouse or finger) and moved
+  back and forth; the sound follows the hand forwards and backwards (scratch engine below).
   The pitch fader (±8 %) changes playbackRate with pitch correction off, so
   speed and pitch move together like on a real deck.
 
@@ -95,6 +97,75 @@
       audio.__ahBraking = false;
       applyRate(audio);
     }, 25);
+  }
+
+  // ---- scratch engine ----
+  // While a hand holds the record the <audio> keeps running muted (so the page's play state
+  // doesn't change) and the sound comes from here instead: the track, decoded once per src
+  // (mono, ~22 kHz to keep memory small on phones), read at whatever speed and direction the
+  // hand moves the record — 200° of record = 1 s of music, like 33⅓ rpm. On release the
+  // <audio> jumps to where the hand left the record and is unmuted.
+  var SCR = { ctx: null, node: null, gain: null, src: '', data: null, rate: 0, loading: '', pos: 0, target: 0, vel: 0, on: false };
+
+  function scratchCtx() {
+    if (SCR.ctx) return SCR.ctx;
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    try { SCR.ctx = new AC({ sampleRate: 22050 }); } catch (e) { try { SCR.ctx = new AC(); } catch (e2) { return null; } }
+    return SCR.ctx;
+  }
+
+  function scratchLoad(src) {
+    if (!src || SCR.src === src || SCR.loading === src) return;
+    var ctx = scratchCtx(); if (!ctx) return;
+    SCR.loading = src;
+    fetch(src).then(function (r) { return r.arrayBuffer(); }).then(function (ab) {
+      return new Promise(function (ok, fail) { var p = ctx.decodeAudioData(ab, ok, fail); if (p && p.then) p.then(ok, fail); });
+    }).then(function (buf) {
+      if (SCR.loading !== src) return;
+      var n = buf.length, mono = new Float32Array(n), chs = buf.numberOfChannels;
+      for (var c = 0; c < chs; c++) { var d = buf.getChannelData(c); for (var i = 0; i < n; i++) mono[i] += d[i] / chs; }
+      SCR.data = mono; SCR.rate = buf.sampleRate; SCR.src = src; SCR.loading = '';
+    }).catch(function () { if (SCR.loading === src) SCR.loading = ''; });
+  }
+
+  function scratchProcess(e) {
+    var out = e.outputBuffer.getChannelData(0), d = SCR.data, sr = SCR.rate, osr = e.outputBuffer.sampleRate;
+    if (!d) { out.fill(0); return; }
+    // playhead chases the hand: velocity toward the target position, smoothed so it sounds like vinyl, not steps
+    var want = (SCR.target - SCR.pos) / 0.035;                    // seconds of music per second
+    want = Math.max(-6, Math.min(6, want));
+    for (var i = 0; i < out.length; i++) {
+      SCR.vel += (want - SCR.vel) * 0.004;
+      SCR.pos += SCR.vel / osr;
+      var f = SCR.pos * sr, k = Math.floor(f), t = f - k;
+      out[i] = (k >= 0 && k + 1 < d.length) ? (d[k] * (1 - t) + d[k + 1] * t) * Math.min(1, Math.abs(SCR.vel) * 1.5) : 0;
+    }
+  }
+
+  function scratchStart(pos) {
+    var ctx = scratchCtx(); if (!ctx) return false;
+    if (ctx.state === 'suspended' && ctx.resume) ctx.resume();
+    if (!SCR.node) {
+      SCR.node = ctx.createScriptProcessor(512, 0, 1);
+      SCR.node.onaudioprocess = scratchProcess;
+      SCR.gain = ctx.createGain();
+      SCR.node.connect(SCR.gain);
+    }
+    SCR.pos = SCR.target = pos; SCR.vel = 0; SCR.on = true;
+    SCR.gain.gain.cancelScheduledValues(ctx.currentTime);
+    SCR.gain.gain.setValueAtTime(1, ctx.currentTime);
+    SCR.gain.connect(ctx.destination);
+    return true;
+  }
+
+  function scratchStop() {
+    if (!SCR.on) return SCR.pos;
+    SCR.on = false;
+    var g = SCR.gain, ctx = SCR.ctx;
+    g.gain.setTargetAtTime(0, ctx.currentTime, 0.008);           // short fade, no click
+    setTimeout(function () { if (!SCR.on) { try { g.disconnect(); } catch (e) {} } }, 80);
+    return SCR.pos;
   }
 
   // circle(P, SLEN) ∩ circle(C, r) — the lower of the two solutions
@@ -248,6 +319,8 @@
     '</defs>' +
     // matte powder-coat texture over the plinth
     '<rect x="22" y="34" width="556" height="532" rx="22" filter="url(#' + id + 'grain)" style="mix-blend-mode:screen"/>' +
+    // grab area for scratching (only takes the pointer while the needle is on the record, see CSS)
+    '<circle class="deck__record-hit" cx="' + cx + '" cy="' + cy + '" r="206" fill="transparent"/>' +
     '<g class="deck__pad-hit" role="button" tabindex="0" aria-label="Play/Pause" aria-pressed="false">' +
       '<rect x="24" y="480" width="92" height="84" fill="transparent"/>' +
       '<rect x="30" y="488" width="76" height="64" rx="4" fill="#050506"/>' +
@@ -277,7 +350,7 @@
     var fader = root.querySelector('.deck__fader'), cap = root.querySelector('.deck__cap');
     var readout = root.querySelector('.deck__pitch-read'), topSvg = root.querySelector('.deck__layer--fader');
     var audio = opts.audio || null;
-    var st = { playing: false, omega: 0, angle: 0, progress: 0, last: 0, raf: 0, liftTimer: 0, armOn: false, parking: false };
+    var st = { playing: false, omega: 0, angle: 0, progress: 0, last: 0, raf: 0, liftTimer: 0, armOn: false, parking: false, held: false };
     var BRAKE_DECEL = 200 / (BRAKE_MS / 1000);   // deg/s²: the platter stops in the same time the sound winds down
 
     function radius() { return R_OUTER - (R_OUTER - R_INNER) * st.progress; }
@@ -285,6 +358,7 @@
 
     function frame(ts) {
       var dt = Math.min(0.05, (ts - st.last) / 1000 || 0); st.last = ts;
+      if (st.held) { st.omega = 0; st.raf = requestAnimationFrame(frame); return; }          // the hand turns the record (see grab)
       if (st.playing) st.omega += (200 * rate() - st.omega) * (1 - Math.exp(-dt / 0.45));   // 33⅓ rpm spin-up
       else st.omega = Math.max(0, st.omega - BRAKE_DECEL * dt);                            // brake to a standstill
       st.angle = (st.angle + st.omega * dt) % 360;
@@ -298,7 +372,7 @@
       st.raf = requestAnimationFrame(frame);
     }
 
-    function needle(down) { st.armOn = down; if (audio) audio.__ahNeedleDown = down; }
+    function needle(down) { st.armOn = down; root.classList.toggle('is-needle-down', down); if (audio) audio.__ahNeedleDown = down; }
 
     // lift the arm and swing it onto the record (outer groove / current position) or back to its rest
     function swingArm(onRecord, instant) {
@@ -318,6 +392,7 @@
     // has braked to a standstill — only then does the arm go back to its rest.
     function setPlaying(p, instant) {
       p = !!p;
+      if (p && audio) scratchLoad(audio.currentSrc || audio.src);   // decode in the background, ready for the first scratch
       if (p === st.playing && !instant) return;
       st.playing = p;
       host.classList.toggle('is-playing', p);
@@ -359,6 +434,51 @@
     pad.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
     });
+
+    // ---- scratching: hold the record and move it back and forth ----
+    var recordHit = root.querySelector('.deck__record-hit'), grab = null;
+    function handAngle(e) {
+      var r = topSvg.getBoundingClientRect();
+      return Math.atan2((e.clientY - r.top) / r.height * 600 - C.y, (e.clientX - r.left) / r.width * 600 - C.x) * 180 / Math.PI;
+    }
+    recordHit.addEventListener('pointerdown', function (e) {
+      if (!st.armOn || !audio || e.button > 0) return;
+      e.preventDefault();
+      try { recordHit.setPointerCapture(e.pointerId); } catch (err) {}
+      var src = audio.currentSrc || audio.src;
+      scratchLoad(src);
+      var live = SCR.src === src && scratchStart(audio.currentTime);   // not decoded yet: the record still stops under the hand, silently
+      grab = { last: handAngle(e), moved: 0, live: live };
+      st.held = true;
+      audio.muted = true;
+      root.classList.add('is-scratching');
+      kick();
+    });
+    recordHit.addEventListener('pointermove', function (e) {
+      if (!grab) return;
+      var a = handAngle(e), d = a - grab.last;
+      if (d > 180) d -= 360; else if (d < -180) d += 360;          // across the ±180° seam
+      grab.last = a; grab.moved += d;
+      st.angle = (st.angle + d + 360) % 360;
+      spinEl.style.transform = 'rotate(' + st.angle.toFixed(2) + 'deg)';
+      if (grab.live) SCR.target = Math.max(0, Math.min(audio.duration || 1e9, SCR.target + d / 200));
+    });
+    function release() {
+      if (!grab) return;
+      var g = grab; grab = null;
+      st.held = false;
+      root.classList.remove('is-scratching');
+      var pos = g.live ? scratchStop() : audio.currentTime;
+      if (g.live) { try { audio.currentTime = Math.max(0, Math.min((audio.duration || pos) - 0.05, pos)); } catch (err) {} }
+      if (st.armOn && !audio.__ahBraking) audio.muted = false;
+      st.omega = st.playing ? 200 * rate() : 0;                   // let go: the motor has it again at once
+      kick();
+    }
+    recordHit.addEventListener('pointerup', release);
+    recordHit.addEventListener('pointercancel', release);
+    recordHit.addEventListener('lostpointercapture', release);
+    // iOS: keep the page from scrolling while a finger holds the record
+    recordHit.addEventListener('touchstart', function (e) { if (st.armOn) e.preventDefault(); }, { passive: false });
 
     // ---- pitch fader: drag, wheel-free; double-click or 0 resets; arrows nudge ----
     var CAP_CENTER = 431, CAP_TRAVEL = 70;          // viewBox units; top = -8 % (slower), bottom = +8 % (faster)
