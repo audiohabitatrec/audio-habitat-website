@@ -27,6 +27,7 @@ var DEFAULT_COVER = "assets/covers/cover-singles.webp";
 // not "4reasons"), so these have to be pasted in by hand, one at a time.
 var RELEASES = [
   { type: "single", title: "Placeholder", cover: "assets/covers/placeholder.webp", isNew: true,
+    hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/placeholder?ref=release",
     subgenre: "Neurofunk", bpm: 174, page: "music/placeholder/", date: "26.10.2026",
     tracks: [{ title: "Placeholder", file: "assets/tracks/placeholder.m4a", wav: "assets/tracks/placeholder.wav" }] },
   { type: "single", title: "not done yet", cover: "assets/covers/not-done-yet.webp",
