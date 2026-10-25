@@ -487,6 +487,7 @@
         var ul = document.createElement('ul');
         group.releases.forEach(function (release) {
           var li = document.createElement('li');
+          if (!release.url) { li.textContent = release.title; ul.appendChild(li); return; }   // not available online: just the title
           var a = document.createElement('a');
           a.href = release.url;
           a.target = '_blank';

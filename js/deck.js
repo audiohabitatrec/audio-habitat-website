@@ -117,6 +117,19 @@
     return SCR.ctx;
   }
 
+  // Browsers (iOS Safari above all) only let an audio context start inside a tap/click that has
+  // ended — a finger landing on the record (pointerdown) doesn't count, so scratching stayed
+  // silent on phones. Unlock it on the first touchend/click anywhere (pressing play is one),
+  // with a silent sample for iOS, and make it play even with the silent switch on.
+  function scratchUnlock() {
+    var ctx = scratchCtx();
+    if (!ctx || ctx.state === 'running') return;
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+    if (ctx.resume) ctx.resume();
+    try { var b = ctx.createBufferSource(); b.buffer = ctx.createBuffer(1, 1, ctx.sampleRate); b.connect(ctx.destination); b.start(0); } catch (e) {}
+  }
+  ['touchend', 'click', 'keydown'].forEach(function (t) { document.addEventListener(t, scratchUnlock, true); });
+
   function scratchLoad(src) {
     if (!src || SCR.src === src || SCR.loading === src) return;
     var ctx = scratchCtx(); if (!ctx) return;

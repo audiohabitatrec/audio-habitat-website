@@ -27,11 +27,10 @@
     grid.className = 'discog-grid';
 
     group.releases.forEach(function (release) {
-      var a = document.createElement('a');
+      // no url: the release isn't available online any more — a plain card, not a dead link
+      var a = document.createElement(release.url ? 'a' : 'div');
       a.className = 'discog-card';
-      a.href = release.url;
-      a.target = '_blank';
-      a.rel = 'noopener';
+      if (release.url) { a.href = release.url; a.target = '_blank'; a.rel = 'noopener'; }
 
       var coverInner = coverMarkup(release.cover, release.title);
 
@@ -39,11 +38,11 @@
         '<div class="cover-wrap discog-card__cover">' +
           '<div class="cover-disc">' +
             coverInner +
-            '<div class="cover-disc__overlay">' + ICONS.external + '</div>' +
+            (release.url ? '<div class="cover-disc__overlay">' + ICONS.external + '</div>' : '') +
           '</div>' +
         '</div>' +
         '<div class="discog-card__title">' + release.title + '</div>' +
-        '<div class="discog-card__source">' + release.source + '</div>';
+        '<div class="discog-card__source">' + (release.source || '') + '</div>';
 
       var disc = a.querySelector('.cover-disc');
       function setOn(on) {
