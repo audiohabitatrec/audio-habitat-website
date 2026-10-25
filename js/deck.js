@@ -54,11 +54,22 @@
   var pitch = 0;          // current fader position in percent (+ = faster)
 
   function rate() { return 1 + pitch / 100; }
-  function turntableSpeed(a) { a.preservesPitch = false; a.mozPreservesPitch = false; a.webkitPreservesPitch = false; }
+  // Each change of playbackRate / preservesPitch makes mobile browsers rebuild their audio
+  // output, which is heard as a dropout — so set pitch correction off only once, and the rate
+  // only when it actually changes.
+  function turntableSpeed(a) {
+    if (a.__ahTT) return;
+    a.preservesPitch = false; a.mozPreservesPitch = false; a.webkitPreservesPitch = false;
+    a.__ahTT = true;
+  }
   function applyRate(a) {
     if (!a || a.__ahBraking) return;
-    try { a.defaultPlaybackRate = rate(); a.playbackRate = rate(); } catch (e) {}
     turntableSpeed(a);
+    var r = rate();
+    try {
+      if (Math.abs(a.playbackRate - r) > 1e-4) a.playbackRate = r;
+      if (a.paused && Math.abs(a.defaultPlaybackRate - r) > 1e-4) a.defaultPlaybackRate = r;
+    } catch (e) {}
   }
 
   // Silence the track without pausing it. `muted` alone isn't enough: once a page routes the
@@ -563,8 +574,19 @@
       readout.textContent = txt;
       fader.setAttribute('aria-valuenow', p);
       fader.setAttribute('aria-valuetext', txt.replace('−', 'minus '));
-      if (audio) applyRate(audio);
+      scheduleRate();
       kick();
+    }
+    // The cap and readout follow the finger at once; the sound changes speed at most ~6× a
+    // second while dragging (each change costs mobile browsers a tiny dropout) and lands on the
+    // exact value when the fader is let go.
+    var RATE_EVERY = 160, rateLast = 0, rateTimer = 0;
+    function flushRate() { clearTimeout(rateTimer); rateTimer = 0; rateLast = Date.now(); if (audio) applyRate(audio); }
+    function scheduleRate() {
+      if (!audio) return;
+      var wait = RATE_EVERY - (Date.now() - rateLast);
+      if (wait <= 0) flushRate();
+      else if (!rateTimer) rateTimer = setTimeout(flushRate, wait);
     }
     function pitchFromEvent(e) {
       var r = topSvg.getBoundingClientRect();
@@ -579,10 +601,12 @@
       setPitch(pitchFromEvent(e));
     });
     fader.addEventListener('pointermove', function (e) { if (dragging) setPitch(pitchFromEvent(e)); });
-    function endDrag() { dragging = false; }
+    function endDrag() { if (dragging) flushRate(); dragging = false; }
     fader.addEventListener('pointerup', endDrag);
     fader.addEventListener('pointercancel', endDrag);
-    fader.addEventListener('dblclick', function () { setPitch(0); });
+    fader.addEventListener('dblclick', function () { setPitch(0); flushRate(); });
+    // iOS: a vertical drag on the fader must not turn into page scrolling (that cancels the drag)
+    fader.addEventListener('touchstart', function (e) { e.preventDefault(); }, { passive: false });
     fader.addEventListener('keydown', function (e) {
       var d = { ArrowUp: -0.5, ArrowLeft: -0.5, ArrowDown: 0.5, ArrowRight: 0.5 }[e.key];   // follows the cap: up = slower
       if (d !== undefined) { e.preventDefault(); setPitch(pitch + d); }
