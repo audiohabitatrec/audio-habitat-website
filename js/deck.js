@@ -43,7 +43,8 @@
   var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var uid = 0;
 
-  var DROP_MS = 1100;     // tonearm swing: the sound starts when the needle has landed
+  var SWING_MS = 1150;    // tonearm swing on/off the record (matches the CSS transition)
+  var DROP_MS = 1300;     // the sound starts only once the needle sits in the groove (swing + a moment to settle)
   var BRAKE_MS = 950;     // how long the record takes to wind down on stop
   var PITCH_RANGE = 8;    // ± percent
   var pitch = 0;          // current fader position in percent (+ = faster)
@@ -63,7 +64,8 @@
     audio.__ahToken = (audio.__ahToken || 0) + 1;
     var token = audio.__ahToken;
     if (resumed) { audio.dispatchEvent(new Event('play')); }          // lets the page re-light its buttons and lower the arm again
-    if (reduceMotion || instant || !audio.paused) { audio.muted = false; return audio.play(); }   // instant: arm is already on the record (track change)
+    // instant: the needle is already in the groove (track change, or play pressed again before the arm went back)
+    if (reduceMotion || instant || audio.__ahNeedleDown || !audio.paused) { audio.muted = false; return audio.play(); }
     var t0 = audio.currentTime;
     audio.muted = true;                    // starts inside the user's click (required), but silent until the arm has landed
     var p = audio.play();
@@ -275,18 +277,20 @@
     var fader = root.querySelector('.deck__fader'), cap = root.querySelector('.deck__cap');
     var readout = root.querySelector('.deck__pitch-read'), topSvg = root.querySelector('.deck__layer--fader');
     var audio = opts.audio || null;
-    var st = { playing: false, omega: 0, angle: 0, progress: 0, last: 0, raf: 0, liftTimer: 0 };
+    var st = { playing: false, omega: 0, angle: 0, progress: 0, last: 0, raf: 0, liftTimer: 0, armOn: false, parking: false };
+    var BRAKE_DECEL = 200 / (BRAKE_MS / 1000);   // deg/s²: the platter stops in the same time the sound winds down
 
     function radius() { return R_OUTER - (R_OUTER - R_INNER) * st.progress; }
     function armTo(r) { armEl.style.transform = 'rotate(' + armAngle(r).toFixed(2) + 'deg)'; }
 
     function frame(ts) {
       var dt = Math.min(0.05, (ts - st.last) / 1000 || 0); st.last = ts;
-      var target = st.playing ? 200 * rate() : 0, tau = st.playing ? 0.45 : 0.9;     // 33⅓ rpm; spin-up / coast-down
-      st.omega += (target - st.omega) * (1 - Math.exp(-dt / tau));
+      if (st.playing) st.omega += (200 * rate() - st.omega) * (1 - Math.exp(-dt / 0.45));   // 33⅓ rpm spin-up
+      else st.omega = Math.max(0, st.omega - BRAKE_DECEL * dt);                            // brake to a standstill
       st.angle = (st.angle + st.omega * dt) % 360;
       spinEl.style.transform = 'rotate(' + st.angle.toFixed(2) + 'deg)';
-      st.raf = (st.playing || st.omega > 0.4) ? requestAnimationFrame(frame) : 0;
+      if (!st.playing && st.omega === 0 && st.parking) { st.parking = false; swingArm(false); }   // platter stands: now the arm goes back
+      st.raf = (st.playing || st.omega > 0) ? requestAnimationFrame(frame) : 0;
     }
     function kick() {
       if (reduceMotion || st.raf) return;
@@ -294,20 +298,39 @@
       st.raf = requestAnimationFrame(frame);
     }
 
+    function needle(down) { st.armOn = down; if (audio) audio.__ahNeedleDown = down; }
+
+    // lift the arm and swing it onto the record (outer groove / current position) or back to its rest
+    function swingArm(onRecord, instant) {
+      root.classList.remove('is-tracking');
+      root.classList.add('is-lifting');
+      clearTimeout(st.liftTimer);
+      if (!onRecord) needle(false);                  // lifted off the record right away
+      st.liftTimer = setTimeout(function () {
+        root.classList.remove('is-lifting');
+        if (onRecord) { needle(true); root.classList.add('is-tracking'); }
+      }, instant || reduceMotion ? 0 : SWING_MS);
+      armTo(onRecord ? radius() : R_REST);
+    }
+
+    // Play: the arm swings onto the record (the sound waits for it, see dropPlay).
+    // Stop: the motor is off at once, but the needle stays in the groove until the platter
+    // has braked to a standstill — only then does the arm go back to its rest.
     function setPlaying(p, instant) {
       p = !!p;
       if (p === st.playing && !instant) return;
       st.playing = p;
       host.classList.toggle('is-playing', p);
       pad.setAttribute('aria-pressed', String(p));
-      root.classList.remove('is-tracking');
-      root.classList.add('is-lifting');
-      clearTimeout(st.liftTimer);
-      st.liftTimer = setTimeout(function () {
-        root.classList.remove('is-lifting');
-        if (st.playing) root.classList.add('is-tracking');
-      }, instant || reduceMotion ? 0 : 1150);
-      armTo(p ? radius() : R_REST);
+      if (p) {
+        st.parking = false;
+        if (!st.armOn || instant) swingArm(true, instant);   // still on the record from the last stop: stays there
+      } else if (instant || reduceMotion || !st.armOn || st.omega === 0) {
+        st.parking = false;
+        swingArm(false, instant);
+      } else {
+        st.parking = true;                           // frame() sends the arm back once the platter stands
+      }
       kick();
     }
 
@@ -385,6 +408,7 @@
     setCover(opts.cover || (seedImg && (seedImg.currentSrc || seedImg.src)));
     setLabel(opts.label || '');
     armTo(R_REST);
+    needle(false);
     if (opts.glow) setGlow(opts.glow);
 
     return { setPlaying: setPlaying, setProgress: setProgress, setCover: setCover, setLabel: setLabel, setGlow: setGlow, setPitch: setPitch, getPitch: function () { return pitch; }, isPlaying: function () { return st.playing; } };
