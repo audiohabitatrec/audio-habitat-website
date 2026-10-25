@@ -80,12 +80,23 @@
 
   // ---- canvas ----
   var W = 0, H = 0, horizonY = 0;
+  // The man in the photo stands in front of the monolith, so the signal, rings and dust pass
+  // behind him: his silhouette (cut from the photo, soft edge) is erased from the canvas.
+  var photo = hero.querySelector('.hero__photo'), PHOTO_HORIZON = .792;
+  var MAN = [.484375, .73289, .022693, .113158];                           // x, y, w, h as fractions of the photo
+  var man = null, manMask = new Image();
+  manMask.src = 'data:image/png;base64,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';
   function size() {
     var dpr = Math.min(2, window.devicePixelRatio || 1);
     W = canvas.clientWidth; H = canvas.clientHeight;
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     horizonY = H * parseFloat(getComputedStyle(hero).getPropertyValue('--horizon')) / 100;
+    // where the man stands in the photo, in canvas coordinates (the photo's horizon sits on ours)
+    if (photo) {
+      var pw = photo.offsetWidth, ph = photo.offsetHeight, pl = W / 2 - pw / 2, pt = horizonY - ph * PHOTO_HORIZON;
+      man = { x: pl + pw * MAN[0], y: pt + ph * MAN[1], w: pw * MAN[2], h: ph * MAN[3] };
+    }
   }
   window.addEventListener('resize', size);
   size();
@@ -179,6 +190,12 @@
       var a = (.08 + .5 * near * ign) * (.6 + .4 * Math.sin(t * 2 + m.tw)) * (1 + Math.min(1, hi) * 1.5);
       g.fillStyle = 'rgba(220,232,255,' + Math.min(.9, a).toFixed(3) + ')';
       g.beginPath(); g.arc(px, py, m.s, 0, Math.PI * 2); g.fill();
+    }
+
+    if (man && manMask.complete) {
+      g.globalCompositeOperation = 'destination-out';
+      g.drawImage(manMask, man.x, man.y, man.w, man.h);
+      g.globalCompositeOperation = 'source-over';
     }
     run();
   }
