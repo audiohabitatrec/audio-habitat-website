@@ -1,7 +1,7 @@
 /*
   Painted turntable for the "Jetzt läuft" player and the release pages.
 
-  AHDeck.mount(hostEl, { label, onToggle }) draws a silver deck into hostEl and
+  AHDeck.mount(hostEl, { label, onToggle }) draws a matte black DJ-style deck into hostEl and
   returns a small controller:
 
     setPlaying(bool)    tonearm swings onto the record / back to its rest, the
@@ -28,7 +28,7 @@
   Layers (each its own <svg>, same 600x600 viewBox) so the spinning record and
   the swinging arm are moved with CSS transforms on the GPU instead of
   repainting one big SVG every frame:
-      base (body, platter housing, fader, LED, pivot) · spin (record + label) ·
+      base (body, platter rim, knobs, keys, fader slot, arm base) · spin (strobe dots, slipmat, label) ·
       glare + spindle · arm · top (start/stop pad, grain)
   The pad is the keyboard-focusable play/pause control (role="button").
 */
@@ -120,54 +120,67 @@
     var cx = C.x, cy = C.y;
 
     // ---- base (static) ----
+    // Matte black direct-drive deck in the style of the classic DJ turntable: no brand, no printed labels
     var base = '<defs>' +
-      '<linearGradient id="' + id + 'body" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3e5e9"/><stop offset=".55" stop-color="#c3c7ce"/><stop offset="1" stop-color="#a3a8b1"/></linearGradient>' +
-      '<linearGradient id="' + id + 'rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f1f2f4"/><stop offset="1" stop-color="#8c919a"/></linearGradient>' +
-      '<linearGradient id="' + id + 'metal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9aa0a9"/><stop offset=".35" stop-color="#f4f5f7"/><stop offset=".7" stop-color="#b8bdc5"/><stop offset="1" stop-color="#808690"/></linearGradient>' +
-      '<radialGradient id="' + id + 'platter" cx=".5" cy=".5" r=".5"><stop offset=".86" stop-color="#2a2d33"/><stop offset="1" stop-color="#14161a"/></radialGradient>' +
-      '<radialGradient id="' + id + 'glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff8a4d" stop-opacity=".9"/><stop offset="1" stop-color="#ff8a4d" stop-opacity="0"/></radialGradient>' +
+      '<linearGradient id="' + id + 'body" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a2b2f"/><stop offset=".45" stop-color="#1c1d20"/><stop offset="1" stop-color="#121315"/></linearGradient>' +
+      '<linearGradient id="' + id + 'rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3f4f6"/><stop offset=".3" stop-color="#b9bdc4"/><stop offset=".55" stop-color="#e6e8eb"/><stop offset=".8" stop-color="#8f949c"/><stop offset="1" stop-color="#c9ccd1"/></linearGradient>' +
+      '<linearGradient id="' + id + 'knob" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a4c52"/><stop offset=".5" stop-color="#1d1e21"/><stop offset="1" stop-color="#0b0b0c"/></linearGradient>' +
+      '<radialGradient id="' + id + 'glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff3b2f" stop-opacity=".95"/><stop offset="1" stop-color="#ff3b2f" stop-opacity="0"/></radialGradient>' +
       '<filter id="' + id + 'soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="14"/></filter>' +
     '</defs>' +
-    '<rect x="34" y="52" width="548" height="530" rx="30" fill="#000" opacity=".28" filter="url(#' + id + 'soft)"/>' +
-    '<rect x="22" y="34" width="556" height="532" rx="30" fill="url(#' + id + 'body)"/>' +
-    '<rect x="22.5" y="34.5" width="555" height="531" rx="29.5" fill="none" stroke="#fff" stroke-opacity=".75"/>' +
-    '<ellipse cx="170" cy="80" rx="190" ry="46" fill="#fff" opacity=".35" filter="url(#' + id + 'soft)"/>' +
-    '<circle cx="' + cx + '" cy="' + cy + '" r="238" fill="url(#' + id + 'rim)"/>' +
-    '<circle cx="' + cx + '" cy="' + cy + '" r="231" fill="url(#' + id + 'platter)"/>' +
-    // 33/45 + LED
-    // quartz LED sits above the 33 key, clear of the platter rim
-    '<circle class="deck__led-glow" cx="165" cy="526" r="17" fill="url(#' + id + 'glow)"/>' +
-    '<circle cx="165" cy="526" r="4.5" fill="#53433a"/><circle class="deck__led-on" cx="165" cy="526" r="4.5" fill="#ff7a3d"/>' +
-    // 33 / 45 rpm keys: below the platter rim (its edge is at y≈536 here), right of the start/stop pad
-    '<rect x="150" y="538" width="30" height="18" rx="5" fill="#20232a"/><rect x="150.5" y="538.5" width="29" height="17" rx="4.5" fill="none" stroke="#fff" stroke-opacity=".18"/>' +
-    '<text x="165" y="550.4" font-size="9.5" font-family="Helvetica,Arial,sans-serif" font-weight="700" fill="#eceff3" text-anchor="middle">33</text>' +
-    '<rect x="186" y="538" width="30" height="18" rx="5" fill="#d3d7dd" stroke="#8c919a" stroke-opacity=".75"/>' +
-    '<text x="201" y="550.4" font-size="9.5" font-family="Helvetica,Arial,sans-serif" font-weight="700" fill="#5a5f68" text-anchor="middle">45</text>' +
-    // pitch fader
-    '<rect x="540" y="338" width="14" height="186" rx="7" fill="#20232a"/>' + (function () {
-      var t = ''; for (var i = 0; i <= 10; i++) t += '<rect x="560" y="' + (342 + i * 17.6).toFixed(1) + '" width="' + (i % 5 === 0 ? 14 : 8) + '" height="1.4" fill="#5d626b"/>'; return t;
+    '<rect x="34" y="52" width="548" height="530" rx="22" fill="#000" opacity=".45" filter="url(#' + id + 'soft)"/>' +
+    '<rect x="22" y="34" width="556" height="532" rx="22" fill="url(#' + id + 'body)"/>' +
+    '<rect x="22.5" y="34.5" width="555" height="531" rx="21.5" fill="none" stroke="#fff" stroke-opacity=".14"/>' +
+    '<ellipse cx="200" cy="70" rx="220" ry="40" fill="#fff" opacity=".05" filter="url(#' + id + 'soft)"/>' +
+    // platter: silver rim (static highlight; its strobe dots turn in the spin layer) sunk into the plinth
+    '<circle cx="' + cx + '" cy="' + cy + '" r="241" fill="#08090a"/>' +
+    '<circle cx="' + cx + '" cy="' + cy + '" r="237" fill="url(#' + id + 'rim)"/>' +
+    // 45 adapter (top left) and a small dimple top right of the platter
+    '<circle cx="62" cy="74" r="22" fill="#0b0b0c"/><circle cx="62" cy="74" r="19" fill="url(#' + id + 'knob)"/><circle cx="62" cy="74" r="19" fill="none" stroke="#fff" stroke-opacity=".12"/><circle cx="62" cy="74" r="6" fill="#0d0d0e"/>' +
+    '<circle cx="420" cy="74" r="7" fill="#0b0b0c"/><circle cx="420" cy="74" r="5" fill="#26272b"/>' +
+    // power / strobe knob with its red ring, and the strobe light falling on the platter rim
+    '<circle class="deck__led-glow" cx="80" cy="436" r="34" fill="url(#' + id + 'glow)" style="mix-blend-mode:screen"/>' +
+    '<circle cx="50" cy="458" r="18" fill="#0b0b0c"/><circle cx="50" cy="458" r="16" fill="#3a1714"/><circle class="deck__led-on" cx="50" cy="458" r="16" fill="#e2261b"/>' +
+    '<circle cx="50" cy="458" r="12.5" fill="url(#' + id + 'knob)"/><rect x="49" y="447" width="2" height="7" rx="1" fill="#d7d9dc"/>' +
+    // 33 / 45 keys with the speed LED between them (the LED lights while playing)
+    '<rect x="116" y="546" width="38" height="11" rx="2" fill="#0d0d0e" stroke="#fff" stroke-opacity=".14"/>' +
+    '<rect x="178" y="546" width="38" height="11" rx="2" fill="#0d0d0e" stroke="#fff" stroke-opacity=".14"/>' +
+    '<rect x="160" y="549.5" width="12" height="4" rx="1" fill="#3a1714"/><rect class="deck__led-on" x="160" y="549.5" width="12" height="4" rx="1" fill="#ff3b2f"/>' +
+    // pitch: readout window under the fader (clear of the arm at every angle), reset button, fader slot with tick marks
+    '<rect x="522" y="535" width="50" height="21" rx="3" fill="#060607" stroke="#fff" stroke-opacity=".16"/>' +
+    '<circle cx="497" cy="462" r="11" fill="#0b0b0c"/><circle cx="497" cy="462" r="9" fill="url(#' + id + 'knob)"/>' +
+    '<rect x="538" y="334" width="18" height="194" rx="3" fill="#060607" stroke="#fff" stroke-opacity=".12"/><rect x="545" y="340" width="4" height="182" rx="2" fill="#000"/>' + (function () {
+      var t = ''; for (var i = 0; i <= 16; i++) t += '<rect x="' + (i % 4 === 0 ? 522 : 526) + '" y="' + (360.6 + i * 8.8).toFixed(1) + '" width="' + (i % 4 === 0 ? 11 : 7) + '" height="1.2" fill="#8a8d93" fill-opacity=".7"/>'; return t;
     })() +
-    '<text x="528" y="352" font-size="13" font-family="Helvetica,Arial,sans-serif" font-weight="700" fill="#5d626b" text-anchor="middle">−</text>' +
-    '<text x="528" y="523" font-size="13" font-family="Helvetica,Arial,sans-serif" font-weight="700" fill="#5d626b" text-anchor="middle">+</text>' +
+    '<circle cx="518" cy="431" r="2.4" fill="#e2261b"/>' +
     // arm rest post (placed where the parked arm lies)
     (function () {
       var a = armAngle(R_REST), rad = a * Math.PI / 180;
       var x = P.x + Math.cos(rad) * 205, y = P.y + Math.sin(rad) * 205;
-      return '<g transform="translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') rotate(' + (a + 90).toFixed(1) + ')"><rect x="-10" y="-5" width="20" height="10" rx="4" fill="#2a2d33"/></g>';
+      return '<g transform="translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') rotate(' + (a + 90).toFixed(1) + ')"><rect x="-12" y="-6" width="24" height="12" rx="4" fill="#060607"/><rect x="-9" y="-3" width="18" height="6" rx="3" fill="#2a2b2f"/></g>';
     })() +
-    // pivot base
-    '<circle cx="' + P.x + '" cy="' + P.y + '" r="46" fill="url(#' + id + 'rim)"/><circle cx="' + P.x + '" cy="' + P.y + '" r="36" fill="#d4d7dc"/>';
+    // tonearm base: round black housing with its anti-skate dial
+    '<circle cx="' + P.x + '" cy="' + P.y + '" r="47" fill="#060607"/><circle cx="' + P.x + '" cy="' + P.y + '" r="44" fill="url(#' + id + 'knob)"/>' +
+    '<circle cx="' + P.x + '" cy="' + P.y + '" r="44" fill="none" stroke="#fff" stroke-opacity=".1"/><circle cx="' + P.x + '" cy="' + P.y + '" r="30" fill="#0d0d0e" stroke="#fff" stroke-opacity=".08"/>' +
+    '<circle cx="' + (P.x + 32) + '" cy="' + (P.y + 40) + '" r="9" fill="#0b0b0c"/><circle cx="' + (P.x + 32) + '" cy="' + (P.y + 40) + '" r="7" fill="url(#' + id + 'knob)" stroke="#fff" stroke-opacity=".25"/>';
 
-    // ---- spin (record, strobe ring, plain handwritten label) ----
-    var spin = '<defs><clipPath id="' + id + 'rec"><circle cx="' + cx + '" cy="' + cy + '" r="190"/></clipPath></defs>' +
-      '<circle cx="' + cx + '" cy="' + cy + '" r="226" fill="#1b1d22"/>';
-    for (var i = 0; i < 90; i++) {
-      var a = i / 90 * Math.PI * 2;
-      spin += '<circle cx="' + (cx + Math.cos(a) * 213).toFixed(1) + '" cy="' + (cy + Math.sin(a) * 213).toFixed(1) + '" r="' + (i % 3 === 0 ? 2.1 : 1.4) + '" fill="#9a9fa8" fill-opacity=".85"/>';
-    }
-    spin += '<circle cx="' + cx + '" cy="' + cy + '" r="198" fill="#0e0f12"/><g clip-path="url(#' + id + 'rec)">';
-    for (var r = 76; r < 192; r += 4.5) spin += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="#fff" stroke-opacity="' + (r % 18 < 4.5 ? .11 : .045) + '" stroke-width=".9"/>';
-    spin += '<circle cx="' + cx + '" cy="' + cy + '" r="168" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3"/></g>' +
+    // ---- spin (strobe dots on the platter rim, black felt slipmat, cover label) ----
+    var spin = '<defs><clipPath id="' + id + 'rec"><circle cx="' + cx + '" cy="' + cy + '" r="200"/></clipPath>' +
+      '<filter id="' + id + 'felt" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="9"/><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .07 0"/><feComposite operator="in" in2="SourceGraphic"/></filter></defs>';
+    // four rows of strobe dots, alternating large/small like the real platter edge
+    [[232, 1.5, 168], [225.5, 1.9, 168], [219, 1.5, 168], [212.5, 1.9, 168]].forEach(function (row, k) {
+      for (var i = 0; i < row[2]; i++) {
+        var a = (i + (k % 2) * 0.5) / row[2] * Math.PI * 2;
+        spin += '<circle cx="' + (cx + Math.cos(a) * row[0]).toFixed(1) + '" cy="' + (cy + Math.sin(a) * row[0]).toFixed(1) + '" r="' + row[1] + '" fill="#2b2d31" fill-opacity=".8"/>';
+      }
+    });
+    spin += '<circle cx="' + cx + '" cy="' + cy + '" r="206" fill="#0a0a0b"/>' +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="203" fill="#141517"/>' +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="203" filter="url(#' + id + 'felt)"/><g clip-path="url(#' + id + 'rec)">';
+    for (var r = 76; r < 196; r += 4.5) spin += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="#fff" stroke-opacity="' + (r % 18 < 4.5 ? .045 : .02) + '" stroke-width=".9"/>';
+    spin += '</g>' +
+      // the slipmat's thin silver ring
+      '<circle cx="' + cx + '" cy="' + cy + '" r="186" fill="none" stroke="#a7abb2" stroke-opacity=".55" stroke-width="1.6"/>' +
       // label = the cover (cream circle underneath as a fallback while it loads)
       '<circle cx="' + cx + '" cy="' + cy + '" r="68" fill="#efe9dd"/>' +
       '<clipPath id="' + id + 'lbl"><circle cx="' + cx + '" cy="' + cy + '" r="68"/></clipPath>' +
@@ -176,9 +189,9 @@
 
     // ---- glare (fixed while the record turns) + spindle ----
     var glare = '<defs>' +
-      '<radialGradient id="' + id + 'sheen" gradientUnits="userSpaceOnUse" cx="' + cx + '" cy="' + cy + '" r="200"><stop offset=".12" stop-color="#fff" stop-opacity="0"/><stop offset=".55" stop-color="#fff" stop-opacity=".2"/><stop offset="1" stop-color="#fff" stop-opacity=".02"/></radialGradient>' +
+      '<radialGradient id="' + id + 'sheen" gradientUnits="userSpaceOnUse" cx="' + cx + '" cy="' + cy + '" r="200"><stop offset=".12" stop-color="#fff" stop-opacity="0"/><stop offset=".55" stop-color="#fff" stop-opacity=".09"/><stop offset="1" stop-color="#fff" stop-opacity=".02"/></radialGradient>' +
       '<filter id="' + id + 'blur" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="9"/></filter>' +
-      '<clipPath id="' + id + 'rec2"><circle cx="' + cx + '" cy="' + cy + '" r="190"/></clipPath>' +
+      '<clipPath id="' + id + 'rec2"><circle cx="' + cx + '" cy="' + cy + '" r="203"/></clipPath>' +
       '<linearGradient id="' + id + 'metal2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9aa0a9"/><stop offset=".35" stop-color="#f4f5f7"/><stop offset=".7" stop-color="#b8bdc5"/><stop offset="1" stop-color="#808690"/></linearGradient>' +
     '</defs>' +
     '<g clip-path="url(#' + id + 'rec2)"><g filter="url(#' + id + 'blur)" style="mix-blend-mode:screen">' + (function () {
@@ -196,37 +209,49 @@
       '<radialGradient id="' + id + 'spot" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffb27d" stop-opacity=".95"/><stop offset=".45" stop-color="#e0703f" stop-opacity=".38"/><stop offset="1" stop-color="#e0703f" stop-opacity="0"/></radialGradient>' +
     '</defs><g transform="translate(' + P.x + ' ' + P.y + ')">' +
       '<circle class="deck__spot" cx="' + STYLUS.x + '" cy="' + STYLUS.y + '" r="52" fill="url(#' + id + 'spot)"/>' +
-      '<rect x="-100" y="-18" width="62" height="36" rx="8" fill="#23262c"/><rect x="-100" y="-18" width="62" height="36" rx="8" fill="none" stroke="#fff" stroke-opacity=".18"/><rect x="-86" y="-18" width="5" height="36" fill="#9aa0a9"/><rect x="-62" y="-18" width="5" height="36" fill="#9aa0a9"/>' +
+      '<linearGradient id="' + id + 'cyl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8d929a"/><stop offset=".3" stop-color="#f6f7f8"/><stop offset=".62" stop-color="#b3b8bf"/><stop offset="1" stop-color="#6f747c"/></linearGradient>' +
+      // counterweight: silver cylinder with a black ring, on the arm's rear stub
+      '<rect x="-108" y="-5" width="70" height="10" fill="#26272b"/>' +
+      '<rect x="-104" y="-19" width="56" height="38" rx="5" fill="url(#' + id + 'cyl)" stroke="#fff" stroke-opacity=".35"/>' +
+      '<rect x="-70" y="-19.5" width="9" height="39" fill="#111214"/><rect x="-104" y="-19" width="4" height="38" rx="2" fill="#000" fill-opacity=".25"/>' +
       '<path d="M-40 0 L212 0 C242 0 266 12 284 31" fill="none" stroke="#7d828b" stroke-width="13" stroke-linecap="round"/>' +
       '<path d="M-40 0 L212 0 C242 0 266 12 284 31" fill="none" stroke="url(#' + id + 'metal3)" stroke-width="9" stroke-linecap="round"/>' +
-      '<g transform="translate(284 31) rotate(38)"><rect x="-6" y="-11" width="42" height="22" rx="5" fill="#1b1d22"/><rect x="2" y="-11" width="6" height="22" fill="#e0703f"/><rect x="26" y="-7" width="10" height="14" rx="2" fill="#3a3e46"/></g>' +
+      // headshell: silver plate with three holes and a finger lift, cartridge tip peeking out
+      '<g transform="translate(284 31) rotate(38)">' +
+        '<path d="M6 12 L13 27" stroke="url(#' + id + 'cyl)" stroke-width="3.4" stroke-linecap="round"/>' +
+        '<rect x="30" y="-6" width="12" height="12" rx="2" fill="#141517"/>' +
+        '<path d="M-6 -9 Q-6 -12 -3 -12 L34 -11 Q38 -11 38 -7 L38 7 Q38 11 34 11 L-3 12 Q-6 12 -6 9 Z" fill="url(#' + id + 'cyl)" stroke="#fff" stroke-opacity=".5"/>' +
+        '<circle cx="9" cy="0" r="2.6" fill="#26272b"/><circle cx="18" cy="0" r="2.6" fill="#26272b"/><circle cx="27" cy="0" r="2.6" fill="#26272b"/>' +
+      '</g>' +
       '<circle cx="' + STYLUS.x + '" cy="' + STYLUS.y + '" r="2.2" fill="#fff"/>' +
-      '<circle cx="0" cy="0" r="22" fill="url(#' + id + 'metal3)" stroke="#fff" stroke-opacity=".5"/><circle cx="0" cy="0" r="9" fill="#4b4f57"/>' +
+      '<circle cx="0" cy="0" r="22" fill="url(#' + id + 'metal3)" stroke="#fff" stroke-opacity=".5"/><circle cx="0" cy="0" r="13" fill="#141517"/><circle cx="0" cy="0" r="5" fill="url(#' + id + 'metal3)"/>' +
     '</g>';
 
     // ---- pitch fader: its own layer *under* the tonearm, so the arm always passes over it ----
-    var fader = '<defs><linearGradient id="' + id + 'metal5" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9aa0a9"/><stop offset=".35" stop-color="#f4f5f7"/><stop offset=".7" stop-color="#b8bdc5"/><stop offset="1" stop-color="#808690"/></linearGradient></defs>' +
-    '<text class="deck__pitch-read" x="547" y="326" font-size="8.5" font-family="Helvetica,Arial,sans-serif" font-weight="700" fill="#3b4048" text-anchor="middle">0.0%</text>' +
+    var fader = '' +
+    '<text class="deck__pitch-read" x="547" y="549.5" font-size="10" font-family="ui-monospace,Menlo,Consolas,monospace" font-weight="700" fill="#ff3b2f" text-anchor="middle">0.0%</text>' +
     '<g class="deck__fader" role="slider" tabindex="0" aria-label="Pitch" aria-orientation="vertical" aria-valuemin="-' + PITCH_RANGE + '" aria-valuemax="' + PITCH_RANGE + '" aria-valuenow="0" aria-valuetext="0 %">' +
       '<rect x="514" y="332" width="68" height="204" fill="transparent"/>' +
       '<g class="deck__cap">' +
-        '<rect x="531" y="408" width="32" height="46" rx="6" fill="url(#' + id + 'metal5)" stroke="#fff" stroke-opacity=".6"/>' +
-        '<rect x="531" y="428" width="32" height="6" fill="#e0703f"/>' +
+        '<rect x="531" y="414" width="32" height="34" rx="3" fill="#1a1b1e" stroke="#fff" stroke-opacity=".22"/>' +
+        '<rect x="533" y="416" width="28" height="12" rx="2" fill="#2c2d31"/>' +
+        '<rect x="531" y="430" width="32" height="2" fill="#e8e9eb"/>' +
       '</g>' +
     '</g>';
 
     // ---- top: start/stop pad (the control) + painterly grain ----
     var top = '<defs>' +
-      '<linearGradient id="' + id + 'metal4" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9aa0a9"/><stop offset=".35" stop-color="#f4f5f7"/><stop offset=".7" stop-color="#b8bdc5"/><stop offset="1" stop-color="#808690"/></linearGradient>' +
-      '<filter id="' + id + 'grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4"/><feColorMatrix type="matrix" values="0 0 0 0 .1  0 0 0 0 .08  0 0 0 0 .06  0 0 0 .16 0"/></filter>' +
+      '<filter id="' + id + 'grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4"/><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .06 0"/><feComposite operator="in" in2="SourceGraphic"/></filter>' +
+      '<linearGradient id="' + id + 'padg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e2f33"/><stop offset="1" stop-color="#131416"/></linearGradient>' +
     '</defs>' +
-    '<rect x="22" y="34" width="556" height="532" rx="30" filter="url(#' + id + 'grain)" opacity=".55" style="mix-blend-mode:multiply"/>' +
+    // matte powder-coat texture over the plinth
+    '<rect x="22" y="34" width="556" height="532" rx="22" filter="url(#' + id + 'grain)" style="mix-blend-mode:screen"/>' +
     '<g class="deck__pad-hit" role="button" tabindex="0" aria-label="Play/Pause" aria-pressed="false">' +
-      '<rect x="30" y="466" width="120" height="94" fill="transparent"/>' +
-      '<rect x="44" y="478" width="96" height="70" rx="12" fill="#8f949d" opacity=".5"/>' +
-      '<rect class="deck__pad" x="48" y="480" width="88" height="62" rx="10" fill="url(#' + id + 'metal4)" stroke="#fff" stroke-opacity=".6"/>' +
-      '<g class="deck__icon deck__icon--play"><path d="M83 495 L83 527 L109 511 Z" fill="#23262c" stroke="#23262c" stroke-width="5" stroke-linejoin="round"/></g>' +
-      '<g class="deck__icon deck__icon--pause"><rect x="78" y="496" width="11" height="30" rx="3" fill="#e0703f"/><rect x="95" y="496" width="11" height="30" rx="3" fill="#e0703f"/></g>' +
+      '<rect x="24" y="480" width="92" height="84" fill="transparent"/>' +
+      '<rect x="30" y="488" width="76" height="64" rx="4" fill="#050506"/>' +
+      '<rect class="deck__pad" x="33" y="491" width="70" height="58" rx="3" fill="url(#' + id + 'padg)" stroke="#fff" stroke-opacity=".16"/>' +
+      '<g class="deck__icon deck__icon--play"><path d="M62 510 L62 530 L78 520 Z" fill="#c9ccd1" stroke="#c9ccd1" stroke-width="3" stroke-linejoin="round"/></g>' +
+      '<g class="deck__icon deck__icon--pause"><rect x="58" y="510" width="7" height="20" rx="1.5" fill="#ff3b2f"/><rect x="71" y="510" width="7" height="20" rx="1.5" fill="#ff3b2f"/></g>' +
     '</g>';
 
     return { base: svg('base', base), spin: svg('spin', spin), glare: svg('glare', glare), fader: svg('fader', fader), arm: svg('arm', arm, '-300 -300 1200 1200'), top: svg('top', top) };
