@@ -128,7 +128,8 @@
   // (mono, ~22 kHz to keep memory small on phones), read at whatever speed and direction the
   // hand moves the record — 200° of record = 1 s of music, like 33⅓ rpm. On release the
   // <audio> jumps to where the hand left the record and is unmuted.
-  var SCR = { ctx: null, node: null, gain: null, src: '', data: null, rate: 0, loading: '', pos: 0, target: 0, vel: 0, on: false };
+  // cruise: instead of following a hand, play on at this speed (live pitch on iPhone, see the fader)
+  var SCR = { ctx: null, node: null, gain: null, src: '', data: null, rate: 0, loading: '', pos: 0, target: 0, vel: 0, on: false, cruise: null };
 
   // iPhone/iPad (iPadOS reports itself as a Mac with touch)
   var IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -159,9 +160,13 @@
   function scratchLoad(src) {
     if (!src || SCR.src === src || SCR.loading === src) return;
     var ctx = scratchCtx(); if (!ctx) return;
+    // decode into a 22 kHz buffer (≈30 MB for a 6-minute track instead of ≈140 MB at 48 kHz
+    // stereo) — the engine resamples to whatever rate its context plays at
+    var OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext, dec = ctx;
+    try { if (OAC) dec = new OAC(1, 1, 22050); } catch (e) { dec = ctx; }
     SCR.loading = src;
     fetch(src).then(function (r) { return r.arrayBuffer(); }).then(function (ab) {
-      return new Promise(function (ok, fail) { var p = ctx.decodeAudioData(ab, ok, fail); if (p && p.then) p.then(ok, fail); });
+      return new Promise(function (ok, fail) { var p = dec.decodeAudioData(ab, ok, fail); if (p && p.then) p.then(ok, fail); });
     }).then(function (buf) {
       if (SCR.loading !== src) return;
       var n = buf.length, mono = new Float32Array(n), chs = buf.numberOfChannels;
@@ -174,17 +179,17 @@
     var out = e.outputBuffer.getChannelData(0), d = SCR.data, sr = SCR.rate, osr = e.outputBuffer.sampleRate;
     if (!d) { out.fill(0); return; }
     // playhead chases the hand: velocity toward the target position, smoothed so it sounds like vinyl, not steps
-    var want = (SCR.target - SCR.pos) / 0.035;                    // seconds of music per second
-    want = Math.max(-6, Math.min(6, want));
+    var cruise = SCR.cruise != null;
+    var want = cruise ? SCR.cruise : Math.max(-6, Math.min(6, (SCR.target - SCR.pos) / 0.035));   // seconds of music per second
     for (var i = 0; i < out.length; i++) {
       SCR.vel += (want - SCR.vel) * 0.004;
       SCR.pos += SCR.vel / osr;
       var f = SCR.pos * sr, k = Math.floor(f), t = f - k;
-      out[i] = (k >= 0 && k + 1 < d.length) ? (d[k] * (1 - t) + d[k + 1] * t) * Math.min(1, Math.abs(SCR.vel) * 1.5) : 0;
+      out[i] = (k >= 0 && k + 1 < d.length) ? (d[k] * (1 - t) + d[k + 1] * t) * (cruise ? 1 : Math.min(1, Math.abs(SCR.vel) * 1.5)) : 0;
     }
   }
 
-  function scratchStart(pos) {
+  function scratchStart(pos, vel) {
     var ctx = scratchCtx(); if (!ctx) return false;
     if (ctx.state === 'suspended' && ctx.resume) ctx.resume();
     if (!SCR.node) {
@@ -193,7 +198,7 @@
       SCR.gain = ctx.createGain();
       SCR.node.connect(SCR.gain);
     }
-    SCR.pos = SCR.target = pos; SCR.vel = 0; SCR.on = true;
+    SCR.pos = SCR.target = pos; SCR.vel = vel || 0; SCR.on = true;
     SCR.gain.gain.cancelScheduledValues(ctx.currentTime);
     SCR.gain.gain.setValueAtTime(1, ctx.currentTime);
     SCR.gain.connect(ctx.destination);
@@ -202,7 +207,7 @@
 
   function scratchStop() {
     if (!SCR.on) return SCR.pos;
-    SCR.on = false;
+    SCR.on = false; SCR.cruise = null;
     var g = SCR.gain, ctx = SCR.ctx;
     g.gain.setTargetAtTime(0, ctx.currentTime, 0.008);           // short fade, no click
     setTimeout(function () { if (!SCR.on) { try { g.disconnect(); } catch (e) {} } }, 80);
@@ -579,6 +584,7 @@
       readout.textContent = txt;
       fader.setAttribute('aria-valuenow', p);
       fader.setAttribute('aria-valuetext', txt.replace('−', 'minus '));
+      if (cruising) SCR.cruise = rate();                        // iPhone: the engine follows the fader live
       scheduleRate();
       kick();
     }
@@ -610,14 +616,34 @@
       return (y - CAP_CENTER) / CAP_TRAVEL * PITCH_RANGE;
     }
     var dragging = false;
+    // iPhone: Safari can't change the <audio>'s speed live, so while the fader is held the track
+    // plays on from the decoded copy in the scratch engine at the fader's speed (the <audio> is
+    // muted meanwhile); on release the <audio> takes over at that spot with the new speed.
+    var cruising = false;
+    function startCruise() {
+      if (!IOS || !audio || audio.paused || audio.__ahBraking) return;
+      if (SCR.src !== (audio.currentSrc || audio.src) || !scratchStart(audio.currentTime, rate())) return;
+      SCR.cruise = rate(); cruising = true; mute(audio, true);
+    }
+    function endCruise() {
+      if (!cruising) return false;
+      cruising = false;
+      var pos = scratchStop();
+      try { audio.currentTime = Math.max(0, Math.min((audio.duration || pos) - 0.05, pos)); } catch (err) {}
+      flushRate();
+      mute(audio, false);
+      if (audio.paused && st.playing) { var pr = audio.play(); if (pr && pr.catch) pr.catch(function () {}); }   // inside the touch: allowed
+      return true;
+    }
     fader.addEventListener('pointerdown', function (e) {
       e.preventDefault();
       dragging = true;
       try { fader.setPointerCapture(e.pointerId); } catch (err) {}
+      startCruise();
       setPitch(pitchFromEvent(e));
     });
     fader.addEventListener('pointermove', function (e) { if (dragging) setPitch(pitchFromEvent(e)); });
-    function endDrag() { if (dragging) flushRate(); dragging = false; }
+    function endDrag() { if (dragging && !endCruise()) flushRate(); dragging = false; }
     fader.addEventListener('pointerup', endDrag);
     fader.addEventListener('pointercancel', endDrag);
     fader.addEventListener('dblclick', function () { setPitch(0); flushRate(); });
