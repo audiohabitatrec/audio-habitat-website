@@ -12,7 +12,8 @@ Legt eine neue Single komplett auf der Seite an — in einem Rutsch.
 
 Das Skript erledigt, was sonst sechs Handgriffe sind:
 
-  1. Audio: WAV -> AAC-m4a (wie die anderen Tracks), WAV bleibt für den Download.
+  1. Audio: WAV -> AAC-m4a (wie die anderen Tracks). Die WAV selbst kommt NICHT auf die Seite
+     (GitHub Pages erlaubt insgesamt 1 GB) — Downloads sind die m4a, WAVs gibt's auf Anfrage.
   2. Cover: 2000 px JPG + WebP (og:image / Download) und 800 px WebP (Seite).
   3. js/tracks.js: neuer Eintrag ganz oben, "isNew" wandert auf den neuen Release.
   4. music/<slug>/index.html aus tools/release-page.template.html.
@@ -20,7 +21,7 @@ Das Skript erledigt, was sonst sechs Handgriffe sind:
   6. sitemap.xml und der Zählsatz im About-Text.
 
 Mit --dry-run wird nichts geschrieben. Mit --no-assets werden Audio/Cover nicht
-neu erzeugt (nur prüfen, dass assets/tracks/<slug>.m4a/.wav und
+neu erzeugt (nur prüfen, dass assets/tracks/<slug>.m4a und
 assets/covers/<slug>*.{jpg,webp} schon da sind). Nur Singles; EPs bitte von Hand.
 Danach: Seite lokal ansehen, dann committen und pushen.
 """
@@ -35,7 +36,6 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-GITHUB_FILE_LIMIT = 100 * 1024 * 1024  # bytes; GitHub rejects larger files
 
 MONTHS_DE = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August",
              "September", "Oktober", "November", "Dezember"]
@@ -125,12 +125,11 @@ def read_releases(tracks_js):
 # ---------- assets ----------
 
 def make_audio(wav_src, slug, no_assets):
-    dest_wav = ROOT / "assets/tracks" / f"{slug}.wav"
     dest_m4a = ROOT / "assets/tracks" / f"{slug}.m4a"
     if no_assets:
         if not dest_m4a.exists():
             die(f"{dest_m4a.relative_to(ROOT)} fehlt (--no-assets).")
-        return dest_wav.exists()
+        return False
     if not wav_src:
         die("--wav fehlt (oder --no-assets, wenn die Dateien schon unter assets/tracks/<slug>.* liegen).")
     wav_src = Path(wav_src).expanduser()
@@ -146,16 +145,9 @@ def make_audio(wav_src, slug, no_assets):
         die("Weder afconvert (macOS) noch ffmpeg gefunden — kein AAC-Export möglich.")
     print("  Audio -> AAC:", dest_m4a.relative_to(ROOT))
     subprocess.run(cmd, check=True)
-    # lossless copy for the pay-what-you-want download
-    size = wav_src.stat().st_size
-    if size > GITHUB_FILE_LIMIT:
-        print(f"  WARNUNG: WAV ist {size / 1048576:.0f} MB — über GitHubs 100-MB-Grenze, wird NICHT "
-              "übernommen (Download fällt auf die m4a zurück).")
-        return False
-    if wav_src.resolve() != dest_wav.resolve():
-        shutil.copyfile(wav_src, dest_wav)
-    print(f"  WAV: {dest_wav.relative_to(ROOT)} ({size / 1048576:.0f} MB)")
-    return True
+    # no WAV on the site: downloads are the m4a, WAVs are sent on request (form on the site)
+    print("  WAV bleibt lokal (nicht auf der Seite) — am besten nach music/WAV-Masters (nur lokal)/ legen.")
+    return False
 
 
 def make_covers(cover_src, slug, no_assets):
@@ -275,9 +267,9 @@ def build_page(files, a, releases, wav_ok):
             '            <span data-lang="en">All platforms</span>\n'
             '          </a>')
 
-    desc_de = a.desc_de or (f'„{a.title}“ ist die neue Single von Audio Habitat — {a.subgenre} auf '
+    desc_de = a.desc_de or (f'„{a.title}“ ist eine Single von Audio Habitat — {a.subgenre} auf '
                             f'{a.bpm} BPM, erschienen am {date_de} über iDs Music Hub.')
-    desc_en = a.desc_en or (f'"{a.title}" is the new single from Audio Habitat — {a.subgenre} at '
+    desc_en = a.desc_en or (f'"{a.title}" is a single from Audio Habitat — {a.subgenre} at '
                             f'{a.bpm} BPM, released on {date_en} via iDs Music Hub.')
 
     values = {
@@ -386,7 +378,7 @@ def verify(a):
     xml.dom.minidom.parse(str(ROOT / "sitemap.xml"))
     page = (ROOT / f"music/{a.slug}/index.html").read_text(encoding="utf-8")
     missing = []
-    for ref in re.findall(r'(?:src|href)="(\.\./\.\./[^"#?]+)"', page):
+    for ref in re.findall(r'(?:src|href)="(\.\./\.\./[^"#?]+)(?:[?#][^"]*)?"', page):
         if not (ROOT / "music" / a.slug / ref).resolve().exists():
             missing.append(ref)
     if missing:
@@ -442,6 +434,8 @@ def main():
     edit_about(files, a, tracks_js)
 
     if not a.dry_run:
+        # version numbers on css/js references (tools/bust-cache.py), also for the new page
+        subprocess.run([sys.executable, str(ROOT / "tools/bust-cache.py")], check=True)
         verify(a)
     print("\n" + ("Würde ändern:" if a.dry_run else "Geändert/angelegt:"))
     for rel in files.written:
@@ -449,7 +443,7 @@ def main():
     if not a.dry_run:
         print("\nNächste Schritte: Seite lokal ansehen (python3 -m http.server), dann\n"
               f"  git add js/tracks.js index.html about.html sitemap.xml music/{a.slug} "
-              f"assets/covers/{a.slug}* assets/tracks/{a.slug}.* assets/waves/{a.slug}.json\n"
+              f"assets/covers/{a.slug}* assets/tracks/{a.slug}.m4a assets/waves/{a.slug}.json\n"
               f'  git commit -m "Add new single \\"{a.title}\\""  &&  git push origin main')
         if not (a.spotify and a.apple):
             print("\nHinweis: Spotify/Apple-Link fehlt — der Track fällt auf Hyperfollow/Artist-Profil zurück. "

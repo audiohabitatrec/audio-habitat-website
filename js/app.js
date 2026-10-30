@@ -1,5 +1,11 @@
 (function () {
-  var releases = (typeof RELEASES !== 'undefined') ? RELEASES : [];
+  // newest first, whatever order tracks.js lists them in ("dd.mm.yyyy"; a bare year = announced,
+  // not out yet → on top). The first one is the featured release.
+  function releaseTime(r) {
+    var m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(r.date || '');
+    return m ? Date.UTC(+m[3], +m[2] - 1, +m[1]) : (/^\d{4}$/.test(r.date || '') ? Infinity : -Infinity);
+  }
+  var releases = (typeof RELEASES !== 'undefined') ? RELEASES.slice().sort(function (a, b) { return releaseTime(b) - releaseTime(a); }) : [];
   if (!releases.length) return;
 
   var links = (typeof ARTIST_LINKS !== 'undefined') ? ARTIST_LINKS : {};
@@ -441,8 +447,7 @@
         title: release.type === 'ep' ? (release.title + ' — ' + track.title) : release.title,
         trackTitle: track.title,
         cover: coverPath(release.cover),
-        file: assetPath(track.file),
-        wav: track.wav ? assetPath(track.wav) : assetPath(track.file)
+        file: assetPath(track.file)
       });
     });
   });
@@ -804,9 +809,9 @@
     selected.forEach(function (track) {
       var a = document.createElement('a');
       a.className = 'support__download-item';
-      // track.wav falls back to the M4A for the one track whose WAV master
-      // is too large for a normal (non-LFS) file on GitHub Pages.
-      var fileUrl = track.wav;
+      // Downloads are the M4A (AAC). WAVs aren't on the site (they'd blow GitHub Pages' size
+      // limit) — the download step offers a "WAV on request" form instead.
+      var fileUrl = track.file;
       var fileName = 'Audio Habitat - ' + track.trackTitle + fileUrl.slice(fileUrl.lastIndexOf('.'));
       a.href = fileUrl;
       a.download = fileName;
@@ -862,6 +867,21 @@
   // ---------- Inquiry modals: Booking & For Labels — form stays in-page, ----------
   // ---------- submit opens the user's email app pre-filled, page never navigates. ----------
   var INQUIRY_FORMS = {
+    wav: {
+      subject: 'WAV-Anfrage',
+      eyebrow: { de: 'WAV auf Anfrage', en: 'WAV on request' },
+      title: { de: 'WAV anfragen', en: 'Request a WAV' },
+      desc: {
+        de: 'Die Downloads sind M4A in hoher Qualität. Du brauchst die unkomprimierte WAV, z. B. für DJ-Sets? Schreib mir, welcher Track — ich schick sie dir.',
+        en: "Downloads are high-quality M4A. Need the uncompressed WAV, e.g. for DJ sets? Tell me which track and I'll send it over."
+      },
+      fields: [
+        { name: 'name', label: { de: 'Name', en: 'Name' }, type: 'text', required: true },
+        { name: 'email', label: { de: 'E-Mail', en: 'Email' }, type: 'email', required: true },
+        { name: 'track', label: { de: 'Track(s)', en: 'Track(s)' }, type: 'text', required: true },
+        { name: 'message', label: { de: 'Wofür? (optional)', en: 'What for? (optional)' }, type: 'textarea' }
+      ]
+    },
     booking: {
       subject: 'Booking-Anfrage',
       eyebrow: { de: 'Booking', en: 'Booking' },
@@ -973,6 +993,10 @@
 
   document.querySelectorAll('[data-open-inquiry]').forEach(function (btn) {
     btn.addEventListener('click', function () { openInquiry(btn.getAttribute('data-open-inquiry')); });
+  });
+  // "WAV anfragen" sits inside the pay-what-you-want modal: swap that one for the form
+  supportModal.querySelectorAll('[data-open-inquiry]').forEach(function (btn) {
+    btn.addEventListener('click', closeSupportModal);
   });
 
   inquiryClose.addEventListener('click', closeInquiry);

@@ -438,7 +438,6 @@
     // has braked to a standstill — only then does the arm go back to its rest.
     function setPlaying(p, instant) {
       p = !!p;
-      if (p && audio) scratchLoad(audio.currentSrc || audio.src);   // decode in the background, ready for the first scratch
       if (p === st.playing && !instant) return;
       st.playing = p;
       host.classList.toggle('is-playing', p);
@@ -635,6 +634,14 @@
       if (audio.paused && st.playing) { var pr = audio.play(); if (pr && pr.catch) pr.catch(function () {}); }   // inside the touch: allowed
       return true;
     }
+    // The engine's own copy of the track (≈8 MB) is only fetched once someone reaches for the
+    // record or the fader — hovering them with a mouse, or the first touch on a phone — not on
+    // every play, so listening alone doesn't download the track twice.
+    function prepareEngine() { if (audio && (audio.currentSrc || audio.src)) scratchLoad(audio.currentSrc || audio.src); }
+    ['pointerenter', 'pointerdown'].forEach(function (t) {
+      fader.addEventListener(t, prepareEngine);
+      recordHit.addEventListener(t, prepareEngine);
+    });
     fader.addEventListener('pointerdown', function (e) {
       e.preventDefault();
       dragging = true;

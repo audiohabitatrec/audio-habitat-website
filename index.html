@@ -548,11 +548,11 @@
 </script>
 
 <link rel="icon" href="assets/ids-music-hub-logo-web.jpg">
-<script src="js/lang.js"></script>
-<link rel="stylesheet" href="css/style.css">
+<script src="js/lang.js?v=4f1b139b"></script>
+<link rel="stylesheet" href="css/style.css?v=5d724b58">
 </head>
 <body>
-<a class="skip-link" href="#main"><span data-lang="de">Zum Inhalt springen</span><span data-lang="en">Skip to content</span></a>
+<a class="skip-link" href="#main"><span data-lang="de">Zum Inhalt springen</span><span data-lang="en" lang="en">Skip to content</span></a>
 
 <nav class="nav" id="nav">
   <div class="nav__inner">
@@ -562,10 +562,10 @@
     </a>
     <div class="nav__right">
       <div class="nav__links" id="navLinks">
-        <a href="#featured" class="nav__now"><span data-lang="de">Jetzt läuft</span><span data-lang="en">Now Playing</span><span class="nav__live-dot" id="navLiveDot" aria-hidden="true"></span></a>
-        <a href="#discography"><span data-lang="de">Musik</span><span data-lang="en">Music</span></a>
-        <a href="about.html"><span data-lang="de">Über uns</span><span data-lang="en">About</span></a>
-        <a href="#contact"><span data-lang="de">Kontakt</span><span data-lang="en">Contact</span></a>
+        <a href="#featured" class="nav__now"><span data-lang="de">Jetzt läuft</span><span data-lang="en" lang="en">Now Playing</span><span class="nav__live-dot" id="navLiveDot" aria-hidden="true"></span></a>
+        <a href="#discography"><span data-lang="de">Musik</span><span data-lang="en" lang="en">Music</span></a>
+        <a href="about.html"><span data-lang="de">Über uns</span><span data-lang="en" lang="en">About</span></a>
+        <a href="#contact"><span data-lang="de">Kontakt</span><span data-lang="en" lang="en">Contact</span></a>
       </div>
       <div class="lang-toggle" id="langToggle">
         <button type="button" data-set-lang="de">DE</button>
@@ -598,14 +598,15 @@
   <div class="hero__content">
     <p class="hero__eyebrow">
       <span data-lang="de"><span class="hero__eyebrow-main">iDs Music Hub</span><span class="hero__eyebrow-sub">präsentiert</span></span>
-      <span data-lang="en"><span class="hero__eyebrow-main">iDs Music Hub</span><span class="hero__eyebrow-sub">presents</span></span>
+      <span data-lang="en" lang="en"><span class="hero__eyebrow-main">iDs Music Hub</span><span class="hero__eyebrow-sub">presents</span></span>
     </p>
     <h1 class="hero__mark-wrap" id="heroMarkWrap">
-      <img class="hero__mark" src="assets/audio-habitat-logo.webp" alt="Audio Habitat">
+      <img class="hero__mark" src="assets/audio-habitat-logo.webp" alt="">
+      <span class="visually-hidden">Audio Habitat – Drum &amp; Bass aus Deutschland</span>
     </h1>
     <p class="hero__line">
       <span data-lang="de">Drum &amp; Bass aus Deutschland.</span>
-      <span data-lang="en">Drum &amp; Bass from Germany.</span>
+      <span data-lang="en" lang="en">Drum &amp; Bass from Germany.</span>
     </p>
     <p class="hero__slogan">One Beat. One Community.</p>
     <!-- Starts the featured track on the deck (js/hero.js); without JS it just scrolls to the player -->
@@ -613,12 +614,12 @@
       <svg class="hero__listen-play" viewBox="0 0 14 14" width="13" height="13"><path d="M3 1.5 L12 7 L3 12.5 Z" fill="currentColor"/></svg>
       <svg class="hero__listen-pause" viewBox="0 0 14 14" width="13" height="13"><rect x="2.5" y="1.5" width="3.2" height="11" rx="1" fill="currentColor"/><rect x="8.3" y="1.5" width="3.2" height="11" rx="1" fill="currentColor"/></svg>
       <span class="hero__listen-label" data-lang="de">Jetzt hören</span>
-      <span class="hero__listen-label" data-lang="en">Listen now</span>
+      <span class="hero__listen-label" data-lang="en" lang="en">Listen now</span>
     </a>
   </div>
   <div class="hero__scroll-hint" id="scrollHint" aria-hidden="true">
     <span data-lang="de">Scrollen</span>
-    <span data-lang="en">Scroll</span>
+    <span data-lang="en" lang="en">Scroll</span>
     <svg viewBox="0 0 24 24" width="14" height="14"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </div>
 </header>
@@ -627,7 +628,7 @@
 
   <section class="featured" id="featured">
     <div class="wrap">
-      <p class="eyebrow"><span data-lang="de">Jetzt läuft</span><span data-lang="en">Now Playing</span></p>
+      <p class="eyebrow"><span data-lang="de">Jetzt läuft</span><span data-lang="en" lang="en">Now Playing</span></p>
       <div class="featured__card">
         <div class="featured__art deck-host" id="featuredArtWrap">
           <img id="featuredArt" src="assets/covers/5-dayz-800.webp" alt="5 Dayz" fetchpriority="high">
@@ -644,7 +645,7 @@
           <p class="featured__more" id="featuredMore" hidden>
             <a id="featuredMoreLink" href="#">
               <span data-lang="de">Mehr zu diesem Release →</span>
-              <span data-lang="en">More about this release →</span>
+              <span data-lang="en" lang="en">More about this release →</span>
             </a>
           </p>
         </div>
@@ -656,10 +657,10 @@
     <div class="wrap">
       <p class="credibility__stat">
         <span data-lang="de">Seit 2008</span>
-        <span data-lang="en">Since 2008</span>
+        <span data-lang="en" lang="en">Since 2008</span>
       </p>
       <p class="credibility__badges">
-        <span><span data-lang="de">Deutschland</span><span data-lang="en">Germany</span></span>
+        <span><span data-lang="de">Deutschland</span><span data-lang="en" lang="en">Germany</span></span>
         <span class="credibility__dot" aria-hidden="true"></span>
         <span>UK</span>
         <span class="credibility__dot" aria-hidden="true"></span>
@@ -667,11 +668,11 @@
       </p>
       <p class="credibility__text">
         <span data-lang="de">Fast zwei Jahrzehnte Drum &amp; Bass — u. a. gespielt von Crissy Criss auf BBC Radio 1Xtra.</span>
-        <span data-lang="en">Nearly two decades of Drum &amp; Bass — played by Crissy Criss on BBC Radio 1Xtra.</span>
+        <span data-lang="en" lang="en">Nearly two decades of Drum &amp; Bass — played by Crissy Criss on BBC Radio 1Xtra.</span>
       </p>
       <a class="btn btn--primary" href="about.html">
         <span data-lang="de">Die Geschichte entdecken →</span>
-        <span data-lang="en">Discover the story →</span>
+        <span data-lang="en" lang="en">Discover the story →</span>
       </a>
     </div>
   </section>
@@ -681,17 +682,17 @@
       <div class="discography__head">
         <div>
           <p class="eyebrow">Discography</p>
-          <h2 class="section-title"><span data-lang="de">Alle Releases</span><span data-lang="en">All Releases</span></h2>
+          <h2 class="section-title"><span data-lang="de">Alle Releases</span><span data-lang="en" lang="en">All Releases</span></h2>
         </div>
         <div class="discog-filter" id="discogFilter" role="group" aria-label="Filter">
           <button type="button" class="discog-filter__btn is-active" data-filter="all" aria-pressed="true">
-            <span data-lang="de">Alle</span><span data-lang="en">All</span>
+            <span data-lang="de">Alle</span><span data-lang="en" lang="en">All</span>
           </button>
           <button type="button" class="discog-filter__btn" data-filter="ep" aria-pressed="false">
-            <span data-lang="de">EPs</span><span data-lang="en">EPs</span>
+            <span data-lang="de">EPs</span><span data-lang="en" lang="en">EPs</span>
           </button>
           <button type="button" class="discog-filter__btn" data-filter="single" aria-pressed="false">
-            <span data-lang="de">Singles</span><span data-lang="en">Singles</span>
+            <span data-lang="de">Singles</span><span data-lang="en" lang="en">Singles</span>
           </button>
         </div>
       </div>
@@ -701,14 +702,14 @@
 
   <section class="contact" id="contact">
     <div class="wrap">
-      <p class="eyebrow"><span data-lang="de">Kontakt</span><span data-lang="en">Contact</span></p>
+      <p class="eyebrow"><span data-lang="de">Kontakt</span><span data-lang="en" lang="en">Contact</span></p>
       <h2 class="section-title">
         <span data-lang="de">Booking &amp; Zusammenarbeit</span>
-        <span data-lang="en">Booking &amp; Collaboration</span>
+        <span data-lang="en" lang="en">Booking &amp; Collaboration</span>
       </h2>
       <p class="contact__text">
         <span data-lang="de">Drei Wege, mit Audio Habitat ins Geschäft zu kommen.</span>
-        <span data-lang="en">Three ways to work with Audio Habitat.</span>
+        <span data-lang="en" lang="en">Three ways to work with Audio Habitat.</span>
       </p>
 
       <div class="contact-grid">
@@ -720,15 +721,15 @@
             </div>
             <span class="contact-card__index">01</span>
           </div>
-          <h3><span data-lang="de">Booking</span><span data-lang="en">Booking</span></h3>
+          <h3><span data-lang="de">Booking</span><span data-lang="en" lang="en">Booking</span></h3>
           <p>
             <span data-lang="de">Für Gigs, Events oder Promo — schreib uns einfach.</span>
-            <span data-lang="en">For gigs, events or promo — just get in touch.</span>
+            <span data-lang="en" lang="en">For gigs, events or promo — just get in touch.</span>
           </p>
           <span class="contact-card__rule"></span>
           <button class="btn btn--primary" data-open-inquiry="booking" type="button">
             <span data-lang="de">Anfrage senden</span>
-            <span data-lang="en">Send a request</span>
+            <span data-lang="en" lang="en">Send a request</span>
           </button>
         </div>
 
@@ -739,15 +740,15 @@
             </div>
             <span class="contact-card__index">02</span>
           </div>
-          <h3><span data-lang="de">Tracks kaufen</span><span data-lang="en">Buy tracks</span></h3>
+          <h3><span data-lang="de">Tracks kaufen</span><span data-lang="en" lang="en">Buy tracks</span></h3>
           <p>
             <span data-lang="de">Wähl deine Tracks und zahl, was sie dir wert sind — direkt zum Download.</span>
-            <span data-lang="en">Pick your tracks and pay what they're worth to you — straight to download.</span>
+            <span data-lang="en" lang="en">Pick your tracks and pay what they're worth to you — straight to download.</span>
           </p>
           <span class="contact-card__rule"></span>
           <button class="btn btn--primary" id="supportLink" type="button">
             <span data-lang="de">Zahl, was du willst</span>
-            <span data-lang="en">Pay what you want</span>
+            <span data-lang="en" lang="en">Pay what you want</span>
           </button>
         </div>
 
@@ -758,19 +759,19 @@
             </div>
             <span class="contact-card__index">03</span>
           </div>
-          <h3><span data-lang="de">Für Labels</span><span data-lang="en">For labels</span></h3>
+          <h3><span data-lang="de">Für Labels</span><span data-lang="en" lang="en">For labels</span></h3>
           <p>
             <span data-lang="de">Lizenzierung für dein Label, Remix- oder Kollaborations­anfragen — schreib uns dein Anliegen.</span>
-            <span data-lang="en">Licensing for your label, remix or collaboration requests — tell us what you have in mind.</span>
+            <span data-lang="en" lang="en">Licensing for your label, remix or collaboration requests — tell us what you have in mind.</span>
           </p>
           <p class="contact-card__note">
             <span data-lang="de">GEMA-Mitglied</span>
-            <span data-lang="en">GEMA member</span>
+            <span data-lang="en" lang="en">GEMA member</span>
           </p>
           <span class="contact-card__rule"></span>
           <button class="btn btn--primary" data-open-inquiry="label" type="button">
             <span data-lang="de">Anfrage senden</span>
-            <span data-lang="en">Send a request</span>
+            <span data-lang="en" lang="en">Send a request</span>
           </button>
         </div>
 
@@ -783,7 +784,7 @@
 <section class="distro-band" aria-label="Verfügbar auf">
   <p class="distro-band__eyebrow">
     <span data-lang="de">Erhältlich auf allen Plattformen<br>vertrieben von DistroKid</span>
-    <span data-lang="en">Available on every platform<br>distributed via DistroKid</span>
+    <span data-lang="en" lang="en">Available on every platform<br>distributed via DistroKid</span>
   </p>
   <div class="distro-marquee">
    <div class="distro-marquee__row">
@@ -809,7 +810,7 @@
 
 <footer class="footer">
   <div class="wrap footer__follow">
-    <span class="footer__follow-label"><span data-lang="de">Folgen</span><span data-lang="en">Follow</span></span>
+    <span class="footer__follow-label"><span data-lang="de">Folgen</span><span data-lang="en" lang="en">Follow</span></span>
     <a href="https://open.spotify.com/artist/2eo8TqrCseukiJaOIK2rhc" target="_blank" rel="noopener">Spotify</a>
     <a href="https://music.apple.com/us/artist/audio-habitat/4291320" target="_blank" rel="noopener">Apple Music</a>
     <a href="https://soundcloud.com/audiohabitatrec" target="_blank" rel="noopener">SoundCloud</a>
@@ -821,15 +822,15 @@
     <div class="footer__links">
       <a href="about.html#team" class="footer__note">
         <span data-lang="de">Team</span>
-        <span data-lang="en">Team</span>
+        <span data-lang="en" lang="en">Team</span>
       </a>
       <a href="impressum.html" class="footer__note">
         <span data-lang="de">Impressum</span>
-        <span data-lang="en">Legal notice</span>
+        <span data-lang="en" lang="en">Legal notice</span>
       </a>
       <a href="datenschutz.html" class="footer__note">
         <span data-lang="de">Datenschutz</span>
-        <span data-lang="en">Privacy</span>
+        <span data-lang="en" lang="en">Privacy</span>
       </a>
     </div>
   </div>
@@ -874,14 +875,14 @@
     </button>
 
     <div class="support-step" id="supportStepSelect">
-      <p class="eyebrow"><span data-lang="de">Unterstützung</span><span data-lang="en">Support</span></p>
+      <p class="eyebrow"><span data-lang="de">Unterstützung</span><span data-lang="en" lang="en">Support</span></p>
       <h3 class="modal__title" id="supportTitleSelect">
         <span data-lang="de">Zahl, was du willst</span>
-        <span data-lang="en">Pay what you want</span>
+        <span data-lang="en" lang="en">Pay what you want</span>
       </h3>
       <p class="modal__desc">
         <span data-lang="de">Wähl die Tracks aus, die du unterstützen möchtest, und leg selbst fest, was sie dir wert sind.</span>
-        <span data-lang="en">Pick the tracks you'd like to support and set your own price for each.</span>
+        <span data-lang="en" lang="en">Pick the tracks you'd like to support and set your own price for each.</span>
       </p>
 
       <div class="support__list" id="supportList"></div>
@@ -889,7 +890,7 @@
       <div class="support__total">
         <span>
           <span data-lang="de">Gesamtbetrag</span>
-          <span data-lang="en">Total</span>
+          <span data-lang="en" lang="en">Total</span>
         </span>
         <strong id="supportTotal">€0</strong>
       </div>
@@ -898,34 +899,50 @@
         <input type="checkbox" id="supportWaiverCheckbox">
         <span>
           <span data-lang="de">Ich stimme zu, dass der Download sofort beginnt, und weiß, dass ich dadurch mein 14-tägiges Widerrufsrecht verliere.</span>
-          <span data-lang="en">I agree that the download starts immediately and understand that I thereby lose my 14-day right of withdrawal.</span>
+          <span data-lang="en" lang="en">I agree that the download starts immediately and understand that I thereby lose my 14-day right of withdrawal.</span>
         </span>
       </label>
 
       <button class="btn btn--primary support__proceed" id="supportProceed" type="button" disabled>
         <span data-lang="de" data-paid="Hier mit PayPal bezahlen" data-free="Kostenlos herunterladen">Hier mit PayPal bezahlen</span>
-        <span data-lang="en" data-paid="Pay here with PayPal" data-free="Download for free">Pay here with PayPal</span>
+        <span data-lang="en" lang="en" data-paid="Pay here with PayPal" data-free="Download for free">Pay here with PayPal</span>
       </button>
       <p class="modal__hint" id="supportHint">
         <span data-lang="de" data-paid="Öffnet PayPal in einem neuen Tab mit deinem Gesamtbetrag voreingestellt." data-free="€0 ist völlig in Ordnung — der Download ist trotzdem sofort da.">Öffnet PayPal in einem neuen Tab mit deinem Gesamtbetrag voreingestellt.</span>
-        <span data-lang="en" data-paid="Opens PayPal in a new tab with your total pre-filled." data-free="€0 is totally fine — your download is ready right away either way.">Opens PayPal in a new tab with your total pre-filled.</span>
+        <span data-lang="en" lang="en" data-paid="Opens PayPal in a new tab with your total pre-filled." data-free="€0 is totally fine — your download is ready right away either way.">Opens PayPal in a new tab with your total pre-filled.</span>
+      </p>
+      <p class="modal__hint support__wav">
+        <span data-lang="de">Downloads als M4A (AAC, hohe Qualität). WAV gebraucht, z. B. für DJ-Sets?</span>
+        <span data-lang="en" lang="en">Downloads are M4A (AAC, high quality). Need a WAV, e.g. for DJ sets?</span>
+        <button class="support__wav-link" type="button" data-open-inquiry="wav">
+          <span data-lang="de">WAV anfragen →</span>
+          <span data-lang="en" lang="en">Request a WAV →</span>
+        </button>
       </p>
     </div>
 
     <div class="support-step" id="supportStepDownload" hidden>
-      <p class="eyebrow"><span data-lang="de">Danke</span><span data-lang="en">Thank you</span></p>
+      <p class="eyebrow"><span data-lang="de">Danke</span><span data-lang="en" lang="en">Thank you</span></p>
       <h3 class="modal__title" id="supportTitleDownload">
         <span data-lang="de">Deine Downloads</span>
-        <span data-lang="en">Your downloads</span>
+        <span data-lang="en" lang="en">Your downloads</span>
       </h3>
       <p class="modal__desc">
         <span data-lang="de">Sobald die Zahlung bei PayPal abgeschlossen ist, kannst du deine Tracks hier laden.</span>
-        <span data-lang="en">Once your PayPal payment is complete, grab your tracks here.</span>
+        <span data-lang="en" lang="en">Once your PayPal payment is complete, grab your tracks here.</span>
       </p>
       <div class="support__downloads" id="supportDownloads"></div>
       <p class="modal__hint modal__hint--note">
         <span data-lang="de">Dein Download ist ab sofort verfügbar.</span>
-        <span data-lang="en">Your download is available right away.</span>
+        <span data-lang="en" lang="en">Your download is available right away.</span>
+      </p>
+      <p class="modal__hint support__wav">
+        <span data-lang="de">Downloads als M4A (AAC, hohe Qualität). WAV gebraucht, z. B. für DJ-Sets?</span>
+        <span data-lang="en" lang="en">Downloads are M4A (AAC, high quality). Need a WAV, e.g. for DJ sets?</span>
+        <button class="support__wav-link" type="button" data-open-inquiry="wav">
+          <span data-lang="de">WAV anfragen →</span>
+          <span data-lang="en" lang="en">Request a WAV →</span>
+        </button>
       </p>
     </div>
   </div>
@@ -947,28 +964,28 @@
         <div class="inquiry-form__fields" id="inquiryFields"></div>
         <button class="btn btn--primary support__proceed" id="inquirySubmit" type="submit">
           <span data-lang="de">Anfrage senden</span>
-          <span data-lang="en">Send request</span>
+          <span data-lang="en" lang="en">Send request</span>
         </button>
         <p class="modal__hint">
           <span data-lang="de">Wird direkt versendet — kein Mail-Programm nötig, die Seite bleibt offen.</span>
-          <span data-lang="en">Sent straight from this page — no email app needed, this page stays open.</span>
+          <span data-lang="en" lang="en">Sent straight from this page — no email app needed, this page stays open.</span>
         </p>
         <p class="modal__hint modal__hint--error" id="inquiryErrorMsg" hidden>
           <span data-lang="de">Senden hat leider nicht geklappt. <a id="inquiryErrorFallbackDe" href="#">Bitte per Mail schicken</a> oder gleich nochmal versuchen.</span>
-          <span data-lang="en">Sending failed. <a id="inquiryErrorFallbackEn" href="#">Please email us directly</a> or try again in a moment.</span>
+          <span data-lang="en" lang="en">Sending failed. <a id="inquiryErrorFallbackEn" href="#">Please email us directly</a> or try again in a moment.</span>
         </p>
       </form>
     </div>
 
     <div class="support-step" id="inquiryStepDone" hidden>
-      <p class="eyebrow"><span data-lang="de">Danke</span><span data-lang="en">Thank you</span></p>
+      <p class="eyebrow"><span data-lang="de">Danke</span><span data-lang="en" lang="en">Thank you</span></p>
       <h3 class="modal__title">
         <span data-lang="de">Anfrage unterwegs</span>
-        <span data-lang="en">Request on its way</span>
+        <span data-lang="en" lang="en">Request on its way</span>
       </h3>
       <p class="modal__desc">
         <span data-lang="de">Wir melden uns so schnell wie möglich bei dir zurück.</span>
-        <span data-lang="en">We'll get back to you as soon as possible.</span>
+        <span data-lang="en" lang="en">We'll get back to you as soon as possible.</span>
       </p>
     </div>
   </div>
@@ -980,7 +997,7 @@
     <button class="modal__close" id="streamClose" type="button" aria-label="Schließen">
       <svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
     </button>
-    <p class="eyebrow"><span data-lang="de">Hören auf</span><span data-lang="en">Listen on</span></p>
+    <p class="eyebrow"><span data-lang="de">Hören auf</span><span data-lang="en" lang="en">Listen on</span></p>
     <h3 class="modal__title" id="streamTitle">—</h3>
     <div class="stream-primary" id="streamPrimary"></div>
     <a class="stream-band" id="streamBand" href="#" target="_blank" rel="noopener" hidden>
@@ -1002,7 +1019,7 @@
       </div>
       <span class="stream-band__label">
         <span data-lang="de">Alle weiteren Plattformen →</span>
-        <span data-lang="en">All other platforms →</span>
+        <span data-lang="en" lang="en">All other platforms →</span>
       </span>
     </a>
   </div>
@@ -1016,11 +1033,11 @@
     </button>
 
     <div class="support-step" id="rateStepForm">
-      <p class="eyebrow"><span data-lang="de">Bewertung</span><span data-lang="en">Rating</span></p>
+      <p class="eyebrow"><span data-lang="de">Bewertung</span><span data-lang="en" lang="en">Rating</span></p>
       <h3 class="modal__title" id="rateTitle">—</h3>
       <p class="modal__desc">
         <span data-lang="de">Deine Bewertung geht direkt per Mail an Audio Habitat — kein Account nötig.</span>
-        <span data-lang="en">Your rating goes straight to Audio Habitat by email — no account needed.</span>
+        <span data-lang="en" lang="en">Your rating goes straight to Audio Habitat by email — no account needed.</span>
       </p>
 
       <div class="rate-stars" id="rateStars">
@@ -1032,33 +1049,33 @@
       </div>
 
       <div class="inquiry-field">
-        <label for="rateComment"><span data-lang="de">Kommentar (optional)</span><span data-lang="en">Comment (optional)</span></label>
+        <label for="rateComment"><span data-lang="de">Kommentar (optional)</span><span data-lang="en" lang="en">Comment (optional)</span></label>
         <textarea id="rateComment" placeholder=""></textarea>
       </div>
 
       <button class="btn btn--primary support__proceed" id="rateSubmit" type="button" disabled>
         <span data-lang="de">Bewertung senden</span>
-        <span data-lang="en">Send rating</span>
+        <span data-lang="en" lang="en">Send rating</span>
       </button>
       <p class="modal__hint">
         <span data-lang="de">Wird direkt versendet — kein Mail-Programm nötig, die Seite bleibt offen.</span>
-        <span data-lang="en">Sent straight from this page — no email app needed, this page stays open.</span>
+        <span data-lang="en" lang="en">Sent straight from this page — no email app needed, this page stays open.</span>
       </p>
       <p class="modal__hint modal__hint--error" id="rateErrorMsg" hidden>
         <span data-lang="de">Senden hat leider nicht geklappt. <a id="rateErrorFallbackDe" href="#">Bitte per Mail schicken</a> oder gleich nochmal versuchen.</span>
-        <span data-lang="en">Sending failed. <a id="rateErrorFallbackEn" href="#">Please email us directly</a> or try again in a moment.</span>
+        <span data-lang="en" lang="en">Sending failed. <a id="rateErrorFallbackEn" href="#">Please email us directly</a> or try again in a moment.</span>
       </p>
     </div>
 
     <div class="support-step" id="rateStepDone" hidden>
-      <p class="eyebrow"><span data-lang="de">Danke</span><span data-lang="en">Thank you</span></p>
+      <p class="eyebrow"><span data-lang="de">Danke</span><span data-lang="en" lang="en">Thank you</span></p>
       <h3 class="modal__title">
         <span data-lang="de">Bewertung unterwegs</span>
-        <span data-lang="en">Rating on its way</span>
+        <span data-lang="en" lang="en">Rating on its way</span>
       </h3>
       <p class="modal__desc">
         <span data-lang="de">Danke fürs Zuhören und Feedback-Geben.</span>
-        <span data-lang="en">Thanks for listening and for the feedback.</span>
+        <span data-lang="en" lang="en">Thanks for listening and for the feedback.</span>
       </p>
     </div>
   </div>
@@ -1070,19 +1087,19 @@
     <button class="modal__close" id="shareClose" type="button" aria-label="Schließen">
       <svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
     </button>
-    <p class="eyebrow"><span data-lang="de">Teilen</span><span data-lang="en">Share</span></p>
+    <p class="eyebrow"><span data-lang="de">Teilen</span><span data-lang="en" lang="en">Share</span></p>
     <h3 class="modal__title" id="shareTitle">—</h3>
     <div class="stream-primary" id="sharePrimary"></div>
     <button class="btn btn--primary support__proceed share-copy" id="shareCopyBtn" type="button">
       <span data-lang="de" data-copy="Link kopieren" data-copied="Link kopiert ✓">Link kopieren</span>
-      <span data-lang="en" data-copy="Copy link" data-copied="Link copied ✓">Copy link</span>
+      <span data-lang="en" lang="en" data-copy="Copy link" data-copied="Link copied ✓">Copy link</span>
     </button>
   </div>
 </div>
 
-<script src="js/tracks.js"></script>
-<script src="js/deck.js"></script>
-<script src="js/app.js"></script>
-<script src="js/hero.js"></script>
+<script src="js/tracks.js?v=47e20815"></script>
+<script src="js/deck.js?v=5c699a58"></script>
+<script src="js/app.js?v=3f024707"></script>
+<script src="js/hero.js?v=1f1cdf0e"></script>
 </body>
 </html>

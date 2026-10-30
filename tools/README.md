@@ -30,8 +30,9 @@ Weitere Optionen:
 Danach: Seite lokal ansehen (`python3 -m http.server`), `git add` / `git commit` / `git push` (die genauen
 Befehle gibt das Skript am Ende aus).
 
-Grenzen: nur Singles (EPs bitte von Hand); WAVs über 100 MB lehnt GitHub ab — das Skript lässt sie dann weg
-und der Download fällt auf die m4a zurück. Braucht Python 3 und Pillow (`pip3 install Pillow`), für den
+Grenzen: nur Singles (EPs bitte von Hand). Die WAV dient nur als Quelle für die m4a und kommt **nicht** auf die
+Seite (GitHub Pages erlaubt insgesamt 1 GB; `.gitignore` sperrt alle `*.wav`). Downloads sind die m4a, wer eine WAV
+braucht, fragt über das Formular „WAV anfragen“ im Download-Fenster. Masters lokal in `music/WAV-Masters (nur lokal)/`. Braucht Python 3 und Pillow (`pip3 install Pillow`), für den
 AAC-Export `afconvert` (macOS) oder `ffmpeg`.
 
 ## `make-waveforms.py` — Welle unter dem Plattenspieler
@@ -40,6 +41,12 @@ Erzeugt für jede `assets/tracks/<slug>.m4a` eine kleine `assets/waves/<slug>.js
 aus der der Plattenspieler die dezente Welle zeichnet. `new-release.py` macht das für neue Singles automatisch;
 von Hand nur für EPs oder ausgetauschte Tracks nötig: `python3 tools/make-waveforms.py` (fehlende) oder
 `python3 tools/make-waveforms.py --force <slug>`.
+
+## `bust-cache.py` — Versionsnummern für CSS/JS
+
+Hängt an jeden Verweis auf `css/…` und `js/…` eine Prüfsumme des Dateiinhalts (`style.css?v=3fa9c2d1`), damit
+Browser nach einem Update nicht 10 Minuten lang alte Dateien mit neuen mischen. **Nach jeder Änderung an `css/` oder
+`js/` ausführen:** `python3 tools/bust-cache.py`. `new-release.py` macht das automatisch.
 
 `release-page.template.html` ist die Vorlage für die Release-Seite. Ändert man das Design der Release-Seiten,
 sollte man sie dort mitziehen, damit neue Releases dasselbe bekommen.

@@ -4,6 +4,10 @@ assets/ids-music-hub-logo.jpg
 assets/iDs Music Hub Logo.jpg
 assets/Audio Habitat Logo.png
 .claude/scheduled_tasks.lock
-assets/tracks/cold-static.wav
 assets/covers/incoming/*
 !assets/covers/incoming/README.md
+
+# WAVs never go on the site (GitHub Pages allows 1 GB in total) — downloads are the M4A,
+# WAVs are sent on request. Masters stay local, e.g. in music/WAV-Masters (nur lokal)/.
+*.wav
+*.WAV
