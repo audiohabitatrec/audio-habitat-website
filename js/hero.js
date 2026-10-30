@@ -10,9 +10,9 @@
 
   Sound analysis: the shared <audio id="audio"> is routed through a Web Audio analyser,
   created on the visitor's first tap/click (browsers only allow audio contexts to start then).
-  Exception: iPhones/iPads without navigator.audioSession — there Web Audio would obey the
-  silent switch and the music could go quiet, so the <audio> is left alone and the scene
-  pulses from the track's waveform data (assets/waves/) and its tempo instead.
+  Exception: iPhones/iPads — there a routed element goes silent when its playback rate changes
+  (pitch fader) and Web Audio obeys the silent switch, so the <audio> is left alone and the
+  scene pulses from the track's waveform data (assets/waves/) and its tempo instead.
 
   "Jetzt hören" starts the featured track on the deck (same as its start/stop pad).
 */
@@ -37,8 +37,10 @@
   }
 
   // ---- analyser (or the waveform fallback) ----
+  // iPhone/iPad: never route the <audio> through Web Audio. Safari goes silent for good when the
+  // playback rate of a routed element changes (the deck's pitch fader), and it obeys the silent
+  // switch there — the scene pulses from the waveform data and the tempo instead.
   var iOSLegacy = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  iOSLegacy = iOSLegacy && !('audioSession' in navigator);
   var ctx = null, an = null, freq = null, wave = null;
   function setupAnalyser() {
     if (ctx || iOSLegacy) return;

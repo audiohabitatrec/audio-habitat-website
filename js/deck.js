@@ -130,11 +130,16 @@
   // <audio> jumps to where the hand left the record and is unmuted.
   var SCR = { ctx: null, node: null, gain: null, src: '', data: null, rate: 0, loading: '', pos: 0, target: 0, vel: 0, on: false };
 
+  // iPhone/iPad (iPadOS reports itself as a Mac with touch)
+  var IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
   function scratchCtx() {
     if (SCR.ctx) return SCR.ctx;
     var AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return null;
-    try { SCR.ctx = new AC({ sampleRate: 22050 }); } catch (e) { try { SCR.ctx = new AC(); } catch (e2) { return null; } }
+    // a context at a rate the hardware doesn't run at makes iOS re-clock the whole page's audio
+    // (the <audio> glitches or stops) — there it gets the native rate; elsewhere 22 kHz saves memory
+    try { SCR.ctx = IOS ? new AC() : new AC({ sampleRate: 22050 }); } catch (e) { try { SCR.ctx = new AC(); } catch (e2) { return null; } }
     return SCR.ctx;
   }
 
@@ -580,10 +585,21 @@
     // The cap and readout follow the finger at once; the sound changes speed at most ~6× a
     // second while dragging (each change costs mobile browsers a tiny dropout) and lands on the
     // exact value when the fader is let go.
+    // iPhone: Safari copes badly with the rate changing under a running track, so there the speed
+    // only changes once, when the fader is let go — and if Safari stops the track anyway, it is
+    // started again right away (the deck still shows it playing).
     var RATE_EVERY = 160, rateLast = 0, rateTimer = 0;
-    function flushRate() { clearTimeout(rateTimer); rateTimer = 0; rateLast = Date.now(); if (audio) applyRate(audio); }
-    function scheduleRate() {
+    function flushRate() {
+      clearTimeout(rateTimer); rateTimer = 0; rateLast = Date.now();
       if (!audio) return;
+      var wasOn = !audio.paused && !audio.__ahBraking;
+      applyRate(audio);
+      if (wasOn) setTimeout(function () {
+        if (audio.paused && st.playing && !audio.__ahBraking) { var pr = audio.play(); if (pr && pr.catch) pr.catch(function () {}); }
+      }, 250);
+    }
+    function scheduleRate() {
+      if (!audio || (IOS && dragging)) return;
       var wait = RATE_EVERY - (Date.now() - rateLast);
       if (wait <= 0) flushRate();
       else if (!rateTimer) rateTimer = setTimeout(flushRate, wait);
