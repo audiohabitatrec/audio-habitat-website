@@ -26,10 +26,16 @@ var DEFAULT_COVER = "assets/covers/cover-singles.webp";
 // NOT reliably derivable from the file name (e.g. "4 Reasons" -> "4-reasons-2",
 // not "4reasons"), so these have to be pasted in by hand, one at a time.
 var RELEASES = [
-  { type: "single", title: "Placeholder", cover: "assets/covers/placeholder.webp", isNew: true,
+  { type: "single", title: "5 Dayz", cover: "assets/covers/5-dayz.webp", isNew: true,
+    hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/5-dayz?ref=release",
+    subgenre: "Bristol Drum & Bass", bpm: 175, page: "music/5-dayz/", date: "2026",   // not out yet (pre-save): exact date follows on release
+    tracks: [{ title: "5 Dayz", file: "assets/tracks/5-dayz.m4a", wav: "assets/tracks/5-dayz.wav" }] },
+  { type: "single", title: "Placeholder", cover: "assets/covers/placeholder.webp",
     hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/placeholder?ref=release",
     subgenre: "Neurofunk", bpm: 174, page: "music/placeholder/", date: "26.10.2026",
-    tracks: [{ title: "Placeholder", file: "assets/tracks/placeholder.m4a", wav: "assets/tracks/placeholder.wav" }] },
+    tracks: [{ title: "Placeholder", file: "assets/tracks/placeholder.m4a", wav: "assets/tracks/placeholder.wav",
+      spotify: "https://open.spotify.com/album/5xLtyMtx9cyfB9nE58IEOP",
+      apple: "https://music.apple.com/us/album/placeholder-single/6826907557" }] },
   { type: "single", title: "not done yet", cover: "assets/covers/not-done-yet.webp",
     hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/not-done-yet?ref=release",
     subgenre: "Liquid Funk", bpm: 174, page: "music/not-done-yet/", date: "04.10.2026",

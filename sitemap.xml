@@ -13,6 +13,12 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://audiohabitatrec.com/music/5-dayz/</loc>
+    <lastmod>2026-10-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://audiohabitatrec.com/music/placeholder/</loc>
     <lastmod>2026-10-25</lastmod>
     <changefreq>monthly</changefreq>
