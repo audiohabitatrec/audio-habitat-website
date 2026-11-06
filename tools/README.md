@@ -21,6 +21,29 @@ Pflicht sind nur `--title`, `--subgenre`, `--bpm` und `--date` (plus `--wav` und
 nicht schon unter `assets/…/<slug>.*` liegen — dann `--no-assets`). Spotify-/Apple-Link und Texte sind optional;
 ohne sie nutzt die Seite den Hyperfollow-Link und einen sachlichen Standardtext.
 
+### Ankündigen statt sofort veröffentlichen
+
+```bash
+python3 tools/new-release.py --announce \
+  --title "Titel" --subgenre "Neurofunk" --bpm 174 --date 2026-11-20 \
+  --cover "music/Titel (Master)/Titel.jpg" \
+  --hyperfollow "https://distrokid.com/hyperfollow/audiohabitat/titel?ref=release"
+```
+
+Legt nur Cover, Ankündigungsseite (Cover, VÖ-Datum, Countdown, „Jetzt vormerken“), den Eintrag in `js/tracks.js`
+(`upcoming: true`, ohne Audio) und die Sitemap an. Auf der Startseite erscheint der Release im „Demnächst“-Streifen
+über dem Player — Musik und Download gibt es noch nicht, die Audiodatei kommt erst am VÖ-Tag auf die Seite.
+
+Am VÖ-Tag (Claude legt dafür bei der Ankündigung eine geplante Aufgabe an):
+
+```bash
+python3 tools/new-release.py --publish --slug titel --wav "music/Titel (Master)/Titel.wav" [--spotify … --apple …]
+```
+
+Titel, Genre, BPM, Datum und Pre-Save-Link kommen aus der Ankündigung. Danach ist es ein normaler Release
+(Player, Welle, Download, Schema.org, Zählsatz). Sollte sich das Veröffentlichen verspäten, zeigt die Seite nach dem
+Datum statt des Countdowns „Jetzt erschienen“ mit dem Link zu allen Plattformen.
+
 Weitere Optionen:
 
 - `--dry-run` — zeigt nur, was geändert würde, schreibt nichts.
