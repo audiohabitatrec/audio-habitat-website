@@ -28,8 +28,10 @@ var DEFAULT_COVER = "assets/covers/cover-singles.webp";
 var RELEASES = [
   { type: "single", title: "5 Dayz", cover: "assets/covers/5-dayz.webp", isNew: true,
     hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/5-dayz?ref=release",
-    subgenre: "Bristol Drum & Bass", bpm: 175, page: "music/5-dayz/", date: "2026",   // not out yet (pre-save): exact date follows on release
-    tracks: [{ title: "5 Dayz", file: "assets/tracks/5-dayz.m4a" }] },
+    subgenre: "Bristol Drum & Bass", bpm: 175, page: "music/5-dayz/", date: "06.11.2026",
+    tracks: [{ title: "5 Dayz", file: "assets/tracks/5-dayz.m4a",
+      spotify: "https://open.spotify.com/album/2WJPcuBSHOj4CwtVsbwhHz",
+      apple: "https://music.apple.com/us/album/5-dayz-single/6828787263" }] },
   { type: "single", title: "Placeholder", cover: "assets/covers/placeholder.webp",
     hyperfollow: "https://distrokid.com/hyperfollow/audiohabitat/placeholder?ref=release",
     subgenre: "Neurofunk", bpm: 174, page: "music/placeholder/", date: "26.10.2026",
