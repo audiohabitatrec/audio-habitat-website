@@ -5,8 +5,46 @@
     var m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(r.date || '');
     return m ? Date.UTC(+m[3], +m[2] - 1, +m[1]) : (/^\d{4}$/.test(r.date || '') ? Infinity : -Infinity);
   }
-  var releases = (typeof RELEASES !== 'undefined') ? RELEASES.slice().sort(function (a, b) { return releaseTime(b) - releaseTime(a); }) : [];
+  var all = (typeof RELEASES !== 'undefined') ? RELEASES : [];
+  // announced releases (upcoming: true) have no audio yet: they get the "Demnächst" strip, not the player
+  var upcoming = all.filter(function (r) { return r.upcoming; }).sort(function (a, b) { return releaseTime(a) - releaseTime(b); });
+  var releases = all.filter(function (r) { return !r.upcoming && r.tracks && r.tracks.length; })
+    .sort(function (a, b) { return releaseTime(b) - releaseTime(a); });
+  renderUpcoming(upcoming);
   if (!releases.length) return;
+
+  // ---------- "Demnächst": announced releases with cover, date, countdown, pre-save ----------
+  function renderUpcoming(list) {
+    var box = document.getElementById('upcoming');
+    if (!box || !list.length) return;
+    var M_DE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+    var M_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    var now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    box.innerHTML = list.map(function (r) {
+      var m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(r.date || '') || [0, 1, 1, now.getFullYear()];
+      var d = new Date(+m[3], +m[2] - 1, +m[1]), n = Math.round((d - today) / 864e5);
+      var out = n < 0;   // date passed but not published yet (should be rare): it's out on the platforms
+      var cd = n > 1 ? ['Noch ' + n + ' Tage', n + ' days to go'] : n === 1 ? ['Morgen', 'Tomorrow'] : n === 0 ? ['Heute', 'Today'] : ['Jetzt erschienen', 'Out now'];
+      var when = ['Erscheint am ' + d.getDate() + '. ' + M_DE[d.getMonth()] + ' ' + d.getFullYear(),
+                  'Out on ' + M_EN[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear()];
+      var cta = out ? ['Überall hören', 'Listen everywhere'] : ['Jetzt vormerken', 'Pre-save'];
+      return '<article class="upcoming__card">' +
+        '<a class="upcoming__art" href="' + r.page + '"><img src="' + coverPath(r.cover) + '" alt="' + r.title + '" loading="lazy"></a>' +
+        '<div class="upcoming__body">' +
+          '<p class="upcoming__kicker"><span data-lang="de">Demnächst</span><span data-lang="en" lang="en">Coming soon</span>' +
+            ' · <span class="upcoming__countdown"><span data-lang="de">' + cd[0] + '</span><span data-lang="en" lang="en">' + cd[1] + '</span></span></p>' +
+          '<h3 class="upcoming__title"><a href="' + r.page + '">' + r.title + '</a></h3>' +
+          '<p class="upcoming__meta"><span data-lang="de">' + (out ? 'Erschienen' : when[0]) + '</span><span data-lang="en" lang="en">' + (out ? 'Released' : when[1]) + '</span>' +
+            ' · ' + (r.subgenre || '') + (r.bpm ? ' · ' + r.bpm + ' BPM' : '') + '</p>' +
+          '<div class="upcoming__actions">' +
+            (r.hyperfollow ? '<a class="btn btn--primary" href="' + r.hyperfollow + '" target="_blank" rel="noopener"><span data-lang="de">' + cta[0] + '</span><span data-lang="en" lang="en">' + cta[1] + '</span></a>' : '') +
+            '<a class="upcoming__more" href="' + r.page + '"><span data-lang="de">Mehr →</span><span data-lang="en" lang="en">More →</span></a>' +
+          '</div>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+    box.hidden = false;
+  }
 
   var links = (typeof ARTIST_LINKS !== 'undefined') ? ARTIST_LINKS : {};
   var paypalEmail = (typeof PAYPAL_EMAIL !== 'undefined') ? PAYPAL_EMAIL : '';

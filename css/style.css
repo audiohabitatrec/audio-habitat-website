@@ -301,6 +301,33 @@ body.has-modal { overflow: hidden; }
 html[lang="de"] [data-lang="de"],
 html[lang="en"] [data-lang="en"] { display: inline; }
 
+/* ---------- "Demnächst": announced releases (home) ---------- */
+.upcoming { display: grid; gap: 14px; margin: 0 0 56px; }
+.upcoming__card {
+  display: flex; align-items: center; gap: 22px; padding: 16px; border-radius: var(--radius-lg);
+  background: var(--paper-dim); border: 1px solid var(--line);
+}
+.upcoming__art { flex: 0 0 auto; width: 132px; aspect-ratio: 1; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+.upcoming__art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.upcoming__body { min-width: 0; }
+.upcoming__kicker { margin: 0 0 6px; font-size: 12px; font-weight: 650; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-text); }
+.upcoming__title { margin: 0 0 4px; font-size: clamp(22px, 3vw, 30px); letter-spacing: -.01em; }
+.upcoming__title a { color: inherit; text-decoration: none; }
+.upcoming__meta { margin: 0 0 14px; font-size: 14px; color: var(--ink-soft); }
+.upcoming__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+.upcoming__more { font-size: 14px; font-weight: 600; color: var(--ink); }
+@media (max-width: 560px) {
+  .upcoming__card { align-items: flex-start; gap: 14px; }
+  .upcoming__art { width: 96px; }
+}
+
+/* announcement release page: the cover with the countdown instead of the deck */
+.release__announce { position: relative; display: grid; place-items: center; padding: 8%; background: var(--paper-dim); }
+.release__announce img { width: 100%; height: auto; border-radius: 10px; box-shadow: 0 20px 50px rgba(0,0,0,.3); display: block; }
+.release__countdown {
+  margin: 18px 0 0; font-size: 13px; font-weight: 650; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-text);
+}
+
 /* "WAV anfragen" inside the pay-what-you-want modal: a text link, not another big button */
 .support__wav { margin-top: 10px; }
 .support__wav-link {

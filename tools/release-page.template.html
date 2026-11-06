@@ -7,14 +7,14 @@
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#faf7f2">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14120f">
 <title>Audio Habitat | {{TITLE}}</title>
-<meta name="description" content="Höre „{{TITLE}}“, {{SUBGENRE}} von Audio Habitat ({{BPM}} BPM). Jetzt auf {{PLATFORMS_DE}}.">
+<meta name="description" content="{{META_DE}}">
 <link rel="canonical" href="https://audiohabitatrec.com/music/{{SLUG}}/">
 <meta name="robots" content="index, follow">
 
 <meta property="og:type" content="music.song">
 <meta property="og:site_name" content="Audio Habitat">
 <meta property="og:title" content="Audio Habitat | {{TITLE}}">
-<meta property="og:description" content="Listen to “{{TITLE}}”, {{SUBGENRE}} from Audio Habitat ({{BPM}} BPM). Out now on {{PLATFORMS_EN}}.">
+<meta property="og:description" content="{{META_EN}}">
 <meta property="og:url" content="https://audiohabitatrec.com/music/{{SLUG}}/">
 <meta property="og:image" content="https://audiohabitatrec.com/assets/covers/{{SLUG}}.jpg">
 <meta property="og:image:alt" content="{{TITLE}} — Audio Habitat">
@@ -23,7 +23,7 @@
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Audio Habitat | {{TITLE}}">
-<meta name="twitter:description" content="Listen to “{{TITLE}}”, {{SUBGENRE}} from Audio Habitat ({{BPM}} BPM). Out now on {{PLATFORMS_EN}}.">
+<meta name="twitter:description" content="{{META_EN}}">
 <meta name="twitter:image" content="https://audiohabitatrec.com/assets/covers/{{SLUG}}.jpg">
 
 <script type="application/ld+json">
@@ -50,8 +50,7 @@
   ],
   "image": "https://audiohabitatrec.com/assets/covers/{{SLUG}}.jpg",
   "url": "https://audiohabitatrec.com/music/{{SLUG}}/",
-  "datePublished": "{{DATE_ISO}}",
-  "sameAs": [
+{{DATE_PUBLISHED_LINE}}  "sameAs": [
 {{SAMEAS_LINES}}
   ],
   "additionalProperty": {
@@ -64,7 +63,7 @@
 
 <link rel="icon" href="../../assets/ids-music-hub-logo-web.webp">
 <script src="../../js/lang.js?v=4f1b139b"></script>
-<link rel="stylesheet" href="../../css/style.css?v=5d724b58">
+<link rel="stylesheet" href="../../css/style.css?v=1c2e01a5">
 <style>
   /* This page has no hero above the fold, so the section needs its own
      clearance under the always-solid fixed nav (see nav.is-solid below). */
@@ -122,20 +121,13 @@
       <p class="eyebrow"><span data-lang="de">Release</span><span data-lang="en" lang="en">Release</span></p>
       <h1 class="section-title">{{TITLE}}</h1>
       <p class="release__meta">
-        <span data-lang="de">Single · {{DATE_DE}}</span>
-        <span data-lang="en" lang="en">Single · {{DATE_EN}}</span>
+        <span data-lang="de">Single · {{WHEN_DE}}</span>
+        <span data-lang="en" lang="en">Single · {{WHEN_EN}}</span>
         · {{SUBGENRE}} · {{BPM}} BPM · Audio Habitat
       </p>
 
       <div class="featured__card">
-        <div class="featured__art deck-host" id="featuredArtWrap">
-          <img src="../../assets/covers/{{SLUG}}-800.webp" alt="{{TITLE}} — Audio Habitat">
-          <button class="featured__play" id="releasePlay" type="button" aria-label="Play/Pause">
-            <svg class="icon-play" viewBox="0 0 24 24" width="22" height="22"><path d="M8 5v14l11-7z"/></svg>
-            <svg class="icon-pause" viewBox="0 0 24 24" width="22" height="22" hidden><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
-          </button>
-          <audio id="releaseAudio" preload="none" src="../../assets/tracks/{{SLUG}}.m4a"></audio>
-        </div>
+{{ART_BLOCK}}
         <div class="featured__body">
           <p class="featured__kicker">Single · Audio Habitat</p>
           <p class="featured__desc">
@@ -155,11 +147,7 @@
         </div>
       </div>
 
-      <p class="release__meta" style="margin-top:28px;">
-        <span data-lang="de">Zum Unterstützen und Herunterladen: </span><span data-lang="en" lang="en">To support and download: </span>
-        <a href="../../index.html#contact"><span data-lang="de">Zahl, was du willst →</span><span data-lang="en" lang="en">Pay what you want →</span></a>
-      </p>
-
+{{SUPPORT_NOTE}}
       <a class="release__back" href="../../index.html#discography">
         <span data-lang="de">← Zurück zu allen Releases</span>
         <span data-lang="en" lang="en">← Back to all releases</span>
@@ -241,6 +229,21 @@
         if (e.key === 'Escape') closeNavMenu();
       });
     }
+  })();
+</script>
+<script>
+  // Announced release: "noch 12 Tage" / "morgen" / "heute" — and once the date has passed (should
+  // the release itself be late), "jetzt erschienen" with the link to every platform.
+  (function () {
+    document.querySelectorAll('[data-release]').forEach(function (el) {
+      var p = el.getAttribute('data-release').split('-'), day = new Date(+p[0], +p[1] - 1, +p[2]);
+      var now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      var n = Math.round((day - today) / 864e5);
+      var de = n > 1 ? 'Noch ' + n + ' Tage' : n === 1 ? 'Morgen ist es so weit' : n === 0 ? 'Heute ist es so weit' : 'Jetzt erschienen';
+      var en = n > 1 ? n + ' days to go' : n === 1 ? 'Out tomorrow' : n === 0 ? 'Out today' : 'Out now';
+      el.innerHTML = '<span data-lang="de">' + de + '</span><span data-lang="en" lang="en">' + en + '</span>';
+      if (n < 0) document.querySelectorAll('[data-presave-label]').forEach(function (b) { b.innerHTML = b.getAttribute('data-presave-label'); });
+    });
   })();
 </script>
 <script>

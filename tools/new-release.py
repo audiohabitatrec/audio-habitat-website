@@ -20,6 +20,21 @@ Das Skript erledigt, was sonst sechs Handgriffe sind:
   5. index.html: Schema.org-Eintrag, og:image und der statische Featured-Block.
   6. sitemap.xml und der Zählsatz im About-Text.
 
+Ankündigen statt sofort veröffentlichen:
+
+    python3 tools/new-release.py --announce --title "Titel" --subgenre "Neurofunk" --bpm 174 \
+        --date 2026-11-20 --cover "music/Titel (Master)/Titel.jpg" \
+        --hyperfollow "https://distrokid.com/hyperfollow/audiohabitat/titel?ref=release"
+
+  legt nur Cover, Ankündigungsseite (Cover, VÖ-Datum, Countdown, „Jetzt vormerken“), den Eintrag
+  in js/tracks.js (upcoming: true, ohne Audio) und die Sitemap an — keine Musik, kein Download.
+  Zum VÖ-Datum macht daraus
+
+    python3 tools/new-release.py --publish --slug titel --wav "music/Titel (Master)/Titel.wav" \
+        [--spotify … --apple …]
+
+  den vollen Release: Titel, Genre, BPM, Datum und Pre-Save-Link kommen aus der Ankündigung.
+
 Mit --dry-run wird nichts geschrieben. Mit --no-assets werden Audio/Cover nicht
 neu erzeugt (nur prüfen, dass assets/tracks/<slug>.m4a und
 assets/covers/<slug>*.{jpg,webp} schon da sind). Nur Singles; EPs bitte von Hand.
@@ -182,13 +197,56 @@ def make_covers(cover_src, slug, no_assets):
 
 # ---------- the edits ----------
 
+def find_entry(s, slug):
+    """(start, end) of the release object for music/<slug>/ in js/tracks.js, or None."""
+    for m in re.finditer(r'^  \{ type: "(?:single|ep)"', s, re.M):
+        nxt = re.search(r'^  \{ type: |^\];', s[m.end():], re.M)
+        end = m.end() + nxt.start() if nxt else len(s)
+        if f'page: "music/{slug}/"' in s[m.start():end]:
+            return m.start(), end
+    return None
+
+
+def read_announced(s, slug):
+    """Title, subgenre, bpm, date, hyperfollow of an announced (upcoming) release."""
+    span = find_entry(s, slug)
+    if not span:
+        die(f"'{slug}' steht nicht in js/tracks.js.")
+    block = s[span[0]:span[1]]
+    if "upcoming: true" not in block:
+        die(f"'{slug}' ist nicht als Ankündigung (upcoming: true) eingetragen.")
+    g = lambda pat: (re.search(pat, block) or [None, None])[1]
+    day = g(r'date: "(\d{2}\.\d{2}\.\d{4})"')
+    return {
+        "title": json.loads('"' + g(r'title: "((?:[^"\\]|\\.)*)"') + '"'),
+        "subgenre": g(r'subgenre: "([^"]+)"'),
+        "bpm": int(g(r'bpm: (\d+)')),
+        "date": datetime.date(int(day[6:]), int(day[3:5]), int(day[:2])) if day else None,
+        "hyperfollow": g(r'hyperfollow: "([^"]+)"'),
+    }
+
+
 def edit_tracks_js(files, a, wav_ok):
     s = files.read("js/tracks.js")
-    if f'page: "music/{a.slug}/"' in s:
+    if a.publish:
+        span = find_entry(s, a.slug)                       # the announcement makes way for the release
+        s = s[:span[0]] + s[span[1]:]
+    elif f'page: "music/{a.slug}/"' in s:
         die(f"'{a.slug}' steht schon in js/tracks.js.")
-    s = re.sub(r",\s*isNew:\s*true", "", s)  # only the newest release is "new"
     j = lambda v: json.dumps(v, ensure_ascii=False)
     d = a.date
+    if a.announce:
+        # no audio yet: the site shows it as "Demnächst" with cover, date and pre-save link
+        lines = [f'  {{ type: "single", title: {j(a.title)}, cover: "assets/covers/{a.slug}.webp", upcoming: true,']
+        if a.hyperfollow:
+            lines.append(f'    hyperfollow: {j(a.hyperfollow)},')
+        lines.append(f'    subgenre: {j(a.subgenre)}, bpm: {a.bpm}, page: "music/{a.slug}/", '
+                     f'date: "{d.day:02d}.{d.month:02d}.{d.year}",')
+        lines.append('    tracks: [] },')
+        s = s.replace("var RELEASES = [\n", "var RELEASES = [\n" + "\n".join(lines) + "\n", 1)
+        files.write("js/tracks.js", s)
+        return s
+    s = re.sub(r",\s*isNew:\s*true", "", s)  # only the newest release is "new"
     lines = [f'  {{ type: "single", title: {j(a.title)}, cover: "assets/covers/{a.slug}.webp", isNew: true,']
     if a.hyperfollow:
         lines.append(f'    hyperfollow: {j(a.hyperfollow)},')
@@ -267,16 +325,57 @@ def build_page(files, a, releases, wav_ok):
             '            <span data-lang="en">All platforms</span>\n'
             '          </a>')
 
-    desc_de = a.desc_de or (f'„{a.title}“ ist eine Single von Audio Habitat — {a.subgenre} auf '
-                            f'{a.bpm} BPM, erschienen am {date_de} über iDs Music Hub.')
-    desc_en = a.desc_en or (f'"{a.title}" is a single from Audio Habitat — {a.subgenre} at '
-                            f'{a.bpm} BPM, released on {date_en} via iDs Music Hub.')
+    if a.announce:
+        desc_de = a.desc_de or (f'„{a.title}“ ist die nächste Single von Audio Habitat — {a.subgenre} auf '
+                                f'{a.bpm} BPM. Erscheint am {date_de} über iDs Music Hub — jetzt vormerken.')
+        desc_en = a.desc_en or (f'"{a.title}" is the next single from Audio Habitat — {a.subgenre} at '
+                                f'{a.bpm} BPM. Out on {date_en} via iDs Music Hub — pre-save now.')
+    else:
+        desc_de = a.desc_de or (f'„{a.title}“ ist eine Single von Audio Habitat — {a.subgenre} auf '
+                                f'{a.bpm} BPM, erschienen am {date_de} über iDs Music Hub.')
+        desc_en = a.desc_en or (f'"{a.title}" is a single from Audio Habitat — {a.subgenre} at '
+                                f'{a.bpm} BPM, released on {date_en} via iDs Music Hub.')
+
+    if a.announce:
+        btns = []
+        if a.hyperfollow:
+            # after the date (should the release itself be late) the label turns into "Überall hören"
+            btns.append(
+                f'          <a class="btn btn--primary" href="{esc(a.hyperfollow)}" target="_blank" rel="noopener" '
+                'data-presave-label="&lt;span data-lang=&quot;de&quot;&gt;Überall hören&lt;/span&gt;&lt;span data-lang=&quot;en&quot; lang=&quot;en&quot;&gt;Listen everywhere&lt;/span&gt;">\n'
+                '            <span data-lang="de">Jetzt vormerken</span>\n'
+                '            <span data-lang="en" lang="en">Pre-save</span>\n'
+                '          </a>')
+        art = (f'        <div class="featured__art release__announce">\n'
+               f'          <img src="../../assets/covers/{a.slug}-800.webp" alt="{esc(a.title)} — Audio Habitat">\n'
+               f'          <p class="release__countdown" data-release="{d.isoformat()}"></p>\n'
+               f'        </div>')
+        support = ""
+        meta_de = f'„{esc(a.title)}“, {esc(a.subgenre)} von Audio Habitat ({a.bpm} BPM). Erscheint am {date_de} — jetzt vormerken.'
+        meta_en = f'“{esc(a.title)}”, {esc(a.subgenre)} from Audio Habitat ({a.bpm} BPM). Out on {date_en} — pre-save now.'
+        when_de, when_en, published = f"Erscheint am {date_de}", f"Out on {date_en}", ""
+    else:
+        art = (f'        <div class="featured__art deck-host" id="featuredArtWrap">\n'
+               f'          <img src="../../assets/covers/{a.slug}-800.webp" alt="{esc(a.title)} — Audio Habitat">\n'
+               '          <button class="featured__play" id="releasePlay" type="button" aria-label="Play/Pause">\n'
+               '            <svg class="icon-play" viewBox="0 0 24 24" width="22" height="22"><path d="M8 5v14l11-7z"/></svg>\n'
+               '            <svg class="icon-pause" viewBox="0 0 24 24" width="22" height="22" hidden><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>\n'
+               '          </button>\n'
+               f'          <audio id="releaseAudio" preload="none" src="../../assets/tracks/{a.slug}.m4a"></audio>\n'
+               '        </div>')
+        support = ('      <p class="release__meta" style="margin-top:28px;">\n'
+                   '        <span data-lang="de">Zum Unterstützen und Herunterladen: </span><span data-lang="en" lang="en">To support and download: </span>\n'
+                   '        <a href="../../index.html#contact"><span data-lang="de">Zahl, was du willst →</span><span data-lang="en" lang="en">Pay what you want →</span></a>\n'
+                   '      </p>\n')
+        meta_de = f'Höre „{esc(a.title)}“, {esc(a.subgenre)} von Audio Habitat ({a.bpm} BPM). Jetzt auf {plat_de}.'
+        meta_en = f'Listen to “{esc(a.title)}”, {esc(a.subgenre)} from Audio Habitat ({a.bpm} BPM). Out now on {plat_en}.'
+        when_de, when_en, published = date_de, date_en, f'  "datePublished": "{d.isoformat()}",\n'
 
     values = {
         "TITLE": esc(a.title), "TITLE_JSON": jesc(a.title), "SLUG": a.slug,
         "SUBGENRE": esc(a.subgenre), "SUBGENRE_JSON": jesc(a.subgenre), "BPM": str(a.bpm),
-        "DATE_ISO": d.isoformat(), "DATE_DE": date_de, "DATE_EN": date_en,
-        "PLATFORMS_DE": plat_de, "PLATFORMS_EN": plat_en,
+        "META_DE": meta_de, "META_EN": meta_en, "WHEN_DE": when_de, "WHEN_EN": when_en,
+        "DATE_PUBLISHED_LINE": published, "ART_BLOCK": art, "SUPPORT_NOTE": support,
         "SAMEAS_LINES": sameas, "ACTION_BUTTONS": "\n".join(btns),
         "DESC_DE": esc(desc_de), "DESC_EN": esc(desc_en),
         "SIMILAR_CARDS": similar_cards(releases, a),
@@ -343,6 +442,12 @@ def edit_index(files, a):
 
 def edit_sitemap(files, a):
     s = files.read("sitemap.xml")
+    loc = f"<loc>https://audiohabitatrec.com/music/{a.slug}/</loc>"
+    if loc in s:
+        s = re.sub(re.escape(loc) + r"\s*<lastmod>[^<]*</lastmod>",
+                   f"{loc}\n    <lastmod>{datetime.date.today().isoformat()}</lastmod>", s, count=1)
+        files.write("sitemap.xml", s)
+        return
     marker = "  <url>\n    <loc>https://audiohabitatrec.com/music/"
     if marker not in s:
         die("Keine bestehende /music/-Seite in sitemap.xml gefunden.")
@@ -388,11 +493,15 @@ def verify(a):
 def main():
     p = argparse.ArgumentParser(description="Neue Single auf der Seite anlegen.",
                                 formatter_class=argparse.RawDescriptionHelpFormatter, epilog=__doc__)
-    p.add_argument("--title", required=True)
+    p.add_argument("--announce", action="store_true",
+                   help="nur ankündigen: Cover, Datum, Countdown, Pre-Save — noch keine Musik")
+    p.add_argument("--publish", action="store_true",
+                   help="eine Ankündigung (--slug) zum VÖ-Datum zum vollen Release machen")
+    p.add_argument("--title")
     p.add_argument("--slug", help="URL/Dateiname; Standard: aus dem Titel")
-    p.add_argument("--subgenre", required=True, help='z. B. "Liquid Funk", "Neurofunk", "Techstep"')
-    p.add_argument("--bpm", required=True, type=int)
-    p.add_argument("--date", required=True, help="Veröffentlichungsdatum JJJJ-MM-TT")
+    p.add_argument("--subgenre", help='z. B. "Liquid Funk", "Neurofunk", "Techstep"')
+    p.add_argument("--bpm", type=int)
+    p.add_argument("--date", help="Veröffentlichungsdatum JJJJ-MM-TT (bei --publish: Standard = angekündigtes Datum)")
     p.add_argument("--wav", help="WAV-Master (für AAC-Export und Download)")
     p.add_argument("--cover", help="quadratisches Cover (JPG/PNG), gern ≥ 2000 px")
     p.add_argument("--spotify")
@@ -406,32 +515,52 @@ def main():
     p.add_argument("--dry-run", action="store_true", help="nichts schreiben")
     a = p.parse_args()
 
+    if a.announce and a.publish:
+        die("--announce und --publish schließen sich aus.")
+    files = Files(a.dry_run)
+    if a.publish:
+        if not a.slug:
+            die("--publish braucht --slug (den der Ankündigung).")
+        ann = read_announced(files.read("js/tracks.js"), a.slug)
+        a.title = a.title or ann["title"]
+        a.subgenre = a.subgenre or ann["subgenre"]
+        a.bpm = a.bpm or ann["bpm"]
+        a.hyperfollow = a.hyperfollow or ann["hyperfollow"]
+        a.date = a.date or (ann["date"].isoformat() if ann["date"] else None)
+    if not (a.title and a.subgenre and a.bpm and a.date):
+        die("--title, --subgenre, --bpm und --date sind nötig.")
     try:
         a.date = datetime.date.fromisoformat(a.date)
     except ValueError:
         die("--date muss JJJJ-MM-TT sein, z. B. 2026-10-04")
     a.slug = a.slug or slugify(a.title)
-    if (ROOT / "music" / a.slug).exists():
+    if (ROOT / "music" / a.slug).exists() and not a.publish:
         die(f"music/{a.slug}/ gibt es schon.")
+    if a.announce and a.date <= datetime.date.today():
+        print(f"  WARNUNG: VÖ-Datum {a.date} liegt nicht in der Zukunft.")
 
-    files = Files(a.dry_run)
     existing = read_releases(files.read("js/tracks.js"))
-
-    print(("[DRY-RUN] " if a.dry_run else "") + f'Neue Single "{a.title}" ({a.slug}), {a.subgenre}, {a.bpm} BPM, {a.date}')
+    mode = "Ankündigung" if a.announce else ("Veröffentlichung der Ankündigung" if a.publish else "Neue Single")
+    print(("[DRY-RUN] " if a.dry_run else "") + f'{mode} "{a.title}" ({a.slug}), {a.subgenre}, {a.bpm} BPM, {a.date}')
     if a.dry_run:
         print("  Assets: übersprungen im Dry-Run")
-        wav_ok = True
+        wav_ok = False
+    elif a.announce:
+        make_covers(a.cover, a.slug, a.no_assets)            # cover only — the music comes on release day
+        wav_ok = False
     else:
         wav_ok = make_audio(a.wav, a.slug, a.no_assets)
-        make_covers(a.cover, a.slug, a.no_assets)
+        # an announcement already brought its cover; a new one can still be passed with --cover
+        make_covers(a.cover, a.slug, a.no_assets or (a.publish and not a.cover))
         # waveform for the subtle display under the turntable (tools/make-waveforms.py)
         subprocess.run([sys.executable, str(ROOT / "tools/make-waveforms.py"), "--force", a.slug], check=True)
 
     tracks_js = edit_tracks_js(files, a, wav_ok)
     build_page(files, a, existing, wav_ok)
-    edit_index(files, a)
+    if not a.announce:                                     # not out yet: no schema entry, no count, home stays
+        edit_index(files, a)
+        edit_about(files, a, tracks_js)
     edit_sitemap(files, a)
-    edit_about(files, a, tracks_js)
 
     if not a.dry_run:
         # version numbers on css/js references (tools/bust-cache.py), also for the new page
@@ -440,6 +569,12 @@ def main():
     print("\n" + ("Würde ändern:" if a.dry_run else "Geändert/angelegt:"))
     for rel in files.written:
         print("  ", rel)
+    if not a.dry_run and a.announce:
+        print("\nNächste Schritte: Seite lokal ansehen, dann\n"
+              f"  git add js/tracks.js sitemap.xml music/{a.slug} assets/covers/{a.slug}*\n"
+              f'  git commit -m "Announce \\"{a.title}\\" ({a.date})"  &&  git push origin main\n'
+              f"Zum {a.date}: python3 tools/new-release.py --publish --slug {a.slug} --wav <WAV>")
+        return
     if not a.dry_run:
         print("\nNächste Schritte: Seite lokal ansehen (python3 -m http.server), dann\n"
               f"  git add js/tracks.js index.html about.html sitemap.xml music/{a.slug} "
