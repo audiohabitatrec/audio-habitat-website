@@ -302,8 +302,6 @@ html[lang="de"] [data-lang="de"],
 html[lang="en"] [data-lang="en"] { display: inline; }
 
 /* AI Act transparency (Art. 50): small, unobtrusive notice next to the music and in the footer */
-.release__ai, .featured__ai { margin: 6px 0 0; font-size: 12px; line-height: 1.5; color: var(--ink-faint); }
-.featured__ai { margin: 10px 0 18px; }
 .footer .footer__ai { display: block; padding-top: 0; }
 .footer__ai p { margin: 10px 0 0; max-width: 760px; font-size: 11.5px; line-height: 1.55; opacity: .75; }
 
