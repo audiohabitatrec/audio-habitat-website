@@ -129,7 +129,95 @@
   // hand moves the record — 200° of record = 1 s of music, like 33⅓ rpm. On release the
   // <audio> jumps to where the hand left the record and is unmuted.
   // cruise: instead of following a hand, play on at this speed (live pitch on iPhone, see the fader)
-  var SCR = { ctx: null, node: null, gain: null, src: '', data: null, rate: 0, loading: '', pos: 0, target: 0, vel: 0, on: false, cruise: null };
+  // The engine runs in an AudioWorklet (the audio thread), so a busy page can't make the scratch
+  // sound stutter. Browsers without worklets — or ?scratch=legacy, to compare — use the older
+  // ScriptProcessorNode on the main thread.
+  //   wl:      '' not tried yet · 'loading' · 'ready' · 'failed' (falls back to the ScriptProcessor)
+  //   pushed:  src whose decoded samples the worklet holds
+  //   waiters: callbacks to run when the engine becomes ready (a grab made before it was)
+  var SCR = { ctx: null, node: null, gain: null, src: '', data: null, rate: 0, loading: '', pos: 0, target: 0, vel: 0, on: false, cruise: null,
+              wl: '', pushed: '', waiters: [] };
+  var SCR_LEGACY = /[?&]scratch=legacy\b/.test(location.search);
+  function scratchUsesWorklet() { return !SCR_LEGACY && SCR.wl !== 'failed'; }
+
+  // Source of the worklet processor. It is stringified into a Blob (no extra file to cache or
+  // path to resolve on the release pages), so it must not use anything from this closure.
+  function scratchWorkletBody() {
+    class ScratchProcessor extends AudioWorkletProcessor {
+      constructor() {
+        super();
+        this.d = null; this.sr = 22050; this.pos = 0; this.target = 0; this.vel = 0; this.cruise = null; this.n = 0;
+        this.port.onmessage = function (e) {
+          var m = e.data, s = this;
+          if (m.data) { s.d = m.data; s.sr = m.sr; }
+          if (m.start) { s.pos = s.target = m.start.pos; s.vel = m.start.vel || 0; }
+          if (m.target !== undefined) s.target = m.target;
+          if (m.cruise !== undefined) s.cruise = m.cruise;
+        }.bind(this);
+      }
+      process(inputs, outputs) {
+        var out = outputs[0][0], d = this.d, sr = this.sr, osr = sampleRate;
+        if (!d) { out.fill(0); return true; }
+        // playhead chases the hand: velocity toward the target position, smoothed so it sounds like vinyl, not steps
+        var cruise = this.cruise != null;
+        var want = cruise ? this.cruise : Math.max(-6, Math.min(6, (this.target - this.pos) / 0.035));   // seconds of music per second
+        for (var i = 0; i < out.length; i++) {
+          this.vel += (want - this.vel) * 0.004;
+          this.pos += this.vel / osr;
+          var f = this.pos * sr, k = Math.floor(f), t = f - k;
+          out[i] = (k >= 0 && k + 1 < d.length) ? (d[k] * (1 - t) + d[k + 1] * t) * (cruise ? 1 : Math.min(1, Math.abs(this.vel) * 1.5)) : 0;
+        }
+        if ((++this.n & 1) === 0) this.port.postMessage(this.pos);        // where the playhead is, for the release
+        return true;
+      }
+    }
+    registerProcessor('ah-scratch', ScratchProcessor);
+  }
+
+  function scratchWorkletInit() {
+    if (SCR.wl || SCR_LEGACY) return;
+    var ctx = scratchCtx();
+    if (!ctx || !ctx.audioWorklet || typeof AudioWorkletNode === 'undefined' || !window.Blob || !window.URL || !URL.createObjectURL) { SCR.wl = 'failed'; return; }
+    SCR.wl = 'loading';
+    var url = URL.createObjectURL(new Blob(['(' + scratchWorkletBody.toString() + ')()'], { type: 'application/javascript' }));
+    ctx.audioWorklet.addModule(url).then(function () {
+      SCR.node = new AudioWorkletNode(ctx, 'ah-scratch', { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [1] });
+      SCR.node.port.onmessage = function (e) { SCR.pos = e.data; };
+      SCR.gain = ctx.createGain();
+      SCR.node.connect(SCR.gain);
+      SCR.wl = 'ready';
+      scratchPush(); scratchNotify();
+    }).catch(function () { SCR.wl = 'failed'; scratchNotify(); }).then(function () { try { URL.revokeObjectURL(url); } catch (e) {} });
+  }
+
+  // hand the decoded samples to the worklet (transferred, not copied)
+  function scratchPush() {
+    if (SCR.wl !== 'ready' || !SCR.data || SCR.pushed === SCR.src) return;
+    try { SCR.node.port.postMessage({ data: SCR.data, sr: SCR.rate }, [SCR.data.buffer]); }
+    catch (e) { SCR.wl = 'failed'; SCR.node = null; SCR.gain = null; return; }
+    SCR.data = null; SCR.pushed = SCR.src;
+  }
+
+  function scratchNotify() {
+    var w = SCR.waiters; SCR.waiters = [];
+    w.forEach(function (fn) { try { fn(); } catch (e) {} });
+  }
+
+  // can the engine play this track right now?
+  function scratchReadyFor(src) {
+    if (!src || SCR.src !== src) return false;
+    return scratchUsesWorklet() ? SCR.pushed === src : !!SCR.data;
+  }
+
+  function scratchTarget(t) {
+    SCR.target = t;
+    if (SCR.on && SCR.wl === 'ready' && scratchUsesWorklet()) SCR.node.port.postMessage({ target: t });
+  }
+
+  function scratchCruise(v) {
+    SCR.cruise = v;
+    if (SCR.wl === 'ready' && scratchUsesWorklet() && SCR.node) SCR.node.port.postMessage({ cruise: v });
+  }
 
   // iPhone/iPad (iPadOS reports itself as a Mac with touch)
   var IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -160,6 +248,7 @@
   function scratchLoad(src) {
     if (!src || SCR.src === src || SCR.loading === src) return;
     var ctx = scratchCtx(); if (!ctx) return;
+    scratchWorkletInit();                                   // loads in parallel with the download below
     // decode into a 22 kHz buffer (≈30 MB for a 6-minute track instead of ≈140 MB at 48 kHz
     // stereo) — the engine resamples to whatever rate its context plays at
     var OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext, dec = ctx;
@@ -172,9 +261,11 @@
       var n = buf.length, mono = new Float32Array(n), chs = buf.numberOfChannels;
       for (var c = 0; c < chs; c++) { var d = buf.getChannelData(c); for (var i = 0; i < n; i++) mono[i] += d[i] / chs; }
       SCR.data = mono; SCR.rate = buf.sampleRate; SCR.src = src; SCR.loading = '';
+      scratchPush(); scratchNotify();
     }).catch(function () { if (SCR.loading === src) SCR.loading = ''; });
   }
 
+  // legacy engine: runs on the main thread (a busy page can make it drop out)
   function scratchProcess(e) {
     var out = e.outputBuffer.getChannelData(0), d = SCR.data, sr = SCR.rate, osr = e.outputBuffer.sampleRate;
     if (!d) { out.fill(0); return; }
@@ -192,7 +283,10 @@
   function scratchStart(pos, vel) {
     var ctx = scratchCtx(); if (!ctx) return false;
     if (ctx.state === 'suspended' && ctx.resume) ctx.resume();
-    if (!SCR.node) {
+    if (scratchUsesWorklet()) {
+      if (SCR.wl !== 'ready') return false;                  // worklet not loaded yet: not live (yet)
+      SCR.node.port.postMessage({ start: { pos: pos, vel: vel || 0 }, cruise: null });
+    } else if (!SCR.node) {
       SCR.node = ctx.createScriptProcessor(512, 0, 1);
       SCR.node.onaudioprocess = scratchProcess;
       SCR.gain = ctx.createGain();
@@ -207,7 +301,7 @@
 
   function scratchStop() {
     if (!SCR.on) return SCR.pos;
-    SCR.on = false; SCR.cruise = null;
+    SCR.on = false; scratchCruise(null);
     var g = SCR.gain, ctx = SCR.ctx;
     g.gain.setTargetAtTime(0, ctx.currentTime, 0.008);           // short fade, no click
     setTimeout(function () { if (!SCR.on) { try { g.disconnect(); } catch (e) {} } }, 80);
@@ -418,7 +512,15 @@
       st.raf = requestAnimationFrame(frame);
     }
 
-    function needle(down) { st.armOn = down; root.classList.toggle('is-needle-down', down); if (audio) audio.__ahNeedleDown = down; }
+    // The engine's own decoded copy of the track (≈8 MB download) is fetched as soon as the needle
+    // is in the groove, so the first grab of the record already scratches instead of staying silent
+    // until the copy has loaded — unless the visitor asked to save data or is on a slow link.
+    var conn = navigator.connection;
+    var PRELOAD_ENGINE = !(conn && (conn.saveData || /^(slow-2g|2g|3g)$/.test(conn.effectiveType || '')));
+    function needle(down) {
+      st.armOn = down; root.classList.toggle('is-needle-down', down); if (audio) audio.__ahNeedleDown = down;
+      if (down && PRELOAD_ENGINE) prepareEngine();
+    }
 
     // lift the arm and swing it onto the record (outer groove / current position) or back to its rest
     function swingArm(onRecord, instant) {
@@ -499,7 +601,10 @@
     }
     if (window.ResizeObserver) new ResizeObserver(function () { wave.drawn = ''; drawWave(st.progress); }).observe(waveEl);
     if (audio) {
-      audio.addEventListener('loadstart', function () { setWave(audio.currentSrc || audio.src); });
+      audio.addEventListener('loadstart', function () {
+        setWave(audio.currentSrc || audio.src);
+        if (st.armOn && PRELOAD_ENGINE) prepareEngine();      // track changed with the needle still down
+      });
       setWave(audio.currentSrc || audio.getAttribute('src'));
     }
 
@@ -535,8 +640,18 @@
       try { recordHit.setPointerCapture(e.pointerId); } catch (err) {}
       var src = audio.currentSrc || audio.src;
       scratchLoad(src);
-      var live = SCR.src === src && scratchStart(audio.currentTime);   // not decoded yet: the record still stops under the hand, silently
+      var live = scratchReadyFor(src) && scratchStart(audio.currentTime);
       grab = { last: handAngle(e), moved: 0, live: live };
+      if (!live) {
+        // the engine's copy isn't ready: the record still stops under the hand, and the sound
+        // comes in the moment it is ready — from where the hand has taken the record by then
+        var g0 = grab;
+        SCR.waiters.push(function wait() {
+          if (grab !== g0 || g0.live || !st.held) return;       // let go in the meantime / already live
+          if (scratchReadyFor(src) && scratchStart(Math.max(0, audio.currentTime + g0.moved / 200))) g0.live = true;
+          else SCR.waiters.push(wait);
+        });
+      }
       st.held = true;
       mute(audio, true);
       root.classList.add('is-scratching');
@@ -550,7 +665,7 @@
       st.angle = (st.angle + d + 360) % 360;
       spinEl.style.transform = 'rotate(' + st.angle.toFixed(2) + 'deg)';
       if (grab.live) {
-        SCR.target = Math.max(0, Math.min(audio.duration || 1e9, SCR.target + d / 200));
+        scratchTarget(Math.max(0, Math.min(audio.duration || 1e9, SCR.target + d / 200)));
         if (audio.duration) drawWave(SCR.target / audio.duration);   // the wave follows the hand too
       }
     });
@@ -572,18 +687,18 @@
     recordHit.addEventListener('touchstart', function (e) { if (st.armOn) e.preventDefault(); }, { passive: false });
 
     // ---- pitch fader: drag, wheel-free; double-click or 0 resets; arrows nudge ----
-    var CAP_CENTER = 431, CAP_TRAVEL = 70;          // viewBox units; top = -8 % (slower), bottom = +8 % (faster)
+    var CAP_CENTER = 431, CAP_TRAVEL = 70;          // viewBox units; top = +8 % (faster), bottom = -8 % (slower)
     function setPitch(p) {
       p = Math.max(-PITCH_RANGE, Math.min(PITCH_RANGE, p));
       if (Math.abs(p) < 0.25) p = 0;                // detent at zero
       p = Math.round(p * 10) / 10;
       pitch = p;
-      cap.setAttribute('transform', 'translate(0 ' + ((p / PITCH_RANGE) * CAP_TRAVEL).toFixed(2) + ')');
+      cap.setAttribute('transform', 'translate(0 ' + (-(p / PITCH_RANGE) * CAP_TRAVEL).toFixed(2) + ')');
       var txt = (p > 0 ? '+' : p < 0 ? '−' : '') + Math.abs(p).toFixed(1) + '%';
       readout.textContent = txt;
       fader.setAttribute('aria-valuenow', p);
       fader.setAttribute('aria-valuetext', txt.replace('−', 'minus '));
-      if (cruising) SCR.cruise = rate();                        // iPhone: the engine follows the fader live
+      if (cruising) scratchCruise(rate());                      // iPhone: the engine follows the fader live
       scheduleRate();
       kick();
     }
@@ -612,7 +727,7 @@
     function pitchFromEvent(e) {
       var r = topSvg.getBoundingClientRect();
       var y = (e.clientY - r.top) / r.height * 600;
-      return (y - CAP_CENTER) / CAP_TRAVEL * PITCH_RANGE;
+      return -(y - CAP_CENTER) / CAP_TRAVEL * PITCH_RANGE;        // up = faster, down = slower
     }
     var dragging = false;
     // iPhone: Safari can't change the <audio>'s speed live, so while the fader is held the track
@@ -621,8 +736,8 @@
     var cruising = false;
     function startCruise() {
       if (!IOS || !audio || audio.paused || audio.__ahBraking) return;
-      if (SCR.src !== (audio.currentSrc || audio.src) || !scratchStart(audio.currentTime, rate())) return;
-      SCR.cruise = rate(); cruising = true; mute(audio, true);
+      if (!scratchReadyFor(audio.currentSrc || audio.src) || !scratchStart(audio.currentTime, rate())) return;
+      scratchCruise(rate()); cruising = true; mute(audio, true);
     }
     function endCruise() {
       if (!cruising) return false;
@@ -657,10 +772,10 @@
     // iOS: a vertical drag on the fader must not turn into page scrolling (that cancels the drag)
     fader.addEventListener('touchstart', function (e) { e.preventDefault(); }, { passive: false });
     fader.addEventListener('keydown', function (e) {
-      var d = { ArrowUp: -0.5, ArrowLeft: -0.5, ArrowDown: 0.5, ArrowRight: 0.5 }[e.key];   // follows the cap: up = slower
+      var d = { ArrowUp: 0.5, ArrowRight: 0.5, ArrowDown: -0.5, ArrowLeft: -0.5 }[e.key];   // follows the cap: up = faster
       if (d !== undefined) { e.preventDefault(); setPitch(pitch + d); }
-      else if (e.key === 'Home') { e.preventDefault(); setPitch(-PITCH_RANGE); }
-      else if (e.key === 'End') { e.preventDefault(); setPitch(PITCH_RANGE); }
+      else if (e.key === 'Home') { e.preventDefault(); setPitch(PITCH_RANGE); }     // top of the slot
+      else if (e.key === 'End') { e.preventDefault(); setPitch(-PITCH_RANGE); }     // bottom of the slot
       else if (e.key === '0') { e.preventDefault(); setPitch(0); }
     });
     setPitch(0);                                     // always starts at 0 — only the visitor moves it (nothing is stored)
