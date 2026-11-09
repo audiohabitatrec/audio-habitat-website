@@ -459,7 +459,8 @@ def edit_sitemap(files, a):
 
 def edit_about(files, a, tracks_js):
     s = files.read("about.html")
-    singles = len(re.findall(r'\{\s*type:\s*"single"', tracks_js))
+    # Announced-but-not-out releases (upcoming: true) must not count as released singles.
+    singles = len(re.findall(r'\{\s*type:\s*"single"(?![^\n]*upcoming:\s*true)', tracks_js))
     word_de = NUM_DE[singles] if singles < len(NUM_DE) else str(singles)
     word_en = NUM_EN[singles] if singles < len(NUM_EN) else str(singles)
     # closing quotes in the existing text are straight (") — accept typographic too
